@@ -17,7 +17,7 @@
 
 ## Was das ist
 
-Allplan zeigt Reports mit einer eingebauten Anzeige, dem Microsoft ReportViewer. Die kann viel mehr, als die 551 Vorlagen nutzen, die Allplan mitliefert: In keiner davon steckt ein Diagramm.
+Allplan zeigt Reports mit einer eingebauten Anzeige, dem Microsoft ReportViewer. Sie kann neben Listen auch Diagramme, Messanzeigen und Bilder darstellen. Damit lassen sich die 551 Vorlagen, die Allplan mitliefert, um eigene gestaltete Auswertungen ergänzen.
 
 Dieses Repo enthält einen **Skill**. Das ist eine Anleitung mit Werkzeugen, die deine KI liest, bevor sie arbeitet. Damit schreibt sie dir Reportvorlagen (`.rdlc`) mit Diagrammen, Messanzeigen, Kennzahl-Kacheln, Tabellen und Bauteilbildern aus deinem Modell. Was davon in Allplan 2027 wirklich läuft, wurde gemessen und steht im Skill.
 

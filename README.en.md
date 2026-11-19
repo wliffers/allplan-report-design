@@ -17,7 +17,7 @@
 
 ## What this is
 
-Allplan shows reports with a built-in viewer, the Microsoft ReportViewer. It can do far more than the 551 templates that ship with Allplan make use of: none of them contains a chart.
+Allplan shows reports with a built-in viewer, the Microsoft ReportViewer. Besides lists, it can also display charts, gauges and images. That makes it possible to add designed evaluations of your own to the 551 templates that ship with Allplan.
 
 This repo contains a **skill**. That is a guide with tools that your AI reads before it starts working. With it, the AI writes report templates (`.rdlc`) with charts, gauges, key-figure tiles, tables and part images from your model. What of this really works in Allplan 2027 was measured and is written down in the skill.
 
