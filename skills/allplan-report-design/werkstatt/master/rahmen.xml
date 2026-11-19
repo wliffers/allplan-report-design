@@ -1,0 +1,87 @@
+<Rahmen>
+<DataSources>
+    <DataSource Name="DummyDataSource">
+      <ConnectionProperties>
+        <DataProvider>ALLPLAN
+        </DataProvider>
+        <ConnectString/>
+      </ConnectionProperties>
+      <rd:DataSourceID>58c077ef-da67-445a-8cc2-60008c49a79b</rd:DataSourceID>
+    </DataSource>
+  </DataSources>
+<ReportParameters>
+    <ReportParameter Name="Project_Name">
+      <DataType>String</DataType>
+      <Prompt>@405@</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Edited_By">
+      <DataType>String</DataType>
+      <Prompt>@20@</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Company_Name">
+      <DataType>String</DataType>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>@410@</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Company_Address">
+      <DataType>String</DataType>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>@411@</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Date">
+      <DataType>DateTime</DataType>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>@401@</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Time">
+      <DataType>String</DataType>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>@402@</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="PageNo_1">
+      <DataType>Integer</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>1</Value>
+        </Values>
+      </DefaultValue>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>Hier kann die Startseite eingetragen werden</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Company_Logo">
+      <DataType>String</DataType>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>@70@</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Telephone_Number">
+      <DataType>String</DataType>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>@302@</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="E_Mail">
+      <DataType>String</DataType>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>@69@</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Display_Logo">
+      <DataType>Boolean</DataType>
+      <DefaultValue>
+        <Values>
+          <Value>True</Value>
+        </Values>
+      </DefaultValue>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>Hier kann das Firmenlogo ausgeblendet werden</Prompt>
+    </ReportParameter>
+    <ReportParameter Name="Note">
+      <DataType>String</DataType>
+      <DefaultValue>
+        <Values>
+          <Value/>
+        </Values>
+      </DefaultValue>
+      <AllowBlank>true</AllowBlank>
+      <Prompt>Kommentar</Prompt>
+    </ReportParameter>
+  </ReportParameters>
+</Rahmen>

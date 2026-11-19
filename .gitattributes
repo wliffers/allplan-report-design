@@ -1,0 +1,9 @@
+* text=auto
+*.rdlc text eol=crlf
+*.md text eol=lf
+*.py text eol=lf
+*.json text eol=lf
+*.pdf binary
+*.png binary
+*.gif binary
+*.jpg binary

@@ -1,0 +1,22 @@
+{
+ "Abwicklung": "=",
+ "mit Abwicklung": "with elevations",
+ "RÄUME MIT ABWICKLUNG": "ROOMS WITH ELEVATION",
+ "Rahmen im Teilbild": "Frames in the drawing file",
+ "WANDFLÄCHE NETTO": "WALL AREA NET",
+ "alle Räume, ohne Öffnungen": "all rooms, without openings",
+ "WANDFLÄCHE BRUTTO": "WALL AREA GROSS",
+ "alle Räume, Umfang × Höhe": "all rooms, perimeter × height",
+ "alle Räume, brutto − netto": "all rooms, gross − net",
+ "K070  ": "=",
+ "Kennzahl-Kacheln: Zahl der Rahmen; Wandflächen als Summe über alle Räume (Lookup in Summen geht nicht)": "Key figure tiles: number of frames; wall areas as a sum over all rooms (Lookup inside sums does not work)",
+ "ABWICKLUNG": "ELEVATION",
+ "BRUTTO": "GROSS",
+ "UMFANG": "PERIMETER",
+ "GRUNDFLÄCHE": "FLOOR AREA",
+ "Keine Abwicklung im Teilbild (Rahmen mit Material Abwicklung fehlen).": "No elevation in the drawing file (frames with material Abwicklung are missing).",
+ " weiterer Raum": " more room",
+ "Die Zeichnung erzeugt das Werkzeug werkzeug/abwicklung_zeichnen.py aus dem Modell (Räume als Rechteck). Flächen und Maße der Kopfzeile kommen live aus Allplan.": "The drawing is generated from the model by the tool werkzeug/abwicklung_zeichnen.py (rooms as rectangles). Areas and dimensions in the header come live from Allplan.",
+ "B100  ": "=",
+ "Karte je Rahmen (ObjNr 4, Material Abwicklung), Raumwerte per Lookup, Deckel 8; Blatt 1 eine Karte, danach zwei": "Card per frame (ObjNr 4, material Abwicklung), room values via lookup, cap 8; sheet 1 one card, then two"
+}

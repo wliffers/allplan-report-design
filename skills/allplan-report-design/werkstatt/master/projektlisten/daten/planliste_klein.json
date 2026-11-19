@@ -1,0 +1,64 @@
+{
+ "types": {
+  "Plannummer": "Int",
+  "Planname": "String",
+  "Planindex": "String",
+  "Erstellt": "String",
+  "Geaendert": "String",
+  "Ersteller": "String",
+  "Pruefer": "String",
+  "Freigabe": "String",
+  "Planformat": "String",
+  "Breite": "Double",
+  "Hoehe": "Double",
+  "Teilbildnummer": "Int",
+  "Teilbildname": "String"
+ },
+ "rows": [
+  {
+   "Plannummer": 2,
+   "Planname": "Lageplan",
+   "Planindex": "",
+   "Erstellt": "2026-11-17",
+   "Geaendert": "2026-11-18",
+   "Ersteller": "",
+   "Pruefer": "",
+   "Freigabe": null,
+   "Planformat": "",
+   "Breite": 420.0,
+   "Hoehe": 297.0,
+   "Teilbildnummer": 339,
+   "Teilbildname": ""
+  },
+  {
+   "Plannummer": 5,
+   "Planname": "Grundriss 1. Obergeschoss",
+   "Planindex": "",
+   "Erstellt": "2026-11-17",
+   "Geaendert": "2026-11-18",
+   "Ersteller": "",
+   "Pruefer": "",
+   "Freigabe": null,
+   "Planformat": "",
+   "Breite": 420.0,
+   "Hoehe": 297.0,
+   "Teilbildnummer": 338,
+   "Teilbildname": ""
+  },
+  {
+   "Plannummer": 52,
+   "Planname": "Entwässerungsplan",
+   "Planindex": "",
+   "Erstellt": "2026-11-17",
+   "Geaendert": "2026-11-17",
+   "Ersteller": "",
+   "Pruefer": "",
+   "Freigabe": null,
+   "Planformat": "",
+   "Breite": 420.0,
+   "Hoehe": 297.0,
+   "Teilbildnummer": null,
+   "Teilbildname": ""
+  }
+ ]
+}

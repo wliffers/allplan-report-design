@@ -1,0 +1,20 @@
+{
+ "Wandbeläge je Raum": "Wall finishes per room",
+ "mit Raumausbau": "with room finishing",
+ "LEIBUNG GESAMT": "TOTAL REVEAL",
+ "Länge aller Leibungen": "Length of all reveals",
+ "K060  ": "=",
+ "Kachel je Belag: Spaltengruppe Material, Deckel 3 (c.topn); Leibung je Seitenfläche einmal (Schicht /01)": "Tile per finish: column group Material, cap 3 (c.topn); reveal counted once per side face (layer /01)",
+ "WANDFLÄCHE JE RAUM": "WALL AREA PER ROOM",
+ "Die 8 größten Wandflächen": "The 8 largest wall areas",
+ "D160  ": "=",
+ "Balken: größte Belagsfläche je Raum, Deckel 8 (TopN an der Kategorie), Wert am Balken": "Bars: largest finish area per room, cap 8 (TopN on the category), value on the bar",
+ "WANDFLÄCHEN": "WALL AREAS",
+ "Wandflächen je Raum": "Wall areas per room",
+ "RAUM": "ROOM",
+ "LEIBUNG": "REVEAL",
+ "GRÖSSTER BELAG": "LARGEST FINISH",
+ "Summe alle Räume": "Total all rooms",
+ "T080  ": "=",
+ "Kreuztabelle, Deckel 14 Räume": "Cross-tab, cap 14 rooms"
+}

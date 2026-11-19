@@ -1,0 +1,14 @@
+# Ausgabeordner der Reports (Ergebnisse, nicht Teil des Repos)
+out/
+aus/
+# von Python erzeugt
+__pycache__/
+*.pyc
+# gebautes Anzeigeprogramm fuer die Vorschau (die KI baut es beim ersten Mal selbst)
+bin/
+# erzeugter Katalog aus den Vorlagen der Allplan-Installation - nicht veroeffentlichen
+rdlc-index.json
+# Attributkatalog aus der Allplan-Installation - nicht veroeffentlichen
+data/attributes_2027.json
+# Stand der Werkstatt, wird je Rechner geschrieben
+.werkstatt_stand.json
