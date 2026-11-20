@@ -18,7 +18,7 @@
  "Strichzeichnung je Bauteil, Seite 6": "Line drawing per component, page 6",
  "Planausschnitt als Bild": "Plan detail as image",
  "wie im Teilbild, mit Schraffur": "as in the drawing file, with hatching",
- "Segoe UI in drei Schnitten": "Segoe UI in three weights",
+ "Hausschrift in drei Gewichten": "House font in three weights",
  "im PDF eingebettet": "embedded in the PDF",
  "Zahlen nach de-DE": "Numbers in de-DE",
  "Sprache am Report wählbar": "Language selectable per report",
@@ -70,7 +70,7 @@
  "Layer, Stiftnummer": "Layer, pen number",
  "Wert immer leer": "value always empty",
  "X080  ": "=",
- "Drei Spalten aus Textboxen; Kopfzeichen in Segoe UI Symbol, je Zeile Stichwort und Halbsatz": "Three columns of text boxes; header characters in Segoe UI Symbol, per row keyword and half-sentence",
+ "Drei Spalten aus Textboxen; Kopfzeichen in der Symbolschrift, je Zeile Stichwort und Halbsatz": "Three columns of text boxes; header characters in the symbol font, per row keyword and half-sentence",
  "DIE FÜNF HARTEN GRENZEN": "THE FIVE HARD LIMITS",
  "Was Allplan-Reports nicht leisten": "What Allplan reports cannot do",
  "Nur die erste Abfrage wird gefüllt.": "Only the first query is populated.",
@@ -84,6 +84,6 @@
  "Jedes Bauteilbild kostet Rechenzeit.": "Every component image costs processing time.",
  "Auch wenn es nirgends gezeigt wird: 3.545 Zeilen brauchten 3 bis 7 Minuten, Allplan „reagiert nicht“.": "Even if it is never shown: 3,545 rows took 3 to 7 minutes, Allplan “not responding”.",
  "X090  ": "=",
- "Fünf Zeilen auf heller Fläche, große Ziffer in Segoe UI Light, Satz und Folge in einer Textbox": "Five rows on a light surface, large digit in Segoe UI Light, headline and follow-up in one text box",
+ "Fünf Zeilen auf heller Fläche, große Ziffer in der Zahlschrift, Satz und Folge in einer Textbox": "Five rows on a light surface, large digit in the number font, headline and follow-up in one text box",
  "Belegt in Allplan 2027 am PDF-Export; einzelne Urteile nur kopflos gerendert oder aus Allplans Vorlagen übernommen. Bedienung im Report-Fenster nicht selbst ausgelöst.": "Verified in Allplan 2027 with the PDF export; some verdicts only rendered headless or taken from Allplan's templates. Interaction in the report window not tested by hand."
 }

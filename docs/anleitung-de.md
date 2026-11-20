@@ -125,6 +125,8 @@ Die Werkstatt ist dein Arbeitsordner für Reports. Du kannst die KI bitten:
 
 > „Lege die Werkstatt im Ordner reports an und zeig mir den Master."
 
+Bevor der erste Report entsteht, fragt dich die KI einmal nach Stil, Farben und Schrift und empfiehlt das Hausdesign (Abschnitt „Design“ in der README). Ohne diese Klärung baut kein Skript einen Report.
+
 Oder du führst es selbst aus, hier für Copilot im Projektordner:
 
 ```powershell

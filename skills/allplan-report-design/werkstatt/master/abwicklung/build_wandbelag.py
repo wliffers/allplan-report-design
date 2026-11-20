@@ -132,16 +132,16 @@ def tc(inner):
 # ---------------------------------------------------------------- Kopfband
 def band():
     x0 = c.INSET
-    inner = (c.rect("W_BandAkzent", 1.15, x0, 1.3, 0.1, bg=c.ORANGE)
-             + c.text("W_BandOver", 1.4, x0, 12, 0.4, c.run("REPORT MASTER  ·  BEGLEIT-REPORT", 8, c.SKY, c.F_SEMI))
-             + c.text("W_BandTitel", 1.85, x0, 13, 1.45, c.run("Wandbeläge je Raum", 30, c.WHITE, c.F_LIGHT))
+    inner = (c.rect("W_BandAkzent", 1.15, x0, 1.3, 0.1, bg=c.AKZENT)
+             + c.text("W_BandOver", 1.4, x0, 12, 0.4, c.run("REPORT MASTER  ·  BEGLEIT-REPORT", 8, c.AKZENT_DUNKEL, c.F_SEMI))
+             + c.text("W_BandTitel", 1.85, x0, 13, 1.45, c.run("Wandbeläge je Raum", 30, c.WHITE, c.F))
              + c.text("W_BandSub", 3.3, x0, 13, 0.55,
                       c.run('=Parameters!Project_Name.Value & "   ·   " & Format(Parameters!Date.Value, "dd.MM.yyyy")',
-                            9, "#CBD5E1", c.F))
-             + c.text("W_BandRechts", 1.4, x0 + 13, 5, 0.4, c.run("Räume", 8, c.SKY, c.F_SEMI), align="Right")
+                            9, c.AUF_NAVY, c.F))
+             + c.text("W_BandRechts", 1.4, x0 + 13, 5, 0.4, c.run("Räume", 8, c.AUF_NAVY, c.F_SEMI), align="Right")
              + c.text("W_BandRechts2", 1.85, x0 + 13, 5, 1.45,
-                      c.para([c.run("=Format(%s, \"N0\")" % RAUM_ANZAHL, 30, c.WHITE, c.F_LIGHT)], "Right"))
-             + c.text("W_BandRechts3", 3.3, x0 + 13, 5, 0.55, c.run("mit Raumausbau", 9, "#CBD5E1", c.F), align="Right"))
+                      c.para([c.run("=Format(%s, \"N0\")" % RAUM_ANZAHL, 30, c.WHITE, c.F_ZAHL)], "Right"))
+             + c.text("W_BandRechts3", 3.3, x0 + 13, 5, 0.55, c.run("mit Raumausbau", 9, c.AUF_NAVY, c.F), align="Right"))
     return c.rect("W_Band", 0, 0, c.PAGE_W, 4.5, inner, bg=c.NAVY)
 
 
@@ -149,7 +149,7 @@ def kachel(name, kw, wert, einheit, label, note):
     """Kennzahl-Kachel als Tabellenzelle (ohne Lage): grosse Zahl, Einheit, Beschriftung, Fussnote (alles Ausdruecke)."""
     inner = (c.rect(name + "_a", 0, 0, kw, 0.09, bg=c.BLUE)
              + c.text(name + "_v", 0.42, 0.32, kw - 0.4, 1.05,
-                      c.para([c.run("=" + wert, 22, c.INK, c.F_LIGHT), c.run(einheit, 10, c.MUTED, c.F)]), valign="Bottom")
+                      c.para([c.run("=" + wert, 22, c.INK, c.F_ZAHL), c.run(einheit, 10, c.MUTED, c.F)]), valign="Bottom")
              + c.text(name + "_l", 1.5, 0.32, kw - 0.4, 0.37, c.run(label, 7, c.TEXT, c.F_SEMI))
              + c.text(name + "_n", 1.92, 0.32, kw - 0.4, 0.4, c.run(note, 7, c.MUTED, c.F)))
     return c.rect(name, None, 0, 0, 0, inner, bg=c.SURFACE)
@@ -193,13 +193,13 @@ def k060(top, left, w):
 
 # ---------------------------------------------------------------- T080 Kreuztabelle
 def balken_zelle(name):
-    """Zellenbalken: groesste Belagsflaeche des Raums, Massstab = groesster Raum; der groesste Balken in Akzentfarbe."""
+    """Zellenbalken: groesste Belagsflaeche des Raums, Massstab = groesster Raum; der groesste Balken in Leitfarbe, die uebrigen heller."""
     wert = "Max(%s)" % FL
     maxwert = 'Max(%s, "%s")' % (FL, ALLE)
     return b.in_cell(v.chart(
         name, 0, 0, 1, 1,
         [v.S("V", {"Y": "=" + wert}, typ="Bar", sub="Plain",
-             pstyle="<Color>%s</Color>" % c.esc('=IIf(%s = %s, "%s", "%s")' % (wert, maxwert, c.ORANGE, c.BLUE)),
+             pstyle="<Color>%s</Color>" % c.esc('=IIf(%s = %s, "%s", "%s")' % (wert, maxwert, c.BLUE, c.RAMP[3])),
              custom_xml=v.custom(PointWidth="0.42"))],
         [], nomember=True, dataset=False,
         areas=v.area(cat_axes=[v.axis("Primary", visible=False)],
@@ -352,4 +352,4 @@ if __name__ == "__main__":
     print(ziel)
     if "--render" in sys.argv:
         os.makedirs(AUS, exist_ok=True)
-        c.rendern(ziel, JSON, AUS)
+        c.rendern(ziel, JSON, AUS, vollzugriff=True)   # volle Rechte: Code.Schrift liest die installierten Schriften (sonst Ersatzschrift Segoe UI)

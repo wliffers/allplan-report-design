@@ -15,7 +15,7 @@
  "fünf Kacheln; die Zahl schrumpft mit der Stellenzahl, ab 100 ohne Nachkommastelle": "five tiles; the number shrinks with its digit count, from 100 without decimals",
  "MENGEN": "QUANTITIES",
  "D010  ": "=",
- "Balken je Materialgruppe (Code.MatArt), Farbe über Code.MatFarbe, höchstens 9 Gruppen": "Bar per material group (Code.MatArt), color via Code.MatFarbe, at most 9 groups",
+ "Balken je Materialgruppe, Farbe über Code.MatFarbe, höchstens 9 Gruppen": "Bars per material group, color from Code.MatFarbe, at most 9 groups",
  " weitere · ": " more · ",
  "D020  ": "=",
  "TopN 7 in Ring und Legende, Rest als Zeile": "TopN 7 in ring and legend, rest as one row",
@@ -34,5 +34,5 @@
  "Fenster und Türen": "Windows and doors",
  "Klick: in Allplan auf ein Bauteil dieses Typs zoomen": "Click: zoom to a component of this type in Allplan",
  "B010  ": "=",
- "Karte je Typ mit Bild aus Allplan, TopN 5 nach Häufigkeit (häufigster zuerst), Klick zoomt aufs Bauteil": "Card per type with Allplan image, TopN 5 by frequency (most frequent first), click zooms in"
+ "Karte je Typ mit Bild aus Allplan, TopN 5 nach Häufigkeit, Klick zoomt aufs Bauteil": "Card per type with image from Allplan, top 5 by count, click zooms to the element"
 }

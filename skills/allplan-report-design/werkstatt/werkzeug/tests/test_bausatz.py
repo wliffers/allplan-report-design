@@ -33,6 +33,8 @@ ZEILEN = [("kopf", 0.5, ["<a/>", "<b/>"]), ("daten", 0.5, ["<c/>", "<d/>"]), ("f
 
 
 # ---------------------------------------------------------------- 1. alte Aufrufe: unveraendertes XML
+# Neu gesetzt am 2026-11-20 beim Wechsel auf das Hausdesign (Vorgabefarben und -schrift aus design.py, Schrift-Ausdruck und Code-Block
+# im Report): linie, text, zelle (Farbe/Schrift der Vorgaben) und report_ohne_fuss (Code-Block). Alle anderen Pruefsummen sind unveraendert.
 ALT = {
     "rect": ("fbc8265b90d3bdf6a2ec41e537d29129b110304d3a8a494526b466e11ba9081b",
              lambda: c.rect("R", 1, 2, 3, 4, "<X/>", bg="#fff", page_break=True, hidden="=1", keep=False, label="L")),
@@ -46,13 +48,13 @@ ALT = {
     "report": ("29129f9e25fed1c7500861787dc91ef8bfe11acad9fda835fe0781c4e4161aff",
                lambda: c.report(["<i/>", "<j/>"], DS, extra_params=c.parameter("P", "String", "x", "p"), code="Public x",
                                 footer_xml="<f/>", labels=["a", "b"], embedded_xml="<EmbeddedImages/>")),
-    "report_ohne_fuss": ("c7ee6074ec526292a548c0ad570cf81e1be0c639214f136f5fb3b04961ae4eed", lambda: c.report(["<i/>"], DS)),
+    "report_ohne_fuss": ("dc21f0b2d514bcc3d7f2d0e4e2902a351e07d73d58fa64908513c35dffbd4fcd", lambda: c.report(["<i/>"], DS)),
     "bild": ("bbd3a236e18f46453538261ec9d694d3177fc55ce29377c37aa9f32abb5baeb6", lambda: c.image("I", 0, 0, 1, 1, "v", action="Marke")),
-    "text": ("7711e94c5aaafd554d95385c5d37af137e11b8c82c9b3a691f6775b9fe940e49",
+    "text": ("2bdb84e9ac5a96ca28e4f564e2c74e25b6f67016397f733f82ae2da877728022",
              lambda: c.text("T", 1, 2, 3, 4, [c.para([c.run("x", 9)])], align="Right", valign="Middle", bg="#fff", pad=(1, 2, 3, 4),
                             border_xml=c.edge(["Bottom"]), grow=True, hidden="=1", bg_expr="=x", rotate="Rotate270")),
-    "zelle": ("c5177d5ac17dab3874b529b14c3d8f8d39e69b67bfac758818e6ac3c48ed2917", lambda: c.cell("Z", c.run("x"), "Right")),
-    "linie": ("cf5db67fa571377b664e2645cc158512699368072ba722ac2f4e077c30e67097", lambda: c.line("L", 1, 2, 3)),
+    "zelle": ("0843f24d162afd9a2fd1fc1862b9c583453bdc9e358902ec8aa0b1d90969c6aa", lambda: c.cell("Z", c.run("x"), "Right")),
+    "linie": ("70dee0ffc010e93fc2523c16cb09a71dbd6f82cb338a4413447d6f7ad410f0c2", lambda: c.line("L", 1, 2, 3)),
     "filters": ("21f0a3c71d22e108c6543478b92230bea067980af924c2a1fc26e53f1ce5841a", lambda: c.filters("a<b")),
     "topn": ("29eef7d34258d7aa32a8621eb13b695c0ab51d3eadf4613db89ccf29a1625975", lambda: c.topn("Sum(x)", 3, True)),
     "tablix_sortiert": ("cd639c8ee5d38ca9a9ef96eefa780a82df6cd9502559d134d4c3de5b15ebd884",
@@ -83,8 +85,11 @@ def test_alte_aufrufe_liefern_unveraendertes_xml(name):
 
 def test_render_argumente_alt_unveraendert(monkeypatch):
     monkeypatch.setattr(c, "RENDER", os.path.abspath(__file__))
-    assert c.render_argumente("a.rdlc", "d.json", "aus") == [os.path.abspath(__file__), "a.rdlc", "d.json", "aus", "--dpi=110",
-                                                            "Project_Name=Musterprojekt"]
+    alt = [os.path.abspath(__file__), "a.rdlc", "d.json", "aus", "--dpi=110", "Project_Name=Musterprojekt"]
+    assert c.render_argumente("a.rdlc", "d.json", "aus", vollzugriff=False) == alt
+    # Vorgabe seit dem Design-Umbau: volle Rechte wie in Allplan (der Report fragt beim Oeffnen die installierten Schriften ab)
+    neu = c.render_argumente("a.rdlc", "d.json", "aus")
+    assert "--vollzugriff" in neu and [x for x in neu if x != "--vollzugriff"] == alt
 
 
 # ---------------------------------------------------------------- 2. neue Argumente: erwartetes XML

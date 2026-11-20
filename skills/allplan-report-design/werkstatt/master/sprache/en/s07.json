@@ -75,5 +75,5 @@
  "BAUTEIL-ID": "COMPONENT ID",
  "Keine Bauteile mit Material im Teilbild.": "No components with material in the drawing file.",
  "U040  ": "=",
- "Tablix mit ToggleItem (Startzustand aus Parameter Zeige_Details), UserSort am Spaltenkopf, TopN 5 Gruppen und 5 Zeilen je Gruppe, BookmarkLink Zoom/Mark": "Tablix with ToggleItem (initial state from parameter Zeige_Details), UserSort on the column header, TopN 5 groups and 5 rows per group, BookmarkLink Zoom/Mark"
+ "Tablix mit ToggleItem (Startzustand aus Parameter Zeige_Details), UserSort am Spaltenkopf, TopN 5 Gruppen, 5 Zeilen je Gruppe, BookmarkLink Zoom/Mark": "Tablix with ToggleItem (initial state from parameter Zeige_Details), UserSort on column header, top 5 groups, 5 rows per group, BookmarkLink Zoom/Mark"
 }

@@ -251,7 +251,7 @@ def abschnitt(name, top, left, w, label, titel, rechts=None):
     ueberlappen sich Geschwister auch nur um 0,02 cm, verschiebt Allplans Report-Fenster eines davon. rechts: optionaler Hinweis
     rechtsbuendig in der Zeile des kleinen Namens (eigenes Feld daneben, nicht darueber)."""
     breite_o = 3.2 if rechts else w
-    xml = (c.text(name + "_o", top, left, breite_o, 0.38, c.run(label.upper(), 7, c.BLUE, c.F_SEMI))
+    xml = (c.text(name + "_o", top, left, breite_o, 0.38, c.run(label.upper(), 7, c.MUTED, c.F_SEMI))
            + c.text(name + "_t", top + 0.43, left, w, 0.7, c.run(titel, 13, c.INK, c.F_SEMI))
            + c.line(name + "_l", top + 1.18, left, w))
     if rechts:
@@ -262,26 +262,26 @@ def abschnitt(name, top, left, w, label, titel, rechts=None):
 # ---------------------------------------------------------------- Seitenrahmen
 def band():
     x0 = c.INSET
-    inner = (c.rect("RB_BandAkzent", 1.15, x0, 1.3, 0.1, bg=c.ORANGE)
-             + c.text("RB_BandOver", 1.4, x0, 12.9, 0.45, c.run("REPORT MASTER  ·  BEGLEIT-REPORT", 8, c.SKY, c.F_SEMI))
-             + c.text("RB_BandTitel", 1.9, x0, 12.9, 1.45, c.run("Bewehrung", 30, c.WHITE, c.F_LIGHT))
+    inner = (c.rect("RB_BandAkzent", 1.15, x0, 1.3, 0.1, bg=c.AKZENT)
+             + c.text("RB_BandOver", 1.4, x0, 12.9, 0.45, c.run("REPORT MASTER  ·  BEGLEIT-REPORT", 8, c.AKZENT_DUNKEL, c.F_SEMI))
+             + c.text("RB_BandTitel", 1.9, x0, 12.9, 1.45, c.run("Bewehrung", 30, c.WHITE, c.F))
              + c.text("RB_BandSub", 3.4, x0, 12.9, 0.55,
                       c.run('=Parameters!Project_Name.Value & "   ·   " & Format(Parameters!Date.Value, "dd.MM.yyyy")',
-                            9, "#CBD5E1", c.F))
-             + c.text("RB_BandRechts", 1.4, x0 + 13.05, 4.95, 0.45, c.run("Bewehrte Bauteile", 8, c.SKY, c.F_SEMI), align="Right")
+                            9, c.AUF_NAVY, c.F))
+             + c.text("RB_BandRechts", 1.4, x0 + 13.05, 4.95, 0.45, c.run("Bewehrte Bauteile", 8, c.AUF_NAVY, c.F_SEMI), align="Right")
              + c.text("RB_BandRechts2", 1.9, x0 + 13.05, 4.95, 1.45,
-                      c.para([c.run('=Format(CountDistinct(Fields!Bauteil.Value), "N0")', 30, c.WHITE, c.F_LIGHT)], "Right"))
-             + c.text("RB_BandRechts3", 3.4, x0 + 13.05, 4.95, 0.55, c.run("Stab und Matte im Teilbild", 9, "#CBD5E1", c.F), align="Right"))
+                      c.para([c.run('=Format(CountDistinct(Fields!Bauteil.Value), "N0")', 30, c.WHITE, c.F_ZAHL)], "Right"))
+             + c.text("RB_BandRechts3", 3.4, x0 + 13.05, 4.95, 0.55, c.run("Stab und Matte im Teilbild", 9, c.AUF_NAVY, c.F), align="Right"))
     return c.rect("RB_Band", 0, 0, c.PAGE_W, 4.5, inner, bg=c.NAVY)
 
 
 def kopf2():
     """Kopf der zweiten Seite: wie seitenkopf(), aber fuer den Begleit-Report."""
     x0 = c.INSET
-    inner = (c.rect("RB_P2Akzent", 0.62, x0, 0.9, 0.08, bg=c.ORANGE)
-             + c.text("RB_P2Over", 0.8, x0, 12, 0.45, c.run("REPORT MASTER  ·  BEGLEIT-REPORT  ·  SEITE 2", 7, c.SKY, c.F_SEMI))
-             + c.text("RB_P2Titel", 1.3, x0, 8.8, 0.95, c.run("Listen", 19, c.WHITE, c.F_LIGHT))
-             + c.text("RB_P2Sub", 1.3, x0 + 9, 9, 0.6, c.run("Mattenliste und vollständige Stabliste", 8.5, "#CBD5E1"),
+    inner = (c.rect("RB_P2Akzent", 0.62, x0, 0.9, 0.08, bg=c.AKZENT)
+             + c.text("RB_P2Over", 0.8, x0, 12, 0.45, c.run("REPORT MASTER  ·  BEGLEIT-REPORT  ·  SEITE 2", 7, c.AKZENT_DUNKEL, c.F_SEMI))
+             + c.text("RB_P2Titel", 1.3, x0, 8.8, 0.95, c.run("Listen", 19, c.WHITE, c.F))
+             + c.text("RB_P2Sub", 1.3, x0 + 9, 9, 0.6, c.run("Mattenliste und vollständige Stabliste", 8.5, c.AUF_NAVY),
                       align="Right", valign="Bottom"))
     return c.rect("RB_P2Kopf", 0, 0, c.PAGE_W, 2.5, inner, bg=c.NAVY)
 
@@ -291,7 +291,7 @@ def gross_zahl(txt_expr):
     """Grosse Zahl; die Schriftgroesse schrumpft mit der Ziffernzahl, damit nichts umbricht."""
     groesse = 'IIf(Len(%s) >= 8, "12pt", IIf(Len(%s) >= 6, "15pt", "17pt"))' % (txt_expr, txt_expr)
     return ("<TextRun><Value>=%s</Value><Style><FontFamily>%s</FontFamily><FontSize>=%s</FontSize><Color>%s</Color></Style></TextRun>"
-            % (c.esc(txt_expr), c.F_LIGHT, c.esc(groesse), c.INK))
+            % (c.esc(txt_expr), c.F_ZAHL, c.esc(groesse), c.INK))
 
 
 def kachel(name, top, left, w, wert, einheit, label, note):
@@ -339,7 +339,7 @@ def karte(name, kw, kh):
     Klick zoomt aufs Bauteil."""
     l1 = b.klick(c.text(name + "_1", 0.08, 0.3, kw - 0.4, 0.45,
                         c.para([c.run('="Pos " & Fields!Position.Value', 9.5, c.INK, c.F_SEMI),
-                                c.run('="   " & Format(Max(%s), "N2") & " m"' % EINZEL, 9.5, c.AMBER, c.F_SEMI)]),
+                                c.run('="   " & Format(Max(%s), "N2") & " m"' % EINZEL, 9.5, c.AMBER_TEXT, c.F_SEMI)]),
                         valign="Middle"))
     l2 = b.klick(c.text(name + "_2", 0.6, 0.3, kw - 0.4, 0.4,
                         c.run('="Ø " & Format(%s, "0.##") & " · " & Format(Sum(%s), "N0") & " Stk. · " & Format(Sum(%s), "N0") & " kg"'
@@ -350,8 +350,8 @@ def karte(name, kw, kh):
 def zahl_oder_haken(n):
     """Ein Feld fuer beides: die Zahl der Ueberlaengen oder - bei 0 - ein Haken (Schrift, Groesse, Farbe als Ausdruck)."""
     return c.para(["<TextRun><Value>=%s</Value><Style><FontFamily>=%s</FontFamily><FontSize>=%s</FontSize><Color>=%s</Color></Style></TextRun>"
-                   % (c.esc('IIf(%s > 0, Format(%s, "N0"), "✓")' % (n, n)), c.esc('IIf(%s > 0, "%s", "Segoe UI Symbol")' % (n, c.F_LIGHT)),
-                      c.esc('IIf(%s > 0, "24pt", "20pt")' % n), c.esc('IIf(%s > 0, "%s", "%s")' % (n, c.AMBER, c.GREEN)))], "Center")
+                   % (c.esc('IIf(%s > 0, Format(%s, "N0"), "✓")' % (n, n)), c.esc('IIf(%s > 0, Code.Schrift(3), "%s")' % (n, b.SYMBOL)),
+                      c.esc('IIf(%s > 0, "24pt", "20pt")' % n), c.esc('IIf(%s > 0, "%s", "%s")' % (n, c.AMBER_TEXT, c.GREEN_TEXT)))], "Center")
 
 
 @b.baustein("U050", "Hinweis Überlängen")
@@ -432,10 +432,10 @@ def ring_block(praefix, kennung, top, left, w, label, titel, gruppe, farbe, bedi
         praefix + "_Ch", top + 1.4, left - 0.1, 2.7, 2.7,
         [v.S("Gewicht", {"Y": "=" + kg}, typ="Shape", sub="Doughnut",
              custom_xml=v.custom(DoughnutRadius="30", PieLabelStyle="Disabled", PieStartAngle="270"),
-             pstyle="<Color>=%s</Color>" % c.esc(farbe) + v.border("#FFFFFF", "Solid", "1.5pt"))],
+             pstyle="<Color>=%s</Color>" % c.esc(farbe) + v.border(c.WHITE, "Solid", "1.5pt"))],
         [("=" + gruppe, "=" + kg, "Descending")],
         areas=v.area(pos=(0, 0, 100, 100)),
-        titles=(v.title("=" + mitte, size="12pt", color=c.INK, bold=False,
+        titles=(v.title("=" + mitte, size="12pt", color=c.INK, font=c.F_ZAHL,
                         extra="<ChartElementPosition><Top>28</Top><Left>20</Left><Height>22</Height><Width>60</Width></ChartElementPosition>")
                 + v.title(mitte_text, size="7pt", name="Unter", color=c.MUTED, bold=False,
                           extra="<ChartElementPosition><Top>51</Top><Left>20</Left><Height>14</Height><Width>60</Width></ChartElementPosition>")),
@@ -443,7 +443,7 @@ def ring_block(praefix, kennung, top, left, w, label, titel, gruppe, farbe, bedi
     items += ring
     cols = [0.45, 2.5, 1.85, 1.1]
     zelle_h = 0.5
-    inhalt = [c.cell(praefix + "_L1", c.run("■", 10, "=" + farbe), "Left", pad=(0, 0, 0, 0), border_xml=ROW),
+    inhalt = [c.cell(praefix + "_L1", c.run("■", 10, "=" + farbe, b.SYMBOL), "Left", pad=(0, 0, 0, 0), border_xml=ROW),
               c.cell(praefix + "_L2", c.run("=" + namen, 8.5, c.TEXT), pad=(0, 0, 2, 0), border_xml=ROW),
               c.cell(praefix + "_L3", c.para([c.run("=" + gewicht(kg), 8.5, c.INK, c.F_SEMI), c.run(" kg", 7, c.FAINT)]), "Right",
                      pad=(0, 0, 2, 0), border_xml=ROW),
@@ -560,7 +560,7 @@ def titel_zeilen(name, label, titel, cols, legende=None, legende_ab=7):
     Gruppe wiederholen oder keine). Liefert (Zeilen, Mitglieder)."""
     n = len(cols)
     linie = c.edge(["Bottom"], c.HAIR, "0.75pt")
-    inhalt = c.para([c.run(label.upper() + "   ", 7, c.BLUE, c.F_SEMI), c.run(titel, 12, c.INK, c.F_SEMI)])
+    inhalt = c.para([c.run(label.upper() + "   ", 7, c.MUTED, c.F_SEMI), c.run(titel, 12, c.INK, c.F_SEMI)])
     titel_zelle = c.cell(name + "_T", inhalt, valign="Bottom", border_xml=linie, pad=(0, 0, 0, 3))
     if legende:
         z1 = zeile(0.8, [zelle(titel_zelle, legende_ab),
@@ -623,9 +623,9 @@ def t110(top, left, w):
     Guete, Laengen, kg, Form, Biegeform-Bild, Datenbalken kg. Werte je Ausfuehrung wie Allplans Stabliste. Ohne Deckel."""
     name = "RB_TbStab"
     cols = [2.8, 1.5, 0.8, 1.2, 1.6, 0.4, 1.9, 1.9, 1.15, 3.0, 1.75]
-    legende = c.para([c.run("■ ", 8, C_GERADE, "Segoe UI Symbol"), c.run("gerade   ", 7.5, c.MUTED),
-                      c.run("■ ", 8, C_GEBOGEN, "Segoe UI Symbol"), c.run("gebogen   ", 7.5, c.MUTED),
-                      c.run("■ ", 8, C_UEBER, "Segoe UI Symbol"), c.run("Überlänge", 7.5, c.MUTED)], "Right")
+    legende = c.para([c.run("■ ", 8, C_GERADE, b.SYMBOL), c.run("gerade   ", 7.5, c.MUTED),
+                      c.run("■ ", 8, C_GEBOGEN, b.SYMBOL), c.run("gebogen   ", 7.5, c.MUTED),
+                      c.run("■ ", 8, C_UEBER, b.SYMBOL), c.run("Überlänge", 7.5, c.MUTED)], "Right")
     titel_z, titel_m = titel_zeilen(name, "Stabliste", "Alle Rundstahl-Positionen", cols, legende, 7)
     lfdm_g = "Max(IIf(%s, 1, 0)) = 1" % LFDM                                # die Position ist Meterware
     ueber_z = "Max(IIf(%s, 1, 0)) = 1" % UEBER
@@ -652,7 +652,7 @@ def t110(top, left, w):
              zelle_d(3, c.run('=Format(%s, "0.##")' % DM, 9, c.TEXT), "Right"),
              zelle_d(4, c.run("=" + kurz("Fields!Stahlguete.Value", 7), 8.5, c.MUTED)),
              zelle_d(5, c.run("=" + einzel_g, 9, c.TEXT), "Right"),
-             c.cell(name + "_D6", c.run('=IIf(%s, "▲", "")' % ueber_z, 8, c.AMBER, "Segoe UI Symbol"), "Left", border_xml=ROW, pad=(2, 1, 0, 1)),
+             c.cell(name + "_D6", c.run('=IIf(%s, "▲", "")' % ueber_z, 8, c.AMBER_TEXT, b.SYMBOL), "Left", border_xml=ROW, pad=(2, 1, 0, 1)),
              zelle_d(7, c.run('=Format(Sum(%s), "#,##0.0")' % GESL, 9, c.TEXT), "Right"),
              zelle_d(8, c.run('=Format(Sum(%s), "#,##0.0")' % KG1, 9, c.INK, c.F_SEMI), "Right"),
              zelle_d(9, c.run("=Fields!Biegeform.Value", 8.5, '=IIf(%s, "%s", "%s")' % (GEBOGEN, c.BLUE, c.FAINT), c.F_SEMI), "Center"),
@@ -759,4 +759,4 @@ if __name__ == "__main__":
     print(ziel)
     if "--render" in sys.argv:
         os.makedirs(AUS, exist_ok=True)
-        c.rendern(ziel, JSON, AUS)
+        c.rendern(ziel, JSON, AUS, vollzugriff=True)   # volle Rechte: Code.Schrift liest die installierten Schriften (sonst Ersatzschrift Segoe UI)

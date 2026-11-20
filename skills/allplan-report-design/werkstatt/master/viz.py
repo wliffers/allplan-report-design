@@ -3,8 +3,13 @@
 
 Stand des Labors labor/viz2016/rdl.py, hier als Bibliothek: nur die Element-Bauer (chart, S, axis,
 area, legend, dlabel, gauge ...). Das Report-Geruest baut core.py."""
+import os
 import re
+import sys
 from xml.sax.saxutils import escape
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import core as c  # noqa: E402  (Farben und Schrift kommen aus dem Gestaltungssystem, nie als Hex-Wert)
 
 
 def esc(s):
@@ -17,15 +22,14 @@ def st(**kw):
     return "<Style>" + "".join("<%s>%s</%s>" % (k, esc(v) if not str(v).startswith("<") else v, k) for k, v in kw.items()) + "</Style>"
 
 
-def border(color="#D0D5DD", style="Solid", width="0.5pt"):
+def border(color=c.HAIR_STARK, style="Solid", width="0.5pt"):
     return "<Border><Color>%s</Color><Style>%s</Style><Width>%s</Width></Border>" % (esc(color), style, width)
 
 
-def textbox(name, text, top, left, w, h, size="10pt", bold=False, color="#1F2937", align=None, valign=None,
-            bg=None, italic=False, font="Segoe UI", border_xml="", wrap_expr=False):
-    s = "<FontFamily>%s</FontFamily><FontSize>%s</FontSize>" % (font, size)
-    if bold:
-        s += "<FontWeight>Bold</FontWeight>"
+def textbox(name, text, top, left, w, h, size="10pt", bold=False, color=c.TEXT, align=None, valign=None,
+            bg=None, italic=False, font=c.F, border_xml="", wrap_expr=False):
+    """bold = halbfett (c.F_SEMI): das dritte Gewicht des Systems, nie Roboto Bold."""
+    s = "<FontFamily>%s</FontFamily><FontSize>%s</FontSize>" % (c.F_SEMI if bold else font, size)
     if italic:
         s += "<FontStyle>Italic</FontStyle>"
     s += "<Color>%s</Color>" % color
@@ -50,15 +54,14 @@ def rect(name, top, left, w, h, inner="", bg=None, border_xml=""):
 
 
 # ------------------------------------------------------------------ Chart
-FONT = "Segoe UI"
-GRID = "#E5E7EB"
-TXT = "#4B5563"
+FONT = c.F
+GRID = c.HAIR
+TXT = c.MUTED
 
 
 def fstyle(size="8pt", color=TXT, bold=False, fmt=None, font=FONT, extra=""):
-    s = "<FontFamily>%s</FontFamily><FontSize>%s</FontSize><Color>%s</Color>" % (font, size, color)
-    if bold:
-        s += "<FontWeight>Bold</FontWeight>"
+    """bold = halbfett (c.F_SEMI), nie Roboto Bold."""
+    s = "<FontFamily>%s</FontFamily><FontSize>%s</FontSize><Color>%s</Color>" % (c.F_SEMI if bold else font, size, color)
     if fmt:
         s += "<Format>%s</Format>" % esc(fmt)
     return "<Style>" + s + extra + "</Style>"
@@ -69,7 +72,7 @@ def axis(name="Primary", visible=True, title=None, fmt=None, grid=False, gridcol
          extra="", margin=None, rot=None, tick=False, scalebreak=None, title_size="8pt", crossat=None, location=None,
          labelinterval=None, includezero=None):
     x = '<ChartAxis Name="%s">' % name
-    line_xml = border("#9CA3AF", "Solid", "0.75pt") if line else border("#FFFFFF", "None", "0.5pt")
+    line_xml = border(c.HAIR_STARK, "Solid", "0.75pt") if line else border(c.WHITE, "None", "0.5pt")
     x += fstyle(size, TXT, fmt=fmt, extra=line_xml)
     if title:
         x += "<ChartAxisTitle><Caption>%s</Caption>%s</ChartAxisTitle>" % (esc(title), fstyle(title_size, TXT))
@@ -117,7 +120,7 @@ def axis(name="Primary", visible=True, title=None, fmt=None, grid=False, gridcol
     return x
 
 
-def strip(offset, width="0.6", color="#C0392B", title=None, interval="0"):
+def strip(offset, width="0.6", color=c.RED, title=None, interval="0"):
     t = "<Title>%s</Title>" % esc(title) if title else ""
     return ("<ChartStripLine><Style><BackgroundColor>%s</BackgroundColor></Style>%s<Interval>%s</Interval>"
             "<IntervalOffset>%s</IntervalOffset><StripWidth>%s</StripWidth></ChartStripLine>"
@@ -133,7 +136,7 @@ def area(name="Default", cat_axes=None, val_axes=None, extra="", style="", pos=N
     if inner:
         p += "<ChartInnerPlotPosition><Top>%s</Top><Left>%s</Left><Height>%s</Height><Width>%s</Width></ChartInnerPlotPosition>" % inner
     return ('<ChartArea Name="%s"><ChartCategoryAxes>%s</ChartCategoryAxes><ChartValueAxes>%s</ChartValueAxes>%s%s<Style>%s</Style></ChartArea>'
-            % (name, "".join(cat_axes), "".join(val_axes), extra, p, style or "<BackgroundColor>White</BackgroundColor>"))
+            % (name, "".join(cat_axes), "".join(val_axes), extra, p, style or "<BackgroundColor>%s</BackgroundColor>" % c.WHITE))
 
 
 def legend(name="Default", position="BottomCenter", layout="Row", title=None, size="8pt", hidden=False, extra=""):
@@ -144,13 +147,14 @@ def legend(name="Default", position="BottomCenter", layout="Row", title=None, si
             % (name, "true" if hidden else "false", fstyle(size, TXT), position, layout, t, extra))
 
 
-def title(text, size="11pt", name="Default", color="#111827", position="TopCenter", bold=True, extra=""):
+def title(text, size="11pt", name="Default", color=c.INK, position="TopCenter", bold=True, extra="", font=None):
+    """bold = halbfett (c.F_SEMI), nie Roboto Bold; font: eine andere Rolle des Systems (z. B. c.F_ZAHL fuer eine grosse Kennzahl)."""
     return ('<ChartTitle Name="%s"><Caption>%s</Caption><Style><FontFamily>%s</FontFamily><FontSize>%s</FontSize>'
-            "<FontWeight>%s</FontWeight><Color>%s</Color></Style><Position>%s</Position>%s</ChartTitle>"
-            % (name, esc(text), FONT, size, "Bold" if bold else "Normal", color, position, extra))
+            "<Color>%s</Color></Style><Position>%s</Position>%s</ChartTitle>"
+            % (name, esc(text), font or (c.F_SEMI if bold else FONT), size, color, position, extra))
 
 
-def dlabel(position=None, fmt="N0", size="8pt", color="#374151", label=None, visible=True, bold=False, rotation=None):
+def dlabel(position=None, fmt="N0", size="8pt", color=c.TEXT, label=None, visible=True, bold=False, rotation=None):
     x = "<ChartDataLabel>%s" % fstyle(size, color, bold=bold, fmt=fmt)
     if visible:
         x += "<UseValueAsLabel>%s</UseValueAsLabel>" % ("false" if label else "true")
@@ -164,7 +168,7 @@ def dlabel(position=None, fmt="N0", size="8pt", color="#374151", label=None, vis
     return x
 
 
-def marker(mtype="Circle", size="6pt", color=None, bordercolor="#FFFFFF"):
+def marker(mtype="Circle", size="6pt", color=None, bordercolor=c.WHITE):
     s = ""
     if color:
         s += "<BackgroundColor>%s</BackgroundColor>" % color
@@ -192,7 +196,7 @@ def S(name, vals, typ="Column", sub="Plain", color=None, label=None, mark=None, 
         if gradend:
             s += "<BackgroundGradientEndColor>%s</BackgroundGradientEndColor>" % gradend
     if line_w:
-        s += border(color or "#2563EB", "Solid", line_w)
+        s += border(color or c.BLUE, "Solid", line_w)
     s += style_extra
     pstyle = s + pstyle
     s = ""
@@ -235,7 +239,7 @@ def S(name, vals, typ="Column", sub="Plain", color=None, label=None, mark=None, 
     return x
 
 
-def derived(name, source, formula, params=None, typ="Line", color="#C0392B", w="1.5pt", area_name=None):
+def derived(name, source, formula, params=None, typ="Line", color=c.RED, w="1.5pt", area_name=None):
     p = ""
     if params:
         p = "<ChartFormulaParameters>" + "".join(
@@ -293,14 +297,15 @@ def chart(name, top, left, w, h, series, cats, areas=None, legends=None, titles=
     x += "<ChartBorderSkin><ChartBorderSkinType>%s</ChartBorderSkinType></ChartBorderSkin>" % skin
     if nodata:
         x += ('<ChartNoDataMessage Name="NoDataMessage"><Caption>%s</Caption><Style><FontFamily>%s</FontFamily><FontSize>10pt</FontSize>'
-              "<Color>#6B7280</Color></Style></ChartNoDataMessage>" % (esc(nodata), FONT))
+              "<Color>%s</Color></Style></ChartNoDataMessage>" % (esc(nodata), FONT, c.MUTED))
     if dataset:
         x += "<DataSetName>AllplanReport</DataSetName>"
     if tooltip:
         x += "<ToolTip>%s</ToolTip>" % esc(tooltip)
     x += extra
     x += "<Top>%scm</Top><Left>%scm</Left><Height>%scm</Height><Width>%scm</Width>" % (top, left, h, w)
-    x += style or "<Style><Border><Color>#E5E7EB</Color><Style>None</Style></Border><BackgroundColor>White</BackgroundColor></Style>"
+    x += style or ("<Style><Border><Color>%s</Color><Style>None</Style></Border><BackgroundColor>%s</BackgroundColor></Style>"
+                   % (c.HAIR, c.WHITE))
     x += "</Chart>"
     return x
 
@@ -325,12 +330,11 @@ def srange(name, start, end, color, w="8", dist="0", placement="Inside", sw=None
             % (name, color, gval("StartValue", start), gval("EndValue", end), sw or w, ew or w, dist, placement))
 
 
-def radial(name, value, vmin, vmax, ranges="", start=None, sweep=None, needle="Tapered", ptype="Needle", color="#111827",
+def radial(name, value, vmin, vmax, ranges="", start=None, sweep=None, needle="Tapered", ptype="Needle", color=c.INK,
            top=0, left=0, h=100, w=100, pivot=(50, 50), radius=38, interval=None, labels=True, frame="Default",
-           fstyle_="None", fill="White", scale_w="3", cap=True, label_size="8pt", frame_bg=None, pwidth="14", dist="0", ticks=True,
+           fstyle_="None", fill=c.WHITE, scale_w="3", cap=True, label_size="8pt", frame_bg=None, pwidth="14", dist="0", ticks=True,
            barstart="ScaleStart", extra_scale="", aspect="Fixed"):
     sc = '<RadialScale Name="%s_Scale">' % name
-    sc += "<Style><Border><Color>#9CA3AF</Color></Border></Style>" if False else ""
     sc += '<GaugePointers><RadialPointer Name="%s_Ptr">%s<Type>%s</Type>' % (name, gin(value), ptype)
     sc += "<Style><BackgroundColor>%s</BackgroundColor></Style>" % color
     if ptype == "Needle":
@@ -344,9 +348,9 @@ def radial(name, value, vmin, vmax, ranges="", start=None, sweep=None, needle="T
     if ranges:
         sc += "<ScaleRanges>%s</ScaleRanges>" % ranges
     sc += "<ScaleLabels>%s<Interval>%s</Interval><Hidden>%s</Hidden></ScaleLabels>" % (
-        fstyle(label_size, "#374151"), interval or "NaN", "false" if labels else "true")
+        fstyle(label_size, c.MUTED), interval or "NaN", "false" if labels else "true")
     sc += ("<GaugeMajorTickMarks><Style>%s</Style><Length>8</Length><Width>1</Width><Hidden>%s</Hidden></GaugeMajorTickMarks>"
-           % (border("#6B7280", "Solid", "0.5pt").replace("<Border>", "<Border>"), "false" if ticks else "true"))
+           % (border(c.MUTED, "Solid", "0.5pt"), "false" if ticks else "true"))
     sc += "<GaugeMinorTickMarks><Hidden>true</Hidden></GaugeMinorTickMarks>"
     sc += gval("MaximumValue", vmax) + gval("MinimumValue", vmin)
     if interval:
@@ -360,19 +364,19 @@ def radial(name, value, vmin, vmax, ranges="", start=None, sweep=None, needle="T
     sc += extra_scale + "</RadialScale>"
     bf = ("<BackFrame><Style><BackgroundColor>%s</BackgroundColor>%s</Style><FrameStyle>%s</FrameStyle><FrameShape>%s</FrameShape>"
           "<FrameBackground><Style><BackgroundColor>%s</BackgroundColor></Style></FrameBackground><GlassEffect>None</GlassEffect></BackFrame>"
-          % (fill, border("#D1D5DB", "Solid", "0.75pt"), fstyle_, frame, frame_bg or fill))
+          % (fill, border(c.HAIR_STARK, "Solid", "0.75pt"), fstyle_, frame, frame_bg or fill))
     return ('<RadialGauge Name="%s"><BackFrame/>' % name).replace("<BackFrame/>", bf) + "<GaugeScales>%s</GaugeScales>" % sc + \
         "<PivotX>%s</PivotX><PivotY>%s</PivotY><Top>%s</Top><Left>%s</Left><Height>%s</Height><Width>%s</Width>" % (
             pivot[0], pivot[1], top, left, h, w) + "<AspectRatio>%s</AspectRatio>" % ("1" if aspect == "Fixed" else aspect) + "</RadialGauge>"
 
 
-def linear(name, value, vmin, vmax, ranges="", ptype="Bar", orient="Horizontal", color="#2563EB", top=0, left=0, h=100, w=100,
-           pos=50, scale_w="6", interval=None, labels=True, marker_style="Triangle", fill="White", barstart="ScaleStart",
+def linear(name, value, vmin, vmax, ranges="", ptype="Bar", orient="Horizontal", color=c.BLUE, top=0, left=0, h=100, w=100,
+           pos=50, scale_w="6", interval=None, labels=True, marker_style="Triangle", fill=c.WHITE, barstart="ScaleStart",
            pwidth="10", extra_ptr="", thermo="", labelsize="8pt", ticks=True, extra_scale="", dist="0", mlen="12", frame="Rectangular",
            second_ptr=""):
     sc = '<LinearScale Name="%s_Scale">' % name
     sc += '<GaugePointers><LinearPointer Name="%s_Ptr">%s<Type>%s</Type>' % (name, gin(value), ptype)
-    sc += "<Style><BackgroundColor>%s</BackgroundColor>%s</Style>" % (color, border("#FFFFFF", "None", "0.5pt"))
+    sc += "<Style><BackgroundColor>%s</BackgroundColor>%s</Style>" % (color, border(c.WHITE, "None", "0.5pt"))
     sc += "<Placement>Inside</Placement>"
     sc += "<DistanceFromScale>%s</DistanceFromScale>" % dist
     if ptype == "Marker":
@@ -386,9 +390,9 @@ def linear(name, value, vmin, vmax, ranges="", ptype="Bar", orient="Horizontal",
     if ranges:
         sc += "<ScaleRanges>%s</ScaleRanges>" % ranges
     sc += "<ScaleLabels>%s<Interval>%s</Interval><Hidden>%s</Hidden></ScaleLabels>" % (
-        fstyle(labelsize, "#374151"), interval or "NaN", "false" if labels else "true")
+        fstyle(labelsize, c.MUTED), interval or "NaN", "false" if labels else "true")
     sc += "<GaugeMajorTickMarks><Style>%s</Style><Length>5</Length><Width>1</Width><Hidden>%s</Hidden></GaugeMajorTickMarks>" % (
-        border("#6B7280", "Solid", "0.5pt"), "false" if ticks else "true")
+        border(c.MUTED, "Solid", "0.5pt"), "false" if ticks else "true")
     sc += "<GaugeMinorTickMarks><Hidden>true</Hidden></GaugeMinorTickMarks>"
     sc += gval("MaximumValue", vmax) + gval("MinimumValue", vmin)
     if interval:
@@ -396,7 +400,7 @@ def linear(name, value, vmin, vmax, ranges="", ptype="Bar", orient="Horizontal",
     sc += "<Width>%s</Width><Position>%s</Position>" % (scale_w, pos)
     sc += extra_scale + "</LinearScale>"
     bf = ("<BackFrame><Style><BackgroundColor>%s</BackgroundColor>%s</Style><FrameStyle>None</FrameStyle><FrameShape>%s</FrameShape>"
-          "<GlassEffect>None</GlassEffect></BackFrame>" % (fill, border("#D1D5DB", "Solid", "0.75pt"), frame))
+          "<GlassEffect>None</GlassEffect></BackFrame>" % (fill, border(c.HAIR_STARK, "Solid", "0.75pt"), frame))
     return ('<LinearGauge Name="%s">' % name) + bf + "<GaugeScales>%s</GaugeScales>" % sc + \
         "<Orientation>%s</Orientation><Top>%s</Top><Left>%s</Left><Height>%s</Height><Width>%s</Width>" % (orient, top, left, h, w) + \
         "</LinearGauge>"
@@ -415,20 +419,20 @@ def stateind(name, value, vmin, vmax, states, style="Circle", top=0, left=0, h=1
     return s
 
 
-def numind(name, value, style="Digital7Segment", top=0, left=0, h=100, w=100, digits="6", decimals="1", color="#1F2937"):
+def numind(name, value, style="Digital7Segment", top=0, left=0, h=100, w=100, digits="6", decimals="1", color=c.INK):
     return ('<NumericIndicator Name="%s">%s<IndicatorStyle>%s</IndicatorStyle><Digits>%s</Digits><DecimalDigits>%s</DecimalDigits>'
-            "<DigitColor>%s</DigitColor><DecimalDigitColor>#6B7280</DecimalDigitColor><ShowDecimalPoint>True</ShowDecimalPoint>"
+            "<DigitColor>%s</DigitColor><DecimalDigitColor>%s</DecimalDigitColor><ShowDecimalPoint>True</ShowDecimalPoint>"
             "%s%s<Top>%s</Top><Left>%s</Left><Height>%s</Height><Width>%s</Width></NumericIndicator>"
-            % (name, gin(value), style, digits, decimals, color, gval("MinimumValue", "0"), gval("MaximumValue", "99999"), top, left, h, w))
+            % (name, gin(value), style, digits, decimals, color, c.MUTED, gval("MinimumValue", "0"), gval("MaximumValue", "99999"), top, left, h, w))
 
 
-def gaugelabel(name, text, top, left, h, w, size="14pt", color="#111827", bold=True, align="Center"):
-    return ('<GaugeLabel Name="%s"><Style><FontFamily>%s</FontFamily><FontSize>%s</FontSize><FontWeight>%s</FontWeight><Color>%s</Color>'
+def gaugelabel(name, text, top, left, h, w, size="14pt", color=c.INK, bold=True, align="Center"):
+    return ('<GaugeLabel Name="%s"><Style><FontFamily>%s</FontFamily><FontSize>%s</FontSize><Color>%s</Color>'
             "<TextAlign>%s</TextAlign><VerticalAlign>Middle</VerticalAlign></Style><Text>%s</Text><Top>%s</Top><Left>%s</Left><Height>%s</Height>"
-            "<Width>%s</Width><ResizeMode>AutoFit</ResizeMode></GaugeLabel>" % (name, FONT, size, "Bold" if bold else "Normal", color, align, esc(text), top, left, h, w))
+            "<Width>%s</Width><ResizeMode>AutoFit</ResizeMode></GaugeLabel>" % (name, c.F_SEMI if bold else FONT, size, color, align, esc(text), top, left, h, w))
 
 
-def gauge(name, top, left, w, h, radials="", linears="", states="", nums="", labels="", dataset=True, bg="White", nrows=None,
+def gauge(name, top, left, w, h, radials="", linears="", states="", nums="", labels="", dataset=True, bg=c.WHITE, nrows=None,
           extra="", autolayout="False"):
     x = '<GaugePanel Name="%s">' % name
     if radials:
@@ -447,7 +451,8 @@ def gauge(name, top, left, w, h, radials="", linears="", states="", nums="", lab
         x += "<DataSetName>AllplanReport</DataSetName>"
     x += extra
     x += "<Top>%scm</Top><Left>%scm</Left><Height>%scm</Height><Width>%scm</Width>" % (top, left, h, w)
-    x += "<Style><Border><Color>#E5E7EB</Color><Style>None</Style></Border><BackgroundColor>%s</BackgroundColor></Style></GaugePanel>" % bg
+    x += ("<Style><Border><Color>%s</Color><Style>None</Style></Border><BackgroundColor>%s</BackgroundColor></Style></GaugePanel>"
+          % (c.HAIR, bg))
     return x
 
 
@@ -478,7 +483,7 @@ def tablix(name, top, left, cols, header_cells, detail_cells, group_expr=None, s
     return xml
 
 
-def tb(name, text, size="9pt", bold=False, align=None, color="#1F2937", bg=None, border_xml="", valign="Middle"):
+def tb(name, text, size="9pt", bold=False, align=None, color=c.TEXT, bg=None, border_xml="", valign="Middle"):
     """Textbox fuer Tablix-Zelle (ohne Position)."""
     t = textbox(name, text, 0, 0, 1, 1, size=size, bold=bold, color=color, align=align, valign=valign, bg=bg, border_xml=border_xml)
     return re.sub(r"<Top>.*?</Width>", "", t)

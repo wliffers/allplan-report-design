@@ -12,6 +12,9 @@ import sys
 import uuid
 from xml.sax.saxutils import escape
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import design  # noqa: E402  (liegt neben core.py)
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 # Datenquelle und Standardparameter, die jeder Allplan-Report tragen muss (Project_Name, Date ...): die zwei
 # Bloecke aus Allplans Startvorlage Template_Grouping0.rdlc, unveraendert.
@@ -21,37 +24,52 @@ NS = "http://schemas.microsoft.com/sqlserver/reporting/2016/01/reportdefinition"
 RENDER = os.path.normpath(os.path.join(HERE, "..", "werkzeug", "render", "bin", "RenderRdlc.exe"))
 
 # ---------------------------------------------------------------- Gestaltungssystem
-INK = "#0F172A"        # Ueberschriften, grosse Zahlen
-TEXT = "#334155"       # Fliesstext, Tabellenwerte
-MUTED = "#64748B"      # Beschriftungen, Achsen
-FAINT = "#94A3B8"      # Fussnoten
-HAIR = "#E2E8F0"       # Haarlinien
-SURFACE = "#F4F6F9"    # Kachel- und Bandflaechen
-NAVY = "#0B1F3A"       # Titelband
-BLUE = "#2563EB"       # Leitfarbe
-SKY = "#93C5FD"        # Leitfarbe hell (auf dunklem Grund)
-ORANGE = "#F97316"     # Akzent, sparsam
-GREEN = "#16A34A"
-RED = "#DC2626"
-AMBER = "#F59E0B"
-WHITE = "#FFFFFF"
+# Farben und Schrift kommen aus design.py: Hausdesign oder Kundendesign (festgelegt in <Werkstatt>/design.json).
+# Hier stehen nur die Namen, unter denen Seiten und Bausteine sie benutzen - nie ein Hex-Wert in einer Seite.
+DESIGN = design.laden()
+_f = DESIGN.farben
+INK = _f["tinte"]                   # Ueberschriften, grosse Zahlen
+TEXT = _f["text"]                   # Fliesstext, Tabellenwerte
+MUTED = _f["leise"]                 # Beschriftungen, Achsen
+FAINT = _f["fussnote"]              # Einheiten, Fussnoten
+HAIR = _f["linie"]                  # Haarlinien, Rahmen
+HAIR_STARK = _f["linie_stark"]      # starke Trenner
+SURFACE = _f["flaeche"]             # Kachelflaechen
+MIST = _f["flaeche_blau"]           # Hinweis- und Bandflaechen
+TINT = _f["flaeche_tint"]           # Hervorhebung in Listen, Rand von Hinweisen
+NAVY = _f["dunkel"]                 # Titelband, dunkle Flaechen
+BLUE = _f["leit"]                   # Leitfarbe: Balken, Links, hervorgehobene Zahl auf Weiss
+AKZENT = _f["akzent"]               # Akzent: auf Weiss NUR als Flaeche oder Linie (im Hausdesign Tuerkis - als Schrift unlesbar)
+AKZENT_TEXT = DESIGN.akzent_text    # hervorgehobene Schrift auf Weiss (Akzent, wenn lesbar - sonst Leitfarbe)
+AUF_AKZENT = DESIGN.auf_akzent      # Schrift auf einer Akzentflaeche
+AKZENT_DUNKEL = DESIGN.akzent_auf_dunkel    # Akzent als Schrift oder Marke auf dunklem Grund
+AUF_NAVY = DESIGN.auf_dunkel        # zweitrangige Schrift auf dunklem Grund (Weiss 70 %)
+AUF_NAVY_LEISE = DESIGN.auf_dunkel_leise    # leise Schrift auf dunklem Grund (Weiss 60 %)
+NAVY_LINIE = DESIGN.dunkel_linie    # Linie auf dunklem Grund (Weiss 15 %)
+NAVY_FLAECHE = DESIGN.dunkel_flaeche        # Kachel auf dunklem Grund (Weiss 8 %)
+GREEN = _f["gut"]                   # Bewertung als Flaeche, Punkt, Balken
+RED = _f["schlecht"]
+AMBER = _f["achtung"]
+GREEN_TEXT = DESIGN.gut_text        # Bewertung als Schrift auf Weiss (abgedunkelt, bis sie lesbar ist)
+RED_TEXT = DESIGN.schlecht_text
+AMBER_TEXT = DESIGN.achtung_text
+WHITE = _f["weiss"]
 
-F = "Segoe UI"
-F_LIGHT = "Segoe UI Light"
-F_SEMI = "Segoe UI Semibold"
+F = DESIGN.schrift["normal"]
+F_LIGHT = DESIGN.schrift["leicht"]
+F_SEMI = DESIGN.schrift["halbfett"]
+F_ZAHL = DESIGN.schrift["zahl"]     # grosse Kennzahlen
 
-# Farben mit Bedeutung: jede Materialgruppe hat im ganzen Report dieselbe Farbe. Die Gruppe erkennt
-# der Report am Wortstamm des Materialnamens (Code.MatArt), nicht am genauen Namen: "StB C45",
-# "Beton bewehrt" und "Beton" sind alle "Beton".
-MATERIALGRUPPE = [("Beton", "#475569"), ("Mauerwerk", "#C2410C"), ("Dämmung", "#EAB308"), ("Gipskarton", "#94A3B8"),
-                  ("Holz", "#A16207"), ("Stahl", "#0E7490"), ("Glas", "#93C5FD"), ("Naturstein", "#78716C"),
-                  ("Sonstiges", "#CBD5E1")]
+# Farben mit Bedeutung: jede Materialgruppe hat im ganzen Report dieselbe Farbe - in jedem Design (Beton grau, Mauerwerk
+# ziegelrot). Die Gruppe erkennt der Report am Wortstamm des Materialnamens (Code.MatArt), nicht am genauen Namen:
+# "StB C45", "Beton bewehrt" und "Beton" sind alle "Beton".
+MATERIALGRUPPE = design.MATERIALGRUPPE
 # Die vier Materialien des Master-Teilbilds (Name im Modell, Farbe) - fuer feste Legenden.
 MATERIAL = [("Beton bewehrt", "#475569"), ("Mauerwerk", "#C2410C"), ("Dämmung", "#EAB308"),
             ("Gipskarton", "#94A3B8")]
 # Ein Farbton in Stufen: fuer geordnete Kategorien (groesste = dunkelste).
-RAMP = ["#1E3A8A", "#1D4ED8", "#3B82F6", "#60A5FA", "#93C5FD", "#BFDBFE", "#CBD5E1", "#E2E8F0"]
-SERIE = ["#2563EB", "#0EA5A4", "#F59E0B", "#7C3AED", "#E11D48", "#64748B", "#22C55E", "#0F172A"]
+RAMP = list(_f["stufen"])
+SERIE = list(_f["serie"])
 
 PAGE_W, PAGE_H = 21.0, 29.7
 INSET = 1.5                      # Abstand des Inhalts vom Blattrand
@@ -607,7 +625,7 @@ def report(pages, datasets, extra_params="", code="", footer_xml="", page_body_h
               % (cm(header_h), "true" if header_first else "false", "true" if header_last else "false", header_xml)) if header_xml else ""
     page = ("<Page>%s%s<PageHeight>%s</PageHeight><PageWidth>%s</PageWidth><LeftMargin>0cm</LeftMargin><RightMargin>0cm</RightMargin>"
             "<TopMargin>0cm</TopMargin><BottomMargin>0cm</BottomMargin><Style/></Page>" % (header, footer, cm(PAGE_H), cm(PAGE_W)))
-    code_xml = "<Code>%s</Code>" % esc(code) if code else ""
+    code_xml = "<Code>%s</Code>" % esc(code or "' Bausatz")     # immer vorhanden: die Schriftwahl haengt ihre Funktion an
     if variablen:
         embedded_xml += "<Variables>%s</Variables>" % "".join(
             '<Variable Name="%s"><Value>%s</Value></Variable>' % (n, esc(a if a.startswith("=") else "=" + a)) for n, a in variablen)
@@ -617,7 +635,7 @@ def report(pages, datasets, extra_params="", code="", footer_xml="", page_body_h
     if classes:
         zusatz += "<Classes>%s</Classes>" % "".join(
             "<Class><ClassName>%s</ClassName><InstanceName>%s</InstanceName></Class>" % (esc(k), esc(i)) for k, i in classes)
-    return ('<?xml version="1.0" encoding="utf-8"?>\n'
+    xml = ('<?xml version="1.0" encoding="utf-8"?>\n'
             '<Report xmlns="%s" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">'
             "<Author>%s</Author><AutoRefresh>0</AutoRefresh>%s<DataSets>%s</DataSets>"
             "<ReportSections><ReportSection>%s<Width>%s</Width>%s</ReportSection></ReportSections>%s%s%s"
@@ -626,15 +644,18 @@ def report(pages, datasets, extra_params="", code="", footer_xml="", page_body_h
             "<rd:ReportID>%s</rd:ReportID></Report>"
             % (NS, esc(VERFASSER), sources, "".join(datasets), body, cm(body_breite or PAGE_W), page, params, code_xml, embedded_xml, zusatz,
                uuid.uuid4()))
+    # Schrift: der Report waehlt beim Oeffnen die Soll-Schrift des Designs oder, wenn sie dem Rechner fehlt, den Ersatz
+    return design.schrift_zur_laufzeit(xml, DESIGN, esc)
 
 
-def render_argumente(rdlc, daten_json, ausgabe, parameter=None, pdf=False, datei_format=None, vollzugriff=False, dpi=110):
+def render_argumente(rdlc, daten_json, ausgabe, parameter=None, pdf=False, datei_format=None, vollzugriff=True, dpi=110):
     """Aufruf des Anzeigeprogramms; bricht mit klarer Meldung ab, solange es nicht gebaut ist.
     parameter: weitere Parameterwerte als dict oder Liste (Name, Wert) - Wert eine Zeichenkette, bei Parametern mit mehreren
         Werten eine Liste (der Renderer bekommt Name=Wert1|Wert2), None setzt Nothing (Name=~null); Project_Name=Musterprojekt
         ist vorbelegt und laesst sich hier ueberschreiben.
     pdf: zusaetzlich <name>.pdf; datei_format: 'xlsx' | 'docx' zusaetzlich als Datei (der Renderer kennt auch 'pdf').
-    vollzugriff: der Code des Reports laeuft mit vollen Rechten (wie in Allplan) - nur wenn der Report Dateien liest."""
+    vollzugriff: der Code des Reports laeuft mit vollen Rechten wie in Allplan (Vorgabe). Noetig, seit jeder Report beim Oeffnen
+    die installierten Schriften abfragt (design.schrift_zur_laufzeit): ohne volle Rechte zeigt die Vorschau die Ersatzschrift."""
     if not os.path.isfile(RENDER):
         sys.exit("FEHLER: Das Anzeigeprogramm fehlt (%s). Einmal bauen: "
                  "powershell -ExecutionPolicy Bypass -File werkzeug\render\build.ps1" % RENDER)
@@ -665,5 +686,6 @@ def rendern(rdlc, daten_json, ausgabe, **optionen):
 
 
 def save(path, xml):
+    design.sperre(DESIGN)       # kein Report, solange das Design nicht geklaert ist (python master/design.py --fragen)
     with open(path, "w", encoding="utf-8", newline="\r\n") as handle:
         handle.write(xml)

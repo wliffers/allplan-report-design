@@ -16,6 +16,9 @@ ausserdem der leere Ordner out/ (dort landen die fertigen .rdlc) und die Merkdat
     neue Fassung liegt daneben als <name>.neu und wird gemeldet.
 Unangetastet bleiben: out/ und aus/, eigene Datensaetze, eigene Seiten und alles andere, was es im Paket nicht
 gibt, sowie vorlagen/ und der gebaute Renderer werkzeug/render/bin. Geloescht wird nie etwas.
+
+Das Design gehoert dem Anwender: design.json (festgelegtes Design) und design_kunde.json (sein Formular) werden weder angelegt noch
+je angefasst - auch nicht, wenn sie im Paket laegen. Eine frische Werkstatt meldet "DESIGN: OFFEN", bis es geklaert ist.
 """
 import hashlib
 import json
@@ -27,6 +30,7 @@ HIER = Path(__file__).resolve().parent
 PAKET = HIER / "werkstatt"
 MERKDATEI = ".werkstatt_stand.json"
 AKTUALISIERT = ("master", "werkzeug")                 # nur diese Ordner ersetzt --aktualisieren
+GESCHUETZT = ("design.json", "design_kunde.json")     # das Design des Anwenders: nie anlegen, nie ueberschreiben
 
 
 def pruefsumme(pfad):
@@ -34,7 +38,7 @@ def pruefsumme(pfad):
 
 
 def paketdateien():
-    return sorted(p for p in PAKET.rglob("*") if p.is_file())
+    return sorted(p for p in PAKET.rglob("*") if p.is_file() and p.name not in GESCHUETZT)
 
 
 def neu_anlegen(ziel):
@@ -51,6 +55,7 @@ def neu_anlegen(ziel):
     (ziel / MERKDATEI).write_text(json.dumps(stand, indent=1), encoding="utf-8")
     print("Werkstatt angelegt: %s (%d Dateien)" % (ziel, len(stand)))
     print("Renderer bauen (einmalig): powershell -ExecutionPolicy Bypass -File werkzeug\\render\\build.ps1")
+    print("Design: noch offen - vor dem ersten Report klaeren: python master/design.py --fragen - erst den Anwender fragen, dann festlegen")
 
 
 def aktualisieren(ziel):
@@ -87,6 +92,10 @@ def aktualisieren(ziel):
           % (len(gezaehlt["neu"]), len(gezaehlt["ersetzt"]), gezaehlt["gleich"], len(gezaehlt["behalten"])))
     for schluessel in gezaehlt["behalten"]:
         print("  BEHALTEN %s - neue Fassung daneben als %s.neu" % (schluessel, Path(schluessel).name))
+    if "master/core.py" in gezaehlt["behalten"]:
+        print("  WICHTIG: Deine master/core.py ist veraendert und blieb stehen. Die alte Fassung kennt die Design-Abfrage nicht: "
+              "Uebernimm die Aenderungen aus master/core.py.neu in deine Datei (core.py muss design.py einbinden und design.sperre(DESIGN) in save() aufrufen), "
+              "sonst baut sie Reports, ohne das Design zu klaeren.")
     if not (ziel / "werkzeug" / "render" / "bin" / "RenderRdlc.exe").is_file():
         print("  Hinweis: der Renderer ist noch nicht gebaut: powershell -ExecutionPolicy Bypass -File werkzeug\\render\\build.ps1")
 

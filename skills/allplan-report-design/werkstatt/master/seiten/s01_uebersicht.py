@@ -34,6 +34,7 @@ FLAECHE = "Sum(CDbl(Fields!Flaeche.Value))"
 VOLUMEN = "Sum(CDbl(Fields!Volumen.Value))"
 # eindeutiger Nachrang: gleiche Werte am Deckelrand sollen nicht alle mitzaehlen
 NACHRANG = "Min(Val(Right(Fields!Nr.Value, 6))) / 1000000000.0"
+BETON_FARBE = dict(c.MATERIALGRUPPE)["Beton"]     # Materialfarbe mit Bedeutung (Beton grau), aus dem Gestaltungssystem
 
 
 def deckel(xml, gruppe, ausdruck, n):
@@ -51,16 +52,16 @@ def fm(x, grenze=100):
 # ---------------------------------------------------------------- Kopfband (Seitenrahmen, kein Baustein)
 def band():
     x0 = c.INSET
-    inner = (c.rect("BandAkzent", 1.15, x0, 1.3, 0.1, bg=c.ORANGE)
-             + c.text("BandOver", 1.4, x0, 12, 0.4, c.run("REPORT MASTER  ·  ALLPLAN 2027", 8, c.SKY, c.F_SEMI))
-             + c.text("BandTitel", 1.85, x0, 13, 1.45, c.run("Gebäudeauswertung", 30, c.WHITE, c.F_LIGHT))
+    inner = (c.rect("BandAkzent", 1.15, x0, 1.3, 0.1, bg=c.AKZENT)
+             + c.text("BandOver", 1.4, x0, 12, 0.4, c.run("REPORT MASTER  ·  ALLPLAN 2027", 8, c.AKZENT_DUNKEL, c.F_SEMI))
+             + c.text("BandTitel", 1.85, x0, 13, 1.45, c.run("Gebäudeauswertung", 30, c.WHITE, c.F))
              + c.text("BandSub", 3.3, x0, 13, 0.55,
                       c.run('=Parameters!Project_Name.Value & "   ·   " & Format(Parameters!Date.Value, "dd.MM.yyyy")',
-                            9, "#CBD5E1", c.F))
-             + c.text("BandRechts", 1.4, x0 + 13, 5, 0.4, c.run("Übersicht", 8, c.SKY, c.F_SEMI), align="Right")
+                            9, c.AUF_NAVY, c.F))
+             + c.text("BandRechts", 1.4, x0 + 13, 5, 0.4, c.run("Übersicht", 8, c.AUF_NAVY, c.F_SEMI), align="Right")
              + c.text("BandRechts2", 1.85, x0 + 13, 5, 1.45,
-                      c.para([c.run("=" + anzahl(MIT_MATERIAL), 30, c.WHITE, c.F_LIGHT, fmt="N0")], "Right"))
-             + c.text("BandRechts3", 3.3, x0 + 13, 5, 0.55, c.run("Bauteile im Modell", 9, "#CBD5E1", c.F), align="Right"))
+                      c.para([c.run("=" + anzahl(MIT_MATERIAL), 30, c.WHITE, c.F_ZAHL, fmt="N0")], "Right"))
+             + c.text("BandRechts3", 3.3, x0 + 13, 5, 0.55, c.run("Bauteile im Modell", 9, c.AUF_NAVY, c.F), align="Right"))
     return c.rect("Band", 0, 0, c.PAGE_W, 4.5, inner, bg=c.NAVY)
 
 
@@ -73,14 +74,14 @@ def k010(top, left, w):
 
     def s(txt, cond=None):
         if cond:
-            return c.run('=IIf(%s, "%s", "")' % (cond, txt), 11.5, c.TEXT, c.F_LIGHT)
-        return c.run(txt, 11.5, c.TEXT, c.F_LIGHT)
+            return c.run('=IIf(%s, "%s", "")' % (cond, txt), 11.5, c.TEXT, c.F)
+        return c.run(txt, 11.5, c.TEXT, c.F)
 
     def z(expr, fmt, einheit="", cond=None):
         wert = 'Format(%s, "%s")' % (expr, fmt) + (' & "%s"' % einheit if einheit else "")
         return c.run("=" + ('IIf(%s, %s, "")' % (cond, wert) if cond else wert), 11.5, c.INK, c.F_SEMI)
 
-    farbe = '=IIf(%s < %s, "%s", "%s")' % (ANTEIL, ZIEL, c.ORANGE, c.GREEN)
+    farbe = '=IIf(%s < %s, "%s", "%s")' % (ANTEIL, ZIEL, c.AMBER_TEXT, c.GREEN_TEXT)
     items = c.text("Aussage", top, left, w, 1.25, c.para([
         s("Die Bauteile umfassen "), z(ROHBAU_VOL, "#,##0", " m³"), s(", davon "), z(quote(BETON_VOL, ROHBAU_VOL), "0 %"), s(" Beton."),
         s(" ", ok_r), z(N_RAUM, "0", "", ok_r), s(" Räume mit zusammen ", ok_r), z(RAUM_FL, "#,##0", " m²", ok_r), s(".", ok_r),
@@ -97,7 +98,7 @@ def _gross(txt_expr, farbe=c.INK):
     """Grosse Zahl; die Schriftgroesse schrumpft mit der Ziffernzahl, damit nichts umbricht."""
     groesse = 'IIf(Len(%s) >= 8, "14pt", IIf(Len(%s) >= 6, "18pt", "22pt"))' % (txt_expr, txt_expr)
     return ("<TextRun><Value>=%s</Value><Style><FontFamily>%s</FontFamily><FontSize>=%s</FontSize><Color>%s</Color></Style></TextRun>"
-            % (c.esc(txt_expr), c.F_LIGHT, c.esc(groesse), farbe))
+            % (c.esc(txt_expr), c.F_ZAHL, c.esc(groesse), farbe))
 
 
 def _kachel(name, top, left, w, wert, einheit, label, note):
@@ -147,7 +148,7 @@ def d010(top, left, w):
         extra=c.filters(raw(MIT_MATERIAL)))
     items += deckel(bars, "ChMaterial_Cat1", VOLUMEN, 9)
     items += etikett("E03_e", top + 5.2, left, w, "D010",
-                     "Balken je Materialgruppe (Code.MatArt), Farbe über Code.MatFarbe, höchstens 9 Gruppen")
+                     "Balken je Materialgruppe, Farbe über Code.MatFarbe, höchstens 9 Gruppen")
     return items
 
 
@@ -157,14 +158,14 @@ def d020(top, left, w):
     items = overline("A2", top, left, w, "Räume", "Fläche nach Nutzung")
     schluessel = "%s + %s" % (FLAECHE, NACHRANG)        # gleiche Rangfolge in Ring und Legende
     ring = v.chart(
-        "ChRaum", top + 1.35, left - 0.1, 3.8, 3.8,
+        "ChRaum", top + 1.35, left - 0.1, 3.4, 3.8,
         [v.S("Flaeche", {"Y": "=" + FLAECHE}, typ="Shape", sub="Doughnut",
              custom_xml=v.custom(DoughnutRadius="30", PieLabelStyle="Disabled", PieStartAngle="270"),
-             pstyle="<Color>=Code.Stufe(Fields!Funktion.Value)</Color>" + v.border("#FFFFFF", "Solid", "1.5pt"))],
+             pstyle="<Color>=Code.Stufe(Fields!Funktion.Value)</Color>" + v.border(c.WHITE, "Solid", "1.5pt"))],
         [("=Fields!Funktion.Value", "=" + FLAECHE, "Descending")],
         areas=v.area(pos=(0, 0, 100, 100)),
         titles=(v.title('=Format(%s, "N0") & " m²"' % FLAECHE,
-                        size='=IIf(Len(Format(%s, "N0")) &gt;= 5, "9.5pt", "14pt")' % FLAECHE.replace("&", "&amp;"), color=c.INK, bold=False,
+                        size='=IIf(Len(Format(%s, "N0")) &gt;= 5, "9.5pt", "14pt")' % FLAECHE.replace("&", "&amp;"), color=c.INK, font=c.F_ZAHL,
                         extra="<ChartElementPosition><Top>38</Top><Left>10</Left><Height>14</Height><Width>80</Width></ChartElementPosition>")
                 + v.title("Raumfläche", size="7.5pt", name="Unter", color=c.MUTED, bold=False,
                           extra="<ChartElementPosition><Top>52</Top><Left>20</Left><Height>9</Height><Width>60</Width></ChartElementPosition>")),
@@ -172,13 +173,13 @@ def d020(top, left, w):
     ring = deckel(ring, "ChRaum_Cat1", schluessel, MAX_NUTZUNGEN)
 
     lrow = c.edge(["Bottom"], c.HAIR, "0.5pt")
-    name = ('=IIf(Len(CStr(Fields!Funktion.Value & "")) = 0, "ohne Angabe", IIf(Len(Fields!Funktion.Value) > 13, '
-            'Left(Fields!Funktion.Value, 12) & "…", Fields!Funktion.Value))')
+    name = ('=IIf(Len(CStr(Fields!Funktion.Value & "")) = 0, "ohne Angabe", IIf(Len(Fields!Funktion.Value) > 14, '
+            'Left(Fields!Funktion.Value, 13) & "…", Fields!Funktion.Value))')
     cdn = 'CountDistinct(Fields!Funktion.Value, "TbRaum")'
     rest = ('="+ " & (%s - %d) & " weitere · " & %s & " m²"' % (cdn, MAX_NUTZUNGEN, fm(
                 'Sum(CDbl(Fields!Flaeche.Value), "TbRaum") - RunningValue(Sum(CDbl(Fields!Flaeche.Value)), Sum, "TbRaum")')))
-    cols = [0.35, 1.95, 1.0]
-    daten = [c.cell("L1", c.run("■", 9, "=Code.Stufe(Fields!Funktion.Value)"), "Left", pad=(0, 0, 0, 0), border_xml=lrow),
+    cols = [0.35, 2.3, 1.0]
+    daten = [c.cell("L1", c.run("■", 9, "=Code.Stufe(Fields!Funktion.Value)", b.SYMBOL), "Left", pad=(0, 0, 0, 0), border_xml=lrow),
              c.cell("L2", c.run(name, 8, c.TEXT), pad=(0, 1, 2, 1), border_xml=lrow),
              c.cell("L3", c.run("=" + fm(FLAECHE), 8, c.INK, c.F_SEMI), "Right", pad=(0, 1, 0, 1), border_xml=lrow)]
     fuss = c.cell("L4", c.run(rest, 7.5, c.MUTED), pad=(0, 1, 0, 1))
@@ -202,7 +203,7 @@ def d020(top, left, w):
                   zeile(0.46, z_daten), zeile(0.42, z_fuss), "<TablixMember/>" * len(cols), gruppe,
                   c.filters(raw(RAUM)), c.cm(0.88), c.cm(sum(cols))))
     items += ring
-    items += c.rect("FeldRaum", top + 1.35, left + 3.9, w - 3.9, 3.8, legende)
+    items += c.rect("FeldRaum", top + 1.35, left + 3.5, w - 3.5, 3.8, legende)
     items += etikett("E04_e", top + 5.2, left, w, "D020",
                      "TopN 7 in Ring und Legende, Rest als Zeile")
     return items
@@ -235,7 +236,7 @@ def t010(top, left, w):
                        h("H5", "Volumen", "Right"), h("H6", ""), h("H7", "Anteil", "Right")]),
         ("daten", 0.68, [
             c.cell("D1", c.run("=" + MATGRUPPE, 9.5, c.INK, c.F_SEMI), border_xml=rowb),
-            c.cell("D2", c.run("=Left(First(Fields!Gewerk.Value), 32)", 9, c.MUTED), border_xml=rowb),
+            c.cell("D2", c.run("=Left(First(Fields!Gewerk.Value), 27)", 9, c.MUTED), border_xml=rowb),
             c.cell("D3", c.run("=CountRows()", 9.5, c.TEXT, fmt="N0"), "Right", border_xml=rowb),
             c.cell("D4", c.para([c.run("=" + FLAECHE, 9.5, c.TEXT, fmt="#,##0.0"), c.run(" m²", 8, c.FAINT)]),
                    "Right", border_xml=rowb),
@@ -255,7 +256,7 @@ def t010(top, left, w):
             c.cell("F6", c.run("", 9)), c.cell("F7", c.run("100 %", 9.5, c.INK, c.F_SEMI), "Right"),
         ]),
     ]
-    tabelle = c.tablix("TbMaterial", 0, 0, [3.4, 5.2, 1.6, 2.2, 2.2, 2.2, 1.2], rows,
+    tabelle = c.tablix("TbMaterial", 0, 0, [2.9, 5.0, 1.7, 2.3, 2.3, 2.2, 1.6], rows,
                        group="=" + MATGRUPPE, sort="=" + VOLUMEN, sort_desc=True,
                        filter_expr=raw(MIT_MATERIAL))
     tabelle = deckel(tabelle, "TbMaterial_G", VOLUMEN, MAX_GRUPPEN)
@@ -271,7 +272,7 @@ def _kennwert(name, top, left, w, label, note, anteil, gueltig, farbe):
     wert = 'IIf(%s, Format(%s, "0 %%"), "–")' % (gueltig, anteil)
     return (c.text(name + "_l", top, left, w - 2.2, 0.42, c.run(label, 9.5, c.INK, c.F_SEMI))
             + c.text(name + "_n", top + 0.47, left, w - 2.2, 0.36, c.run(note, 7.5, c.MUTED))
-            + c.text(name + "_v", top, left + w - 2.2, 2.2, 0.83, c.run("=" + wert, 17, c.INK, c.F_LIGHT),
+            + c.text(name + "_v", top, left + w - 2.2, 2.2, 0.83, c.run("=" + wert, 17, c.INK, c.F_ZAHL),
                      align="Right", valign="Bottom")
             + fortschritt(name + "_b", top + 0.95, left, w, "IIf(%s, %s, 0.0)" % (gueltig, anteil), farbe))
 
@@ -283,9 +284,9 @@ def m010(top, left, w):
     y = top + 1.4
     items += _kennwert("W1", y, left, w, "Fensterflächenanteil", "Glasfläche zu Außenwandfläche", ANTEIL, FENSTER_OK, c.BLUE)
     items += _kennwert("W2", y + 1.3, left, w, "Verkehrsfläche", "Flure zu gesamter Raumfläche",
-                       quote(verkehr, RAUM_FL), "%s > 0" % RAUM_FL, c.ORANGE)
+                       quote(verkehr, RAUM_FL), "%s > 0" % RAUM_FL, c.SERIE[3])
     items += _kennwert("W3", y + 2.6, left, w, "Betonanteil", "am Bauteilvolumen",
-                       quote(BETON_VOL, ROHBAU_VOL), "%s > 0" % ROHBAU_VOL, "#475569")
+                       quote(BETON_VOL, ROHBAU_VOL), "%s > 0" % ROHBAU_VOL, BETON_FARBE)
     items += etikett("E06_e", top + 5.2, left, w, "M010",
                      "Prozent mit Balken; ohne Grundlage steht –")
     return items
@@ -308,7 +309,7 @@ def b010(top, left, w):
     kk = deckel(kk, "Karten_G", haeufigkeit, MAX_KARTEN)
     items += kk
     items += etikett("E07_e", top + 5.2, left, w, "B010",
-                     "Karte je Typ mit Bild aus Allplan, TopN 5 nach Häufigkeit (häufigster zuerst), Klick zoomt aufs Bauteil")
+                     "Karte je Typ mit Bild aus Allplan, TopN 5 nach Häufigkeit, Klick zoomt aufs Bauteil")
     return items
 
 

@@ -126,7 +126,7 @@ Der Anwender prüft die Bedienung im Report-Fenster: Report in Allplan öffnen, 
 Worauf er achten soll:
 - Text rutscht unter einen Nachbarn, bricht anders um oder wird abgeschnitten, Blöcke rücken nach unten: zwei Elemente überlappen sich (das PDF zeigt das nicht).
 - Elemente einer Reihe rücken zusammen oder nach links, ohne dass etwas überlappt: weiter unten im selben Behälter liegt ein ausgeblendetes Feld mit anderen Kanten – es in einen eigenen Behälter über die volle Breite legen (Sichtbarkeit am Behälter).
-- Kleiner Text (bis 8,5 pt) bricht im Fenster um, im PDF nicht: er ist dort 3 bis 8 % breiter; 10 % Breitenreserve geben. Text ab 9 pt ist im Fenster 0,5 bis 3 % schmaler.
+- Kleiner Text (bis 8,5 pt) bricht im Fenster um, im PDF nicht: er ist dort 3 bis 8 % breiter; 10 % Breitenreserve geben. Text ab 9 pt ist im Fenster 0,5 bis 3 % schmaler. Gemessen mit Segoe UI; die Passkontrolle der Seiten rechnet mit den Breiten von Roboto.
 - Parameterleiste leer und auf der Fläche „Im Project_Name-Parameter fehlt ein Wert.“: ein Parameter ist ungültig (Ausdruck als Vorgabe, abhängige Liste); die Meldung nennt den falschen Parameter.
 - Ein `Hidden`-Parameter steht sichtbar da; ein interner Sprung zeigt vorher ein Meldungsfenster.
 - Klick ins Modell (`Zoom:`) wirkte im Testfenster nicht: ausprobieren, nicht versprechen. Hyperlinks, Tooltips und Export aus dem Fenster sind nicht geprüft.

@@ -14,11 +14,17 @@ Allplan zeigt Reports mit dem Microsoft ReportViewer. Er wird **nicht mitgeliefe
 
 *Allplan shows reports with the Microsoft ReportViewer. It is **not included**. The preview renderer of the skill uses the program files (DLLs) of the Allplan installation and copies them only on your computer, into the working folder.*
 
+## Roboto
+
+Das Hausdesign der Reports verwendet die Schrift Roboto (Lizenz: Apache License 2.0). Sie ist **nicht enthalten** und muss nicht installiert sein. Fehlt sie auf dem Rechner, der den Report öffnet, zeigt der Report Segoe UI. Wer sie nutzen will, installiert sie selbst.
+
+*The house design of the reports uses the font Roboto (license: Apache License 2.0). It is **not included** and does not have to be installed. If it is missing on the computer that opens the report, the report shows Segoe UI. If you want to use it, you install it yourself.*
+
 ## Segoe UI
 
-Die Reports verwenden die Schrift Segoe UI. Sie ist eine Windows-Systemschrift und **nicht enthalten**.
+Segoe UI ist die Ersatzschrift der Reports, wenn die Schrift des Designs fehlt. Sie ist eine Windows-Systemschrift und **nicht enthalten**.
 
-*The reports use the font Segoe UI. It is a Windows system font and is **not included**.*
+*Segoe UI is the fallback font of the reports when the font of the design is missing. It is a Windows system font and is **not included**.*
 
 ## Python-Pakete / Python packages
 

@@ -1,6 +1,6 @@
 ---
 name: allplan-report-design
-description: 'Auslöser: "Report gestalten", "Report schoener", "Dashboard", "Diagramm im Report", "Bild im Report", "Kennzahlen-Report", "Report-Design", "Report UX", "Master-Report", "Raum-Abwicklung", "englischer Report", "Report uebersetzen" oder eine Baustein-Kennung wie "D040", "T020", "K010". Gestaltet Allplan-2027-Reports (.rdlc) als Auswertung zum Hinsehen und Bedienen - Diagramme, Messanzeigen, Kennzahl-Kacheln, Tabellen mit Grafik, Bauteilbilder und Grundrisse aus dem Modell, Klick ins Modell, Stellschrauben - deutsch und englisch, und führt zum Beweis in Allplan. Reine Listen ohne Gestaltung: Skill allplan-report, falls installiert.'
+description: 'Auslöser: "Report gestalten", "Report schoener", "Dashboard", "Diagramm im Report", "Bild im Report", "Kennzahlen-Report", "Report-Design", "Report UX", "Corporate Design", "Farben des Büros", "Hausschrift", "Master-Report", "Raum-Abwicklung", "englischer Report", "Report uebersetzen" oder eine Baustein-Kennung wie "D040", "T020", "K010". Gestaltet Allplan-2027-Reports (.rdlc) als Auswertung zum Hinsehen und Bedienen - Diagramme, Messanzeigen, Kennzahl-Kacheln, Tabellen mit Grafik, Bauteilbilder und Grundrisse aus dem Modell, Klick ins Modell, Stellschrauben - deutsch und englisch, und führt zum Beweis in Allplan. Reine Listen ohne Gestaltung: Skill allplan-report, falls installiert.'
 ---
 
 # Allplan-Reports gestalten
@@ -66,8 +66,9 @@ Planliste deutsch und englisch (nach Korrektur erneut, sauber), Wandbeläge an e
 
 1. Neuer Wunsch des Kunden: `references/rezepte.md` – Wunsch → geht / Kniff / geht nicht → womit (Kennung, Bausatz-Funktion, Abschnitt); die Bausatz-Funktionen stehen in `references/bausatz.md`.
 2. `references/grenzen.md` – was geht, was nur mit Kniff, was nicht.
-3. `<REPORT>/master/GESTALTUNG.md` – Raster, Farben, Schrift, Regeln für Diagramme, Abschnitt „Datenfest“.
-4. Den Master rendern (`python master/build_master.py --render`) und die zehn Bilder ansehen: `master/aus/png/Report_Master_S1.png` … `_S10.png`.
+3. `references/design.md` – Rollen der Farben und Schriften, wie aus Kundenangaben ein Design wird, was eine RDLC vom Design nicht kann.
+4. `<REPORT>/master/GESTALTUNG.md` – Raster, Farben, Schrift, Regeln für Diagramme, Abschnitt „Datenfest“.
+5. Den Master rendern (`python master/build_master.py --render`) und die zehn Bilder ansehen: `master/aus/png/Report_Master_S1.png` … `_S10.png`.
    Sie sind der Maßstab; eine neue Seite muss daneben bestehen.
 
 Nach Bedarf: `references/bausteine.md`, `masse.md`, `fallen.md`, `bilder.md`, `daten.md`, `sprache.md`, `pruefstrecke.md`; je Thema `bewehrung.md`, `projektlisten.md`, `codes.md` (Strichcode, QR, CSV).
@@ -100,6 +101,10 @@ Nach Bedarf: `references/bausteine.md`, `masse.md`, `fallen.md`, `bilder.md`, `d
     Text rutscht unter den Nachbarn, wird in festen Rahmen abgeschnitten, Blöcke rücken nach unten. Hintergrundflächen als Eltern-Rectangle bauen, Striche als Rahmen, Titel und Untertitel nebeneinander;
     unsichtbare Ankerfelder zählen mit. Das Prüfskript meldet Überlappungen als Warnung W28 „Elemente überlappen sich“ (`validate_rdlc.py`); Text ab 9 pt ist im Fenster 0,5 bis 3 % schmaler als im PDF, Text bis 8,5 pt dagegen 3 bis 8 % BREITER (gemessen: 8,5 pt +3 %, 8 pt +8 %, 6,5 pt +5 %) – kleinem Text 10 % Breitenreserve geben (`fallen.md`).
     Ausgeblendete Felder (`Hidden`-Ausdruck) verschieben im Fenster sichtbare Elemente im selben Behälter, wenn ihre Kanten nicht auf deren Kanten liegen (gemessen bis 2,4 cm, auch bei 8 cm Abstand); ein eigener Behälter (Rectangle über die volle Breite, Sichtbarkeit am Behälter) behebt es.
+    Die Breitenzahlen sind mit Segoe UI gemessen; die Passkontrolle der Seiten rechnet mit den Breiten von Roboto.
+15. **Farben und Schrift nur über Namen aus `core.py`.** Eine Seite schreibt nie einen Hex-Wert und nie einen Schriftnamen: `INK`, `TEXT`, `MUTED`, `AKZENT`, `AKZENT_TEXT`, `AUF_NAVY`, `GREEN_TEXT`, … und `F`, `F_SEMI`, `F_ZAHL` stammen aus dem festgelegten Design (`references/design.md`).
+    Der Akzent steht auf Weiß nie als Schrift (Türkis des Hausdesigns: Kontrast 1,3), sondern nur als Fläche oder Linie; hervorgehobene Schrift nimmt `AKZENT_TEXT`. Bewertungsfarben als Schrift: `GREEN_TEXT`, `AMBER_TEXT`, `RED_TEXT`.
+    Bleiben fest: Materialfarben (`MATERIALGRUPPE`) und Symbolschriften (Segoe UI Symbol, Consolas).
 
 ## Ablauf
 
@@ -107,6 +112,13 @@ Jeder Schritt endet an der genannten Kante. R1 = statische Prüfung (`werkzeug/p
 Es gibt genau einen Prüfweg: kopflos rendern und ansehen (Schritte 4 und 5), statische Prüfung R1 (Schritt 6), dann öffnet der Anwender den
 Report in Allplan und meldet zurück (R2, Schritt 7). Bis zu seiner Rückmeldung ist R2 „nicht geprüft“.
 
+0. **Design klären** (eine Werkstatt hat ein Design; auch bei eiligem Auftrag; ohne Design halten die Bauskripte mit Code 3 an). `python master/design.py` nennt den Stand.
+   - `DESIGN: OFFEN`: die drei Fragen aus `python master/design.py --fragen` (Stil, Farben, Schrift) in Alltagssprache stellen, jede mit der Empfehlung „Hausdesign“, und auf die Antwort des Anwenders warten. Antwortet er nicht, wird gewartet und nichts gebaut.
+   - Erst NACH seiner Antwort festlegen. Sagt er nichts weiter oder „nimm den Standard“: `python master/design.py --haus --antwort "<sein Wortlaut>"` (ohne `--antwort` lehnt der Befehl ab).
+   - Nennt er Vorgaben (CI-Handbuch, Website, Logo, Beispiel-PDF, Farbwerte, Schriftname): `python master/design.py --vorlage` schreibt `design_kunde.json`, daraus die vier Pflichtfarben und die Schrift füllen (`references/design.md`), dann `python master/design.py --kunde design_kunde.json [--antwort "<sein Wortlaut>"]`. Die `AMPEL`-Zeile und die `DESIGN`-Zeile gehen wörtlich an den Anwender; bei ROT nachbessern.
+   - Anderer Kunde oder anderes Design: eine eigene Werkstatt anlegen, oder das Design mit `--kunde` neu festlegen; dann alle Reports neu bauen und das dem Anwender sagen.
+   - `REPORT_DESIGN` ist nur für Tests und den Sammelbau der ausgelieferten Vorlagen; für den Report eines Anwenders wird sie nie gesetzt.
+   Kante: `python master/design.py` meldet `DESIGN: HAUS` oder `DESIGN: KUNDE`.
 1. **Auftrag fassen.** Leser, die Frage, die der Report beantwortet, Objektarten, Bildart. Kante: ein Satz „Der Report zeigt <wem> <was>“ und
    die Liste der Bausteine nach Kennung.
 2. **Daten holen.** Abfrage nach `references/daten.md` (Muster: `QUERY` in `bausteine.py`), jede Attribut-Nummer mit
@@ -154,6 +166,7 @@ Einzelheiten, gemessene Datenquellen und die drei erprobten Wege: `references/bi
 | Excel-Export zu Beispieldaten | `python werkzeug/xlsx_lesen.py <datei.xlsx>` · `python werkzeug/xlsx_zu_json.py <probe.rdlc> <probe.xlsx> <ziel.json>` |
 | Beispieldaten neu | `python master/daten/make_gross.py` · `python master/abwicklung/daten/make_wandbelag_bsp.py` |
 | PDF ansehen | `python werkzeug/pdf_zu_png.py <datei.pdf>` · `python werkzeug/kontaktbogen.py …` |
+| Design: Stand, Fragen, festlegen | `python master/design.py` · `--fragen` · `--haus` · `--vorlage` · `--kunde <datei>` · `--pruefen [datei]` · `--tabelle` (`references/design.md`) |
 | Tests | `python -m pytest werkzeug/tests -q` |
 | VB-Code für Strichcode, QR und CSV | `werkzeug/vb/codes.vb`, `werkzeug/vb/zweite_datenquelle.vb` (Einbau: `references/codes.md`) |
 | Report statisch prüfen (R1) | `python werkzeug/pruefen/validate_rdlc.py out/<Datei>.rdlc` (auch ein ganzer Ordner) |
@@ -170,6 +183,6 @@ Einzelheiten, gemessene Datenquellen und die drei erprobten Wege: `references/bi
 
 ## Übergabe
 
-Höchstens 30 Zeilen: Datei(en) in `out/`; die Frage, die der Report beantwortet; Bausteine nach Kennung; Abfrage mit Filter; Bildart; Ergebnis der drei
+Höchstens 30 Zeilen: die `DESIGN`-Zeile (`python master/design.py`); Datei(en) in `out/`; die Frage, die der Report beantwortet; Bausteine nach Kennung; Abfrage mit Filter; Bildart; Ergebnis der drei
 Datensätze; die `AMPEL`-Zeile von R1; R2 (Bild aus Allplan mit Pfad – oder GRAU „nicht geprüft“, bis der Anwender zurückmeldet); was im Allplan-Fenster nicht
 selbst geprüft wurde (Klick ins Modell, Tooltips, Hyperlinks; ohne Fensterprüfung die ganze Bedienung); Sprachen (deutsch, englisch).

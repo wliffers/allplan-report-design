@@ -89,8 +89,8 @@ KOSTEN_ZEILE = "CDbl(Fields!Volumen.Value) * " + PREIS
 
 
 def symbol(name, text_, farbe, size=9):
-    """Farbiges Zeichen aus Segoe UI Symbol (in Segoe UI fehlen ▲ ● ✓)."""
-    return c.cell(name, c.run(text_, size, farbe, "Segoe UI Symbol"), "Center", pad=(0, 0, 0, 0),
+    """Farbiges Zeichen in der Symbolschrift (in Roboto fehlen ▲ ● ✓ ■)."""
+    return c.cell(name, c.run(text_, size, farbe, b.SYMBOL), "Center", pad=(0, 0, 0, 0),
                   border_xml=c.edge(["Bottom"], c.HAIR, "0.5pt"))
 
 
@@ -131,7 +131,7 @@ def u010(top, left, w):
     reihe = ""
     for i, (kopf, satz) in enumerate(kacheln):
         inner = (c.rect("S7_B05k%d_a" % i, 0, 0, 0.08, 1.4, bg=c.BLUE)
-                 + c.text("S7_B05k%d_t" % i, 0.15, 0.4, kw - 0.5, 0.3, c.run(kopf.upper(), 6.5, c.BLUE, c.F_SEMI))
+                 + c.text("S7_B05k%d_t" % i, 0.15, 0.4, kw - 0.5, 0.3, c.run(kopf.upper(), 7, c.MUTED, c.F_SEMI))
                  + c.text("S7_B05k%d_s" % i, 0.5, 0.4, kw - 0.5, 0.85, c.run(satz, 8, c.TEXT)))
         reihe += c.rect("S7_B05k%d" % i, 0, i * (kw + gap), kw, 1.4, inner, bg=c.SURFACE)
     # Die Reihe liegt in einem EIGENEN Behaelter (gemessen im Report-Fenster): liegen die vier Kacheln direkt auf der Seite,
@@ -145,8 +145,8 @@ def u010(top, left, w):
 @b.baustein("K040", "Kernaussage")
 def k040(top, left, w):
     items = overline("S7_B04", top, left, w, "Kernaussage", "Das Wichtigste in drei Sätzen")
-    fl, sb = c.F_LIGHT, c.F_SEMI
-    gross = 15
+    fl, sb = c.F, c.F_SEMI
+    gross = 13
 
     def r(expr, fett=False, cond=None):
         """Textstueck; mit cond entfaellt es ganz, wenn die Grundlage fehlt."""
@@ -167,8 +167,9 @@ def k040(top, left, w):
         r("Der Fensterflächenanteil liegt mit ", cond=ok_f), r('=Format(%s, "0 %%")' % ANTEIL, True, ok_f),
         r("=\" \" & %s & \" dem Ziel von \"" % lage, cond=ok_f), r('=Format(%s / 100, "0 %%")' % ziel, True, ok_f),
         r(". ", cond=ok_f), r("=" + hinweise)])
-    inner = c.rect("S7_B04_bar", 0, 0, 0.08, 1.7, bg=c.BLUE) + c.text("S7_B04_s", 0, 0.5, w - 0.5, 1.7, satz, valign="Middle")
-    items += c.rect("S7_B04_feld", top + 1.45, left, w, 1.7, inner)
+    # Hinweisband: Flaeche MIST, linker Rand 3 pt Akzent, Schrift INK
+    inner = c.rect("S7_B04_bar", 0, 0, 0.106, 1.7, bg=c.AKZENT) + c.text("S7_B04_s", 0, 0.5, w - 0.6, 1.7, satz, valign="Middle")
+    items += c.rect("S7_B04_feld", top + 1.45, left, w, 1.7, inner, bg=c.MIST)
     items += etikett("S7_B04_e", top + 3.25, left, w, "K040", "Satz aus Ausdrücken (Switch, Format, Max): größte Materialgruppe, Fensteranteil gegen den Parameter Ziel, Zahl der Hinweise")
     return items
 
@@ -187,8 +188,9 @@ def u020(top, left, w):
     # Zahl der Hinweise und Haken sind EINE Textbox mit zwei Textstuecken (eines davon jeweils leer): zwei Felder auf
     # derselben Stelle ueberlappen sich, und das Report-Fenster schiebt eines weg.
     band = (c.text("S7_B01_n", 0, 0, 1.3, 1.1,
-                   c.para([c.run('=IIf(%s, "", Format(%s, "N0"))' % (KEINE, N), 28, c.ORANGE, c.F_LIGHT),
-                           c.run('=IIf(%s, "✓", "")' % KEINE, 22, c.GREEN, "Segoe UI Symbol")], "Center"), valign="Middle")
+                   c.para([c.run('=IIf(%s, "", Format(%s, "N0"))' % (KEINE, N), 28, c.AKZENT_TEXT, c.F_ZAHL).replace(
+                               "<FontSize>28pt</FontSize>", "<FontSize>=%s</FontSize>" % c.esc('IIf(%s >= 100, "16pt", IIf(%s >= 10, "24pt", "28pt"))' % (N, N))),
+                           c.run('=IIf(%s, "✓", "")' % KEINE, 22, c.GREEN_TEXT, b.SYMBOL)], "Center"), valign="Middle")
             + c.text("S7_B01_bt", 0.08, 1.34, w - 2.0, 0.55,
                      c.run('=IIf(%s, "Keine Auffälligkeiten", IIf(%s = 1, "Hinweis", "Hinweise") & " aus der Prüfung des Modells")' % (KEINE, N),
                            10.5, c.INK, c.F_SEMI))
@@ -214,23 +216,23 @@ def u020(top, left, w):
 
     kopf = [kopfzelle("S7_LH1", ""), kopfzelle("S7_LH2", "Hinweis"), kopfzelle("S7_LH3", "Bauteil"),
             kopfzelle("S7_LH4", "Wert", "Right"), kopfzelle("S7_LH5", "")]
-    tuer = [symbol("S7_LT1", "▲", c.RED),
+    tuer = [symbol("S7_LT1", "▲", c.RED_TEXT),
             zelle("S7_LT2", c.run('="Tür unter der Mindestbreite von " & Format(Parameters!Tuer_Mindestbreite.Value, "0.00") & " m"', 9, c.INK, c.F_SEMI)),
             zelle("S7_LT3", c.run("=" + kurz("Fields!Bezeichnung.Value", 20), 9, c.MUTED)),
             zelle("S7_LT4", c.run('=Format(CDbl(Fields!Laenge.Value), "0.0##") & " m"', 9, c.INK, c.F_SEMI), "Right"),
             link("S7_LT5", ZOOM)]
-    raum = [symbol("S7_LR1", "●", c.AMBER, 8),
+    raum = [symbol("S7_LR1", "●", c.AMBER_TEXT, 8),
             zelle("S7_LR2", c.run('=%s & IIf(%s = 1, " Raum", " Räume") & " ohne Bezeichnung"' % (N_R, N_R), 9, c.INK, c.F_SEMI), ziel=z_raum, tip=zoom_tip),
             zelle("S7_LR3", c.run("Räume", 9, c.MUTED), ziel=z_raum, tip=zoom_tip),
             zelle("S7_LR4", c.run('=%s & " von " & %s' % (N_R, N_RAUM), 9, c.INK, c.F_SEMI), "Right", z_raum, zoom_tip),
             zelle("S7_LR5", c.run("im Modell zeigen ›", 8, c.BLUE, c.F_SEMI), "Right", z_raum, zoom_tip)]
-    fenster = [symbol("S7_LF1", "●", c.AMBER, 8),
+    fenster = [symbol("S7_LF1", "●", c.AMBER_TEXT, 8),
                zelle("S7_LF2", c.run('="Fensterflächenanteil unter dem Ziel von " & Format(Parameters!Ziel_Fensteranteil.Value / 100, "0 %")',
                                      9, c.INK, c.F_SEMI), ziel=z_fenster, tip=zoom_tip),
                zelle("S7_LF3", c.run('=%s & " Fenster"' % N_FENSTER, 9, c.MUTED), ziel=z_fenster, tip=zoom_tip),
                zelle("S7_LF4", c.run('=Format(%s, "0 %%")' % ANTEIL, 9, c.INK, c.F_SEMI), "Right", z_fenster, zoom_tip),
                zelle("S7_LF5", c.run("im Modell zeigen ›", 8, c.BLUE, c.F_SEMI), "Right", z_fenster, zoom_tip)]
-    ohne = [symbol("S7_LO1", "●", c.AMBER, 8),
+    ohne = [symbol("S7_LO1", "●", c.AMBER_TEXT, 8),
             zelle("S7_LO2", c.run('=%s & IIf(%s = 1, " Bauteil", " Bauteile") & " ohne Material · " & %s & " m³ – nicht in den Mengen enthalten"'
                                   % (N_O, N_O, fm(VOL_O, 100)), 9, c.INK, c.F_SEMI), ziel=z_ohne, tip=zoom_tip),
             zelle("S7_LO5", c.run("im Modell zeigen ›", 8, c.BLUE, c.F_SEMI), "Right", z_ohne, zoom_tip)]
@@ -269,7 +271,7 @@ def u020(top, left, w):
     haken = ""
     for i, regel in enumerate(regeln):
         haken += c.text("S7_B01_g%d" % i, 0, i * (breite + 0.3), breite, 0.7,
-                        c.para([c.run("✓  ", 10, c.GREEN, "Segoe UI Symbol"), regel]), valign="Middle",
+                        c.para([c.run("✓  ", 10, c.GREEN_TEXT, b.SYMBOL), regel]), valign="Middle",
                         border_xml=c.edge(["Bottom"], c.HAIR, "0.5pt"))
     # EIN Behaelter mit der Sichtbarkeit (gemessen im Report-Fenster): drei einzeln ausgeblendete Felder direkt auf der Seite
     # verschieben fremde Elemente derselben Seite, die nicht auf ihren Kanten liegen.
@@ -300,7 +302,7 @@ def u030(top, left, w):
         ("kopf", 0.65, [kopf("S7_KH1", "Material"), kopf("S7_KH2", "Volumen", "Right"), kopf("S7_KH3", "Preis €/m³", "Right"),
                         kopf("S7_KH4", "Kosten", "Right"), kopf("S7_KH5", "Anteil", "Right")]),
         ("daten", 0.6, [
-            c.cell("S7_KD1", c.para([c.run("■ ", 9, MAT_FARBE), c.run("=" + MATGRUPPE, 9.5, c.INK, c.F_SEMI)]), border_xml=row),
+            c.cell("S7_KD1", c.para([c.run("■ ", 9, MAT_FARBE, b.SYMBOL), c.run("=" + MATGRUPPE, 9.5, c.INK, c.F_SEMI)]), border_xml=row),
             c.cell("S7_KD2", c.para([c.run("=" + fm(VOLUMEN), 9.5, c.TEXT), c.run(" m³", 8, c.FAINT)]),
                    "Right", border_xml=row),
             c.cell("S7_KD3", c.run(preis_sonst('Format(%s, "N0")' % PREIS), 9.5, c.BLUE, c.F_SEMI), "Right", border_xml=row),
@@ -328,11 +330,11 @@ def u030(top, left, w):
         "S7_ChKosten", y - 0.1, rx + 0.5, 3.4, 3.1,
         [v.S("Kosten", {"Y": "=" + kosten}, typ="Shape", sub="Doughnut",
              custom_xml=v.custom(DoughnutRadius="30", PieLabelStyle="Disabled", PieStartAngle="270"),
-             pstyle="<Color>%s</Color>" % c.esc(MAT_FARBE) + v.border("#FFFFFF", "Solid", "1.5pt"))],
+             pstyle="<Color>%s</Color>" % c.esc(MAT_FARBE) + v.border(c.WHITE, "Solid", "1.5pt"))],
         [("=" + MATGRUPPE, "=" + schluessel, "Descending")],
         areas=v.area(pos=(0, 0, 100, 100)),
         titles=(v.title('=%s & " €"' % eur(kosten),
-                        size='=IIf(Len(%s) &gt;= 7, "8pt", IIf(Len(%s) &gt;= 6, "10pt", "11pt"))' % (eur(kosten).replace("&", "&amp;").replace(">", "&gt;"), eur(kosten).replace("&", "&amp;").replace(">", "&gt;")), color=c.INK, bold=False,
+                        size='=IIf(Len(%s) &gt;= 7, "8pt", IIf(Len(%s) &gt;= 6, "10pt", "11pt"))' % (eur(kosten).replace("&", "&amp;").replace(">", "&gt;"), eur(kosten).replace("&", "&amp;").replace(">", "&gt;")), color=c.INK,
                         extra="<ChartElementPosition><Top>38</Top><Left>4</Left><Height>14</Height><Width>92</Width></ChartElementPosition>")
                 + v.title("Materialkosten", size="7pt", name="Unter", color=c.MUTED, bold=False,
                           extra="<ChartElementPosition><Top>52</Top><Left>8</Left><Height>9</Height><Width>84</Width></ChartElementPosition>")),
@@ -343,7 +345,7 @@ def u030(top, left, w):
              + c.text("S7_B03_nt", 0.03, 0.35, 6.0, 1.34,
                       c.para([c.run("Preise links im Report-Fenster ändern – der Report rechnet neu. ", 7, c.TEXT),
                               c.run("Preise nur für Beton, Mauerwerk, Dämmung, Gipskarton; andere zeigen – und zählen nicht.",
-                                    6.5, c.MUTED)]),
+                                    7, c.MUTED)]),
                       valign="Middle"))
     items += c.rect("S7_B03_n", y + 3.15, rx, 6.5, 1.4, notiz, bg=c.SURFACE)
     items += etikett("S7_B03_e", y + 4.7, left, w, "U030",
@@ -380,7 +382,7 @@ def u040(top, left, w):
     g = dict(bg=c.SURFACE, border_xml=row, pad=(14, 1, 4, 1))
     gp = dict(bg=c.SURFACE, border_xml=row, pad=(4, 1, 4, 1))
     gruppenzeile = [
-        c.cell("S7_G1", c.para([c.run("■ ", 9, MAT_FARBE), c.run("=" + MATGRUPPE, 9.5, c.INK, c.F_SEMI)]), **g),
+        c.cell("S7_G1", c.para([c.run("■ ", 9, MAT_FARBE, b.SYMBOL), c.run("=" + MATGRUPPE, 9.5, c.INK, c.F_SEMI)]), **g),
         c.cell("S7_G2", c.run('=Format(CountRows(), "N0") & " Bauteile"', 8, c.MUTED), **gp),
         c.cell("S7_G3", einheit("Sum(CDbl(Fields!Laenge.Value))", "m", "N1", False), "Right", **gp),
         c.cell("S7_G4", einheit("Sum(CDbl(Fields!Flaeche.Value))", "m²", "N1", False), "Right", **gp),
@@ -413,5 +415,5 @@ def u040(top, left, w):
                      extra="<NoRowsMessage>Keine Bauteile mit Material im Teilbild.</NoRowsMessage><DataSetName>%s</DataSetName>%s" % (DS, c.filters(MIT_MATERIAL)))
     items += c.rect("S7_B02_tab", top + 1.45, left, w, 3.4, tab)
     items += etikett("S7_B02_e", top + 4.85, left, w, "U040",
-                     "Tablix mit ToggleItem (Startzustand aus Parameter Zeige_Details), UserSort am Spaltenkopf, TopN 5 Gruppen und 5 Zeilen je Gruppe, BookmarkLink Zoom/Mark")
+                     "Tablix mit ToggleItem (Startzustand aus Parameter Zeige_Details), UserSort am Spaltenkopf, TopN 5 Gruppen, 5 Zeilen je Gruppe, BookmarkLink Zoom/Mark")
     return items

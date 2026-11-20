@@ -98,27 +98,27 @@ def mini(name, top, left, w, h, inhalt, bedingung):
 def kopf2():
     """Kopf der zweiten Seite: wie seitenkopf(), aber fuer den Begleit-Report."""
     return b.folgekopf("G_P2Kopf", "G_P2", "REPORT MASTER  ·  BEGLEIT-REPORT  ·  SEITE 2", "Raumpläne",
-                       c.run("Grundriss je Raum, nach Fläche", 8.5, "#CBD5E1"), untertitel_text="Grundriss je Raum, nach Fläche")
+                       c.run("Grundriss je Raum, nach Fläche", 8.5, c.AUF_NAVY), untertitel_text="Grundriss je Raum, nach Fläche")
 
 
 def band():
     x0 = c.INSET
-    inner = (c.rect("G_BandAkzent", 1.15, x0, 1.3, 0.1, bg=c.ORANGE)
-             + c.text("G_BandOver", 1.4, x0, 12, 0.4, c.run("REPORT MASTER  ·  BEGLEIT-REPORT", 8, c.SKY, c.F_SEMI))
-             + c.text("G_BandTitel", 1.85, x0, 13, 1.45, c.run("Grundriss und Räume", 30, c.WHITE, c.F_LIGHT))
+    inner = (c.rect("G_BandAkzent", 1.15, x0, 1.3, 0.1, bg=c.AKZENT)
+             + c.text("G_BandOver", 1.4, x0, 12, 0.4, c.run("REPORT MASTER  ·  BEGLEIT-REPORT", 8, c.AKZENT_DUNKEL, c.F_SEMI))
+             + c.text("G_BandTitel", 1.85, x0, 13, 1.45, c.run("Grundriss und Räume", 30, c.WHITE, c.F))
              + c.text("G_BandSub", 3.3, x0, 13, 0.55,
                       c.run('=Parameters!Project_Name.Value & "   ·   Geschossgrundriss   ·   " & Format(Parameters!Date.Value, "dd.MM.yyyy")',
-                            9, "#CBD5E1", c.F))
-             + c.text("G_BandRechts", 1.4, x0 + 13, 5, 0.4, c.run("Geschossfläche", 8, c.SKY, c.F_SEMI), align="Right")
+                            9, c.AUF_NAVY, c.F))
+             + c.text("G_BandRechts", 1.4, x0 + 13, 5, 0.4, c.run("Geschossfläche", 8, c.AUF_NAVY, c.F_SEMI), align="Right")
              + c.text("G_BandRechts2", 1.85, x0 + 13, 5, 1.45,
-                      c.para([c.run("=" + DECKE_SUMME, 30, c.WHITE, c.F_LIGHT, fmt="N0"), c.run(" m²", 12, c.SKY, c.F)], "Right"))
-             + c.text("G_BandRechts3", 3.3, x0 + 13, 5, 0.55, c.run("Decken, brutto", 9, "#CBD5E1", c.F), align="Right"))
+                      c.para([c.run("=" + DECKE_SUMME, 30, c.WHITE, c.F_ZAHL, fmt="N0"), c.run(" m²", 12, c.AUF_NAVY, c.F)], "Right"))
+             + c.text("G_BandRechts3", 3.3, x0 + 13, 5, 0.55, c.run("Decken, brutto", 9, c.AUF_NAVY, c.F), align="Right"))
     return c.rect("G_Band", 0, 0, c.PAGE_W, 4.5, inner, bg=c.NAVY)
 
 
 def kachel_gross(name, top, left, w):
     """Kennzahl-Kachel 'Groesster Raum': Zahl und Name kommen aus der absteigend sortierten Datenregion."""
-    zahl = c.cell(name + "_vc", c.para([c.run("=First(%s)" % FLAECHE, 22, c.INK, c.F_LIGHT, fmt="N1"),
+    zahl = c.cell(name + "_vc", c.para([c.run("=First(%s)" % FLAECHE, 22, c.INK, c.F_ZAHL, fmt="N1"),
                                         c.run(" m²", 10, c.MUTED, c.F)]), valign="Bottom", pad=(0, 0, 0, 0))
     notiz = c.cell(name + "_nc", c.run("=First(%s)" % NAME, 7, c.MUTED, c.F), valign="Top", pad=(0, 0, 0, 0))
     inner = (c.rect(name + "_a", 0, 0, w, 0.09, bg=c.BLUE)
@@ -138,8 +138,8 @@ def grundriss(name, top, left, w, h):
     # ueberlappen sich, und das Report-Fenster schiebt eines weg).
     tb = tb.replace("<Top>", "<NoRowsMessage>Keine Decke im Teilbild: kein Geschossgrundriss</NoRowsMessage><Top>", 1)
     tb = tb.replace("<Style><Border><Style>None</Style></Border></Style></Tablix>",
-                    "<Style><Border><Style>None</Style></Border><FontFamily>Segoe UI</FontFamily><FontSize>8pt</FontSize>"
-                    "<Color>%s</Color><TextAlign>Center</TextAlign><VerticalAlign>Middle</VerticalAlign></Style></Tablix>" % c.FAINT)
+                    "<Style><Border><Style>None</Style></Border><FontFamily>%s</FontFamily><FontSize>8pt</FontSize>"
+                    "<Color>%s</Color><TextAlign>Center</TextAlign><VerticalAlign>Middle</VerticalAlign></Style></Tablix>" % (c.F, c.FAINT))
     return c.rect(name, top, left, w, h, tb)
 
 
@@ -154,10 +154,10 @@ def raumkarten(name, top, left, pitch, karte_w, karte_h, zeile_h, reihen):
                            sizing="FitProportional", action=b.ZOOM),
                    "Klick: in Allplan auf diesen Raum zoomen")
     nummer = c.text(name + "_Nr", ih + 0.3, 0.3, bw, 0.35,
-                    c.run('="RAUM " & Format(RowNumber(Nothing), "00")', 6.5, c.BLUE, c.F_SEMI))
+                    c.run('="RAUM " & Format(RowNumber(Nothing), "00")', 7, c.MUTED, c.F_SEMI))
     titel = b.klick(c.text(name + "_Name", ih + 0.7, 0.3, bw, 0.5, c.run("=" + NAME, 10.5, c.INK, c.F_SEMI)))
     zahl = c.text(name + "_Fl", ih + 1.25, 0.3, bw, 0.8,
-                  c.para([c.run("=" + FLAECHE, 18, c.INK, c.F_LIGHT, fmt="N1"), c.run(" m²", 9, c.MUTED, c.F)]), valign="Top")
+                  c.para([c.run("=" + FLAECHE, 18, c.INK, c.F_ZAHL, fmt="N1"), c.run(" m²", 9, c.MUTED, c.F)]), valign="Top")
     masse = c.text(name + "_Ma", ih + 2.1, 0.3, bw, 0.4,
                    c.para([c.run('=Format(CDbl(Fields!Laenge.Value), "N2") & " × " & Format(CDbl(Fields!Dicke.Value), "N2") & " m"',
                                  7.5, c.MUTED, c.F),
@@ -219,11 +219,11 @@ def d150(top, left, w):
         "G_ChRaum", top + 1.4, left - 0.1, 3.9, 3.9,
         [v.S("Flaeche", {"Y": "=" + flaeche}, typ="Shape", sub="Doughnut",
              custom_xml=v.custom(DoughnutRadius="30", PieLabelStyle="Disabled", PieStartAngle="270"),
-             pstyle="<Color>=Code.Stufe(Fields!Funktion.Value)</Color>" + v.border("#FFFFFF", "Solid", "1.5pt"))],
+             pstyle="<Color>=Code.Stufe(Fields!Funktion.Value)</Color>" + v.border(c.WHITE, "Solid", "1.5pt"))],
         [("=Fields!Funktion.Value", "=" + flaeche, "Descending")],
         areas=v.area(pos=(0, 0, 100, 100)),
         titles=(v.title('=Format(%s, "N0") & " m²"' % RAUM_FLAECHE, size='=IIf(%s >= 1000, "12pt", "15pt")' % RAUM_FLAECHE,
-                        color=c.INK, bold=False,
+                        color=c.INK, font=c.F_ZAHL,
                         extra="<ChartElementPosition><Top>38</Top><Left>20</Left><Height>14</Height><Width>60</Width></ChartElementPosition>")
                 + v.title("Raumfläche", size="7.5pt", name="Unter", color=c.MUTED, bold=False,
                           extra="<ChartElementPosition><Top>52</Top><Left>20</Left><Height>9</Height><Width>60</Width></ChartElementPosition>")),
@@ -242,7 +242,7 @@ def d150(top, left, w):
             c.cell("G_LK3", c.run("M²", 7, c.MUTED, c.F_SEMI), "Right", valign="Bottom", border_xml=kopf, pad=(0, 0, 0, 3)),
         ]),
         ("daten", zeile_h, [
-            c.cell("G_L1", c.run("■", 9, "=Code.Stufe(Fields!Funktion.Value)"), "Left", pad=(0, 0, 0, 0), border_xml=lrow),
+            c.cell("G_L1", c.run("■", 9, "=Code.Stufe(Fields!Funktion.Value)", b.SYMBOL), "Left", pad=(0, 0, 0, 0), border_xml=lrow),
             c.cell("G_L2", c.run("=" + nutzung, 8, c.TEXT), pad=(0, 1, 2, 1), border_xml=lrow),
             c.cell("G_L3", c.run("=" + flaeche, 8, c.INK, c.F_SEMI, fmt="N1"), "Right", pad=(0, 1, 0, 1), border_xml=lrow),
         ]),
@@ -264,7 +264,7 @@ def kennwert_gueltig(name, top, left, w, label, note, anteil, farbe):
     return (c.text(name + "_l", top, left, w - 2.2, 0.42, c.run(label, 9.5, c.INK, c.F_SEMI))
             + c.text(name + "_n", top + 0.47, left, w - 2.2, 0.36, c.run(note, 7.5, c.MUTED))
             + c.text(name + "_v", top, left + w - 2.2, 2.2, 0.83,
-                     c.run('=IIf(%s, Format(%s, "0 %%"), "–")' % (ok, anteil), 17, c.INK, c.F_LIGHT), align="Right", valign="Bottom")
+                     c.run('=IIf(%s, Format(%s, "0 %%"), "–")' % (ok, anteil), 17, c.INK, c.F_ZAHL), align="Right", valign="Bottom")
             + b.fortschritt(name + "_b", top + 0.95, left, w, "IIf(%s, %s, 0.0)" % (ok, anteil), farbe))
 
 
@@ -339,4 +339,4 @@ if __name__ == "__main__":
     print(ziel)
     if "--render" in sys.argv:
         os.makedirs(AUS, exist_ok=True)
-        c.rendern(ziel, JSON, AUS)
+        c.rendern(ziel, JSON, AUS, vollzugriff=True)   # volle Rechte: Code.Schrift liest die installierten Schriften (sonst Ersatzschrift Segoe UI)

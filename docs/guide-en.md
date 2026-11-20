@@ -125,6 +125,8 @@ The workshop is your working folder for reports. You can ask the AI:
 
 > "Create the workshop in the folder reports and show me the master."
 
+Before the first report is built, the AI asks you once about style, colors and font and recommends the house design (section "Design" in the README). Without this decision no script builds a report.
+
 Or you run it yourself, here for Copilot in the project folder:
 
 ```powershell

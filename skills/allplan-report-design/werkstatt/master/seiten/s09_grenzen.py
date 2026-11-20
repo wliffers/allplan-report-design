@@ -7,7 +7,9 @@ from bausteine import etikett, overline, seitenkopf
 
 TITEL = "Grenzen: was geht, was nicht"
 
-SYM = "Segoe UI Symbol"
+SYM = b.SYMBOL
+# Bewertung als Schrift auf Weiss (das Zeichen daneben und das Wort sagen es auch ohne Farbe); Linie und Rand bleiben in der Flaechenfarbe
+TEXTFARBE = {c.GREEN: c.GREEN_TEXT, c.AMBER: c.AMBER_TEXT, c.RED: c.RED_TEXT}
 
 # (Zeichen, Ueberschrift, Farbe, [(Stichwort, Halbsatz)]) - Stichwort hoechstens 4 Woerter
 SPALTEN = [
@@ -17,7 +19,7 @@ SPALTEN = [
         ("Gruppen und Summen", "auch Kreuztabelle mit Farbskala"),
         ("Bauteilbilder in 3D", "Strichzeichnung je Bauteil, Seite 6"),
         ("Planausschnitt als Bild", "wie im Teilbild, mit Schraffur"),
-        ("Segoe UI in drei Schnitten", "im PDF eingebettet"),
+        ("Hausschrift in drei Gewichten", "im PDF eingebettet"),
         ("Zahlen nach de-DE", "Sprache am Report wählbar"),
         ("PDF und DOCX", "mit allen Bildern"),
         ("Farbflächen und Linien", "randlos bis zum Blattrand"),
@@ -76,7 +78,7 @@ def x080(top, left, w):
     for nr, (zeichen, titel, farbe, zeilen) in enumerate(SPALTEN):
         p = "S9_C%d" % nr
         x = left + nr * (sw + luecke)
-        xml += c.text(p + "_z", top, x, 0.8, KOPF_H - 0.1, c.run(zeichen, 17, farbe, SYM), valign="Middle")
+        xml += c.text(p + "_z", top, x, 0.8, KOPF_H - 0.1, c.run(zeichen, 17, TEXTFARBE.get(farbe, farbe), SYM), valign="Middle")
         xml += c.text(p + "_t", top, x + 0.85, sw - 0.85, KOPF_H - 0.1, c.run(titel, 13, c.INK, c.F_SEMI), valign="Middle")
         xml += c.line(p + "_l", top + KOPF_H - 0.05, x, sw, color=farbe, width="1.5pt")
         for i, (stichwort, halbsatz) in enumerate(zeilen):
@@ -87,7 +89,7 @@ def x080(top, left, w):
             xml += c.line(q + "_r", y + ZEILE_H, x, sw)
     ende = top + KOPF_H + len(SPALTEN[0][3]) * ZEILE_H
     xml += etikett("S9_X08", ende + 0.1, left, w, "X080",
-                   "Drei Spalten aus Textboxen; Kopfzeichen in Segoe UI Symbol, je Zeile Stichwort und Halbsatz")
+                   "Drei Spalten aus Textboxen; Kopfzeichen in der Symbolschrift, je Zeile Stichwort und Halbsatz")
     return xml
 
 
@@ -99,14 +101,14 @@ def x090(top, left, w):
     inner = ""
     for i, (satz, folge) in enumerate(GRENZEN):
         y = i * BAND_ZEILE_H
-        inner += c.text("S9_G%d_n" % i, y, 0.3, 1.0, BAND_ZEILE_H, c.run(str(i + 1), 24, c.BLUE, c.F_LIGHT), valign="Middle")
+        inner += c.text("S9_G%d_n" % i, y, 0.3, 1.0, BAND_ZEILE_H, c.run(str(i + 1), 24, c.BLUE, c.F_ZAHL), valign="Middle")
         inner += c.text("S9_G%d_t" % i, y, 1.5, w - 1.8, BAND_ZEILE_H,
                         [c.para([c.run(satz, 10, c.INK, c.F_SEMI)]), c.para([c.run(folge, 8.5, c.TEXT)])], valign="Middle")
         if i:
             inner += c.line("S9_G%d_r" % i, y, 0.3, w - 0.6, color=c.WHITE, width="1.5pt")
     xml += c.rect("S9_GBand", y0, left, w, len(GRENZEN) * BAND_ZEILE_H, inner, bg=c.SURFACE)
     xml += etikett("S9_X09", y0 + len(GRENZEN) * BAND_ZEILE_H + 0.1, left, w, "X090",
-                   "Fünf Zeilen auf heller Fläche, große Ziffer in Segoe UI Light, Satz und Folge in einer Textbox")
+                   "Fünf Zeilen auf heller Fläche, große Ziffer in der Zahlschrift, Satz und Folge in einer Textbox")
     return xml
 
 
@@ -115,13 +117,15 @@ def seite():
     items = seitenkopf(9, TITEL, "gemessen in Allplan 2027")
 
     befund = c.para([
-        c.run("Allplans Report-Maschine kann weit mehr, als die mitgelieferten Vorlagen zeigen: ", 14, c.TEXT, c.F_LIGHT),
-        c.run("keine der 551", 14, c.INK, c.F_SEMI),
-        c.run(" enthält ein Diagramm oder eine Messanzeige. Die Grenzen liegen vor allem bei den ", 14, c.TEXT, c.F_LIGHT),
-        c.run("Daten und Bildern", 14, c.INK, c.F_SEMI),
-        c.run(", die Allplan je Report liefert.", 14, c.TEXT, c.F_LIGHT)])
-    items += c.rect("S9_BefundBalken", 3.3, x0, 0.1, 2.3, bg=c.BLUE)
-    items += c.text("S9_Befund", 3.3, x0 + 0.4, w - 0.4, 2.3, befund, valign="Middle")
+        c.run("Allplans Report-Maschine kann weit mehr, als die mitgelieferten Vorlagen zeigen: ", 13, c.TEXT, c.F),
+        c.run("keine der 551", 13, c.INK, c.F_SEMI),
+        c.run(" enthält ein Diagramm oder eine Messanzeige. Die Grenzen liegen vor allem bei den ", 13, c.TEXT, c.F),
+        c.run("Daten und Bildern", 13, c.INK, c.F_SEMI),
+        c.run(", die Allplan je Report liefert.", 13, c.TEXT, c.F)])
+    # Hinweisband: Flaeche MIST, linker Rand 3 pt Akzent, Schrift INK
+    band = c.rect("S9_BefundBalken", 0, 0, 0.106, 2.6, bg=c.AKZENT) + c.text("S9_Befund", 0, 0.5, w - 0.7, 2.6, befund, valign="Middle")
+    # Platz fuer vier Zeilen: Allplan setzt Roboto breiter als der kopflose Renderer (gemessen: vier statt drei Zeilen bei 14 pt)
+    items += c.rect("S9_BefundFeld", 3.3, x0, w, 2.6, band, bg=c.MIST)
 
     items += x080(6.3, x0, w)
     items += x090(18.85, x0, w)

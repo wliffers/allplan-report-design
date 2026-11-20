@@ -96,9 +96,9 @@ def aufruf_pruefen(doc, schalter):
 
 # ---------------------------------------------------------------- Bausteine
 def overline(name, top, left, w, label, title, titel_w=None):
-    """Abschnittskopf: kleine Zeile in Leitfarbe, darunter die Ueberschrift, darunter eine Haarlinie.
+    """Abschnittskopf: Etikett in Versalien (halbfett, leise), darunter die Ueberschrift, darunter eine Haarlinie.
     titel_w: Breite der Ueberschrift, wenn rechts neben ihr ein weiteres Feld steht (Felder duerfen sich nicht ueberlappen)."""
-    return (c.text(name + "_o", top, left, w, 0.35, c.run(label.upper(), 7, c.BLUE, c.F_SEMI))
+    return (c.text(name + "_o", top, left, w, 0.35, c.run(label.upper(), 7, c.MUTED, c.F_SEMI))
             + c.text(name + "_t", top + 0.4, left, titel_w or w, 0.7, c.run(title, 13, c.INK, c.F_SEMI))
             + c.line(name + "_l", top + 1.18, left, w))
 
@@ -115,7 +115,7 @@ def kpi(name, top, left, w, value_expr, fmt, unit, label, note):
     """Kennzahl-Kachel: grosse Zahl, Einheit, Beschriftung, Fussnote."""
     inner = (c.rect(name + "_a", 0, 0, w, 0.09, bg=c.BLUE)
              + c.text(name + "_v", 0.42, 0.32, w - 0.4, 1.05,
-                      c.para([c.run("=" + value_expr, 22, c.INK, c.F_LIGHT, fmt=fmt),
+                      c.para([c.run("=" + value_expr, 22, c.INK, c.F_ZAHL, fmt=fmt),
                               c.run(" " + unit if unit else "", 10, c.MUTED, c.F)]), valign="Bottom")
              + c.text(name + "_l", 1.5, 0.32, w - 0.4, 0.37, c.run(label.upper(), 7, c.TEXT, c.F_SEMI))
              + c.text(name + "_n", 1.92, 0.32, w - 0.4, 0.4, c.run(note, 7, c.MUTED, c.F)))
@@ -142,7 +142,7 @@ def kennwert(name, top, left, w, label, note, anteil, farbe=c.BLUE):
     """Kennwert-Zeile: Beschriftung links, Prozentzahl rechts, Fortschrittsbalken darunter."""
     return (c.text(name + "_l", top, left, w - 2.2, 0.42, c.run(label, 9.5, c.INK, c.F_SEMI))
             + c.text(name + "_n", top + 0.47, left, w - 2.2, 0.36, c.run(note, 7.5, c.MUTED))
-            + c.text(name + "_v", top, left + w - 2.2, 2.2, 0.83, c.run("=" + anteil, 17, c.INK, c.F_LIGHT, fmt="0 %"),
+            + c.text(name + "_v", top, left + w - 2.2, 2.2, 0.83, c.run("=" + anteil, 17, c.INK, c.F_ZAHL, fmt="0 %"),
                      align="Right", valign="Bottom")
             + fortschritt(name + "_b", top + 0.95, left, w, anteil, farbe))
 
@@ -183,10 +183,14 @@ def karten(name, top, left, breite, karte_w, luecke, bedingung, gruppe, typ_expr
 
 
 _SCHRIFTEN = {}
+# Schriftdatei je Familienname des Designs (Windows-Schriftordner); unbekannte Familie: schaetzen
+_DATEIEN = {"Roboto": "Roboto-Regular.ttf", "Roboto Light": "Roboto-Light.ttf", "Roboto Medium": "Roboto-Medium.ttf",
+            "Roboto Black": "Roboto-Black.ttf", "Segoe UI": "segoeui.ttf", "Segoe UI Light": "segoeuil.ttf",
+            "Segoe UI Semibold": "seguisb.ttf"}
 
 
 def _schrift(datei):
-    """Segoe UI aus dem Windows-Schriftordner (PIL), sonst None: dann schaetzt textbreite()."""
+    """Die Hausschrift aus dem Windows-Schriftordner (PIL), sonst None: dann schaetzt textbreite()."""
     if datei not in _SCHRIFTEN:
         try:
             from PIL import ImageFont
@@ -197,9 +201,9 @@ def _schrift(datei):
 
 
 def textbreite(text, pt, leicht=False):
-    """Breite eines Textes in cm (Segoe UI, Light mit leicht=True). Gemessen mit der Schrift, wenn sie da ist (PIL, Windows),
-    sonst geschaetzt aus schmalen, normalen, grossen und breiten Zeichen (liegt bei Titeln rund 5 % darueber)."""
-    schrift = _schrift("segoeuil.ttf" if leicht else "segoeui.ttf")
+    """Breite eines Textes in cm in der Hausschrift (Regular; mit leicht=True die leichte Schrift des Designs, nur fuer Altlasten). Gemessen mit der Schrift, wenn sie da ist
+    (PIL, Windows), sonst geschaetzt aus schmalen, normalen, grossen und breiten Zeichen (liegt bei Titeln rund 5 % darueber)."""
+    schrift = _schrift(_DATEIEN.get(c.DESIGN.schrift["leicht" if leicht else "normal"], ""))
     if schrift is not None:
         return schrift.getlength(text) / 1000.0 * pt / 72 * 2.54
     em = 0.0
@@ -216,12 +220,12 @@ def textbreite(text, pt, leicht=False):
 
 
 def titelbreite(titel, untertitel, breite):
-    """Breite des Titelfelds im Folgekopf (19 pt Light). Der Titel bekommt 15 % Reserve (ein uebersetzter Titel darf etwas
+    """Breite des Titelfelds im Folgekopf (19 pt). Der Titel bekommt 15 % Reserve (ein uebersetzter Titel darf etwas
     laenger sein), der Untertitel (8,5 pt, rechtsbuendig) den Rest der Zeile - nie weniger, als er selbst braucht plus 5 %
     Reserve (gemessen: so kleine Schrift setzt das Report-Fenster bis 3 % BREITER als das PDF, sonst bricht er um). Die
     englischen Untertitel sind teils 40 % laenger als die deutschen: darum bekommt der Untertitel alles, was der Titel
     nicht braucht. Ohne festen Untertitel (ein Ausdruck) bekommt der Titel seine Breite plus 2 cm."""
-    roh = textbreite(titel, 19, leicht=True)
+    roh = textbreite(titel, 19)
     if untertitel is None:
         return round(min(roh * 1.03 + 2.15, breite - 4.0), 2)
     return round(min(roh * 1.15 + 0.3, breite - 0.1 - textbreite(untertitel, 8.5) * 1.05), 2)
@@ -236,9 +240,12 @@ def folgekopf(rect_name, p, over, titel, sub_run, top=0, label=None, untertitel_
     x0, w = c.INSET, c.CONTENT_W
     titel_w = titelbreite(titel, untertitel_text, w)
     sub_x = round(titel_w + 0.1, 2)
-    inner = (c.rect(p + "Akzent", 0.62, x0, 0.9, 0.08, bg=c.ORANGE)
-             + c.text(p + "Over", 0.8, x0, 12, 0.3, c.run(over, 7, c.SKY, c.F_SEMI))
-             + c.text(p + "Titel", 1.15, x0, titel_w, 0.95, c.run(titel, 19, c.WHITE, c.F_LIGHT))
+    # Roboto laeuft breiter als die bisherige Schrift: reicht der Platz nicht fuer 19 pt plus 5 % Reserve, schrumpft der Titel
+    roh = textbreite(titel, 19)
+    groesse = 19 if roh * 1.05 <= titel_w else round(max(16.0, 19 * titel_w / (roh * 1.05)), 1)
+    inner = (c.rect(p + "Akzent", 0.62, x0, 0.9, 0.08, bg=c.AKZENT)
+             + c.text(p + "Over", 0.8, x0, 12, 0.3, c.run(over, 7, c.AKZENT_DUNKEL, c.F_SEMI))
+             + c.text(p + "Titel", 1.15, x0, titel_w, 0.95, c.run(titel, groesse, c.WHITE, c.F))
              + c.text(p + "Sub", 1.3, x0 + sub_x, w - sub_x, 0.6, sub_run, align="Right", valign="Bottom"))
     return c.rect(rect_name, top, 0, c.PAGE_W, 2.5, inner, bg=c.NAVY, label=label)
 
@@ -246,8 +253,11 @@ def folgekopf(rect_name, p, over, titel, sub_run, top=0, label=None, untertitel_
 def seitenkopf(nr, titel, untertitel):
     """Kopf der Folgeseiten: schmales randloses Band mit Kapitelnummer, Titel und Untertitel."""
     p = "S%dKopf" % nr
-    return folgekopf(p, p, "REPORT MASTER  ·  KAPITEL %d" % nr, titel, c.run(untertitel, 8.5, "#CBD5E1"), untertitel_text=untertitel)
+    return folgekopf(p, p, "REPORT MASTER  ·  KAPITEL %d" % nr, titel, c.run(untertitel, 8.5, c.AUF_NAVY), untertitel_text=untertitel)
 
+
+# Symbolschrift: Roboto hat ■ ● ▲ ▼ ✓ nicht (kein Zeichen im Bild). Nur fuer diese Zeichen, nie fuer Text.
+SYMBOL = "Segoe UI Symbol"
 
 KATALOG = []          # (Seite, Kennung, Technik) - fuellt sich beim Bauen, daraus entsteht das Bausteinverzeichnis
 SEITE_AKTUELL = [""]  # setzt build_master.py vor jeder Seite

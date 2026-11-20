@@ -93,4 +93,5 @@ if __name__ == "__main__":
     daten = next((a[8:] for a in sys.argv if a.startswith("--daten=")), "master")
     if "--render" in sys.argv:
         c.rendern(ziel, os.path.join(HERE, "daten", daten + ".json"),
-                  os.path.join(HERE, "aus", "png" if daten == "master" else "png_" + daten))
+                  os.path.join(HERE, "aus", "png" if daten == "master" else "png_" + daten),
+                  vollzugriff=True)      # volle Rechte: Code.Schrift liest die installierten Schriften (sonst Ersatzschrift Segoe UI)

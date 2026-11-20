@@ -31,6 +31,7 @@ sys.path.insert(0, MASTER)
 
 import bausteine as b  # noqa: E402
 import core as c  # noqa: E402
+import design  # noqa: E402
 
 OUT_DIR = os.path.normpath(os.path.join(MASTER, "..", "out"))
 DATEN = next((a[8:] for a in sys.argv if a.startswith("--daten=")), "master_abw")
@@ -168,16 +169,16 @@ def tooltip(xml, text):
 # ---------------------------------------------------------------- Kopfband
 def band():
     x0 = c.INSET
-    inner = (c.rect("AW_BandAkzent", 1.15, x0, 1.3, 0.1, bg=c.ORANGE)
-             + c.text("AW_BandOver", 1.4, x0, 12, 0.4, c.run("REPORT MASTER  ·  BEGLEIT-REPORT", 8, c.SKY, c.F_SEMI))
-             + c.text("AW_BandTitel", 1.85, x0, 13, 1.45, c.run("Raum-Abwicklung", 30, c.WHITE, c.F_LIGHT))
+    inner = (c.rect("AW_BandAkzent", 1.15, x0, 1.3, 0.1, bg=c.AKZENT)
+             + c.text("AW_BandOver", 1.4, x0, 12, 0.4, c.run("REPORT MASTER  ·  BEGLEIT-REPORT", 8, c.AKZENT_DUNKEL, c.F_SEMI))
+             + c.text("AW_BandTitel", 1.85, x0, 13, 1.45, c.run("Raum-Abwicklung", 30, c.WHITE, c.F))
              + c.text("AW_BandSub", 3.3, x0, 12.5, 0.55,
                       c.run('=Code.Kurz(Parameters!Project_Name.Value, 56) & "   ·   " & Format(Parameters!Date.Value, "dd.MM.yyyy")',
-                            9, "#CBD5E1", c.F))
-             + c.text("AW_BandRechts", 1.4, x0 + 13, 5, 0.4, c.run("Räume", 8, c.SKY, c.F_SEMI), align="Right")
+                            9, c.AUF_NAVY, c.F))
+             + c.text("AW_BandRechts", 1.4, x0 + 13, 5, 0.4, c.run("Räume", 8, c.AUF_NAVY, c.F_SEMI), align="Right")
              + c.text("AW_BandRechts2", 1.85, x0 + 13, 5, 1.45,
-                      c.para([c.run('=Format(%s, "N0")' % ANZ_RAHMEN, 30, c.WHITE, c.F_LIGHT)], "Right"))
-             + c.text("AW_BandRechts3", 3.3, x0 + 13, 5, 0.55, c.run("mit Abwicklung", 9, "#CBD5E1", c.F), align="Right"))
+                      c.para([c.run('=Format(%s, "N0")' % ANZ_RAHMEN, 30, c.WHITE, c.F_ZAHL)], "Right"))
+             + c.text("AW_BandRechts3", 3.3, x0 + 13, 5, 0.55, c.run("mit Abwicklung", 9, c.AUF_NAVY, c.F), align="Right"))
     return c.rect("AW_Band", 0, 0, c.PAGE_W, 4.5, inner, bg=c.NAVY)
 
 
@@ -218,8 +219,8 @@ def zahl_feld(name, top, left, w, label, wert, einheit, dez, gross=False):
         # ReportViewer liefern die uebrigen Lookup-Ausdruecke der Karte (Format, CDbl, Code.*) ab Karte 2 nur dann Werte,
         # wenn mindestens ein blankes Lookup in der Karte steht, sonst #Error. Ohne Raum bleibt die Zahl leer, ein
         # Strich im selben Feld (zweiter Textlauf) springt ein - kein zweites Feld darueber (Ueberlappung).
-        inhalt = c.para([c.run("=" + wert, 17, c.INK, c.F_LIGHT, fmt="N%d" % dez),
-                         c.run('=IIf(IsNothing(%s), "–", "")' % wert, 17, c.INK, c.F_LIGHT), c.run(einh, 9, c.MUTED, c.F)])
+        inhalt = c.para([c.run("=" + wert, 17, c.INK, c.F_ZAHL, fmt="N%d" % dez),
+                         c.run('=IIf(IsNothing(%s), "–", "")' % wert, 17, c.INK, c.F_ZAHL), c.run(einh, 9, c.MUTED, c.F)])
     else:
         inhalt = c.para([c.run("=Code.Zahl(%s, %d)" % (wert, dez), 11, c.TEXT, c.F), c.run(einh, 7, c.FAINT, c.F)])
     return kopf + c.text(name + "_v", top + 0.35, left, w, 0.95, inhalt, valign="Bottom")
@@ -308,6 +309,9 @@ def build():
     xml = c.report([seite_kopf()], [c.dataset(ALLE, QUERY, FIELDS)], footer_xml=b.fuss(), code=b.CODE + CODE_AW,
                    page_body_h=KOPF_H, labels=["Raum-Abwicklung"])
     tab = b100(KOPF_H, x0, w)
+    # Die Tablix kommt erst NACH c.report() in den Bericht: ihre Schriftnamen setzt sonst keiner auf den Ausdruck =Code.Schrift(n).
+    # Darum geht sie einmal durch dieselbe Ersetzung (in einem Hilfsrahmen; die Funktion im Code-Block steht schon im Bericht).
+    tab = design.schrift_zur_laufzeit("<Report><Code></Code>" + tab + "</Report>", c.DESIGN, c.esc).split("</Code>", 1)[1][:-len("</Report>")]
     # Die Tablix steht direkt im Berichtskoerper (nicht im Seiten-Rechteck), damit sie ueber Blatt 1 hinaus wachsen
     # und umbrechen darf. Der Koerper behaelt eine Mindesthoehe von Kopfbereich + Kopfzeile + einer Karte.
     marke = "</ReportItems><Height>%s</Height><Style/></Body>" % c.cm(KOPF_H)
@@ -325,4 +329,4 @@ if __name__ == "__main__":
     print(ziel)
     if "--render" in sys.argv:
         os.makedirs(AUS, exist_ok=True)
-        c.rendern(ziel, JSON, AUS)
+        c.rendern(ziel, JSON, AUS, vollzugriff=True)   # volle Rechte: Code.Schrift liest die installierten Schriften (sonst Ersatzschrift Segoe UI)

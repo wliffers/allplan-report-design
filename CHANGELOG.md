@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.1 – 2026-11-20
+
+Neues Hausdesign und Design-Abfrage. / New house design and design question.
+
+- Alle Reports, Vorlagen und Beispiele im neuen Hausdesign: dunkles Marineblau trägt Titelband und Schrift, Türkis markiert nur (nie als Schrift auf Weiß, nie als Balken), eine Schrift in drei Gewichten. Materialfarben bleiben, weil sie Bedeutung tragen.
+- Design: Farben und Schrift an einer Stelle (`master/design.py`). Hausdesign als Vorgabe (dunkles Marineblau, kräftiges Blau, Türkis als Akzent, Roboto), eigenes Design aus einer ausgefüllten `design_kunde.json` (vier Pflichtfarben und Schrift; alles Weitere rechnet der Bausatz, Kontraste werden geprüft). Der Skill fragt das Design vor dem ersten Report einmal ab; bis es festgelegt ist, bricht jedes Bauskript ab (Sperre). Die Schrift wählt der Report beim Öffnen: sind alle Familien des Designs installiert, gelten sie, sonst Segoe UI. Neue Testdateien: `test_design.py` (Befehle, Prüfregeln, Sperre, Schrift im Report) und `test_designregeln.py` (die Seiten benutzen nur Namen aus dem Design); `conftest.py` setzt für alle Tests das Hausdesign.
+- Das Hausdesign wird nur mit der Antwort des Anwenders festgelegt (`design.py --haus --antwort "…"`); eine unlesbare oder ungültige `design.json` zählt als offen. Ein Kundendesign wird geprüft: Kontraste, sichtbare Bewertungsfarben, Schriftrollen.
+- Die Vorschau läuft mit vollen Rechten wie in Allplan, damit sie dieselbe Schrift zeigt wie der Report in Allplan.
+- Tests bauen nur noch in einen Zwischenordner und überschreiben keinen Report in `out/`.
+
 ## 1.0.0 – 2026-11-19
 
 Erste Fassung. / First release.

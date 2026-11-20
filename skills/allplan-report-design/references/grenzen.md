@@ -100,7 +100,8 @@ Nachschlagetafel für gestaltete Reports (`.rdlc`) in Allplan 2027. Sie sagt, WA
 
 | Was | Urteil | Beleg | Hinweis |
 |---|---|---|---|
-| Segoe UI, Segoe UI Light, Segoe UI Semibold, im PDF eingebettet | geht | A | |
+| Segoe UI, Segoe UI Light, Segoe UI Semibold, im PDF eingebettet | geht | A | der Ersatz, wenn die Schrift des Designs fehlt |
+| Schrift des Designs (`F`, `F_LIGHT`, `F_SEMI`, `F_ZAHL`), Ersatz beim Öffnen | geht | A | Roboto im PDF, wenn installiert, sonst Segoe UI, Light, Semibold (gemessen 2026-11-20); ein Report bettet keine Schrift ein; `design.md` |
 | Mehrere Formate in einer Textbox (`TextRun`) | geht | A | nur Schema 2016 |
 | HTML-Text (`MarkupType HTML`) | geht | A | `<b> <i> <u> <s> <font> <br/> <ul> <ol> <li> <h1> <span> <a>`; nur 2016 |
 | Senkrechter Text | geht | A | 2016: `Rotate270` |
@@ -108,7 +109,7 @@ Nachschlagetafel für gestaltete Reports (`.rdlc`) in Allplan 2027. Sie sagt, WA
 | Farbige Emoji | geht nicht | K | nur einfarbig; `●` mit Farbe per Ausdruck |
 | Blocksatz (`Justify`), Zeilenhöhe in Prozent | geht nicht | K | harter Fehler; Zeilenhöhe nur in pt |
 | Laufweite | geht mit Kniff | K | schmale Leerzeichen U+2009 oder U+200A |
-| Dünne Schrift | geht mit Kniff | K | nur über Familie „Segoe UI Light“ |
+| Dünne Schrift | geht mit Kniff | K | nur über die Familie der Rolle `leicht` (Hausdesign „Roboto Light“, Ersatz „Segoe UI Light“) |
 | Zahl- und Datumsformat nach de-DE | geht | A | `Format(x,"N2")`; Sprache am Report, nicht am Textfeld |
 | Andere Sprache (`en-US`, `de-CH`) | geht | A | `<Language>` am Report |
 | Seitenzahl x/y, Datum, `Globals!ReportName`, `User!UserID` | geht | A | Seitenzahl nur in Kopf oder Fuß |
@@ -236,7 +237,7 @@ Beleg F: im Report-Fenster bedient und fotografiert; die Zeilen zeigen, was der 
 | Bearbeiten-Sprung (`Edit:`) | nicht geprüft | V | Allplan-Vorlagen nutzen es |
 | Sichtbarkeit per Parameter oder Datenlage | geht | F | eine ausgeblendete Tabellenspalte gibt Platz frei |
 | Interaktion im PDF, DOCX oder XLSX | geht nicht | A | nur im Allplan-Fenster |
-| Layout im Fenster wie im PDF | geht, wenn nichts überlappt | F | Text ab 9 pt ist im Fenster 0,5 bis 3 % schmaler als im PDF, Text bis 8,5 pt dagegen 3 bis 8 % BREITER (gemessen: 8,5 pt +3 %, 8 pt +8 %, 6,5 pt +5 %) – kleinem Text 10 % Breitenreserve geben; überlappen sich zwei Elemente im selben Container (auch unsichtbar, auch nur um 0,02 cm), schiebt das Fenster eines davon weg; mindestens 0,05 cm Abstand (`fallen.md`) |
+| Layout im Fenster wie im PDF | geht, wenn nichts überlappt | F | Text ab 9 pt ist im Fenster 0,5 bis 3 % schmaler als im PDF, Text bis 8,5 pt dagegen 3 bis 8 % BREITER (gemessen: 8,5 pt +3 %, 8 pt +8 %, 6,5 pt +5 %) – kleinem Text 10 % Breitenreserve geben (gemessen mit Segoe UI; die Passkontrolle der Seiten rechnet mit den Breiten von Roboto); überlappen sich zwei Elemente im selben Container (auch unsichtbar, auch nur um 0,02 cm), schiebt das Fenster eines davon weg; mindestens 0,05 cm Abstand (`fallen.md`) |
 | Ausgeblendetes Feld neben fremden Elementen | geht mit Kniff | F | Ausgeblendete Felder (`Hidden`-Ausdruck) verschieben im Fenster sichtbare Elemente im selben Behälter, wenn ihre Kanten nicht auf deren Kanten liegen (gemessen bis 2,4 cm, auch bei 8 cm Abstand); ein eigener Behälter (Rectangle über die volle Breite, Sichtbarkeit am Behälter) behebt es. Beispiel: drei ausgeblendete Textfelder (Left 1,5 / 7,6 / 13,7 cm) schoben weiter oben auf der Seite die 3. und 4. Kachel einer Vierer-Reihe nach links; sichtbare Nachbarn allein taten es nicht. Ob schon jede kleine Kantenabweichung genügt, ist nicht gemessen |
 
 ## Seite und Export

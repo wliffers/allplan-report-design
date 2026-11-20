@@ -24,8 +24,8 @@ D02_NAME = 32     # laengster Name in der Rangliste D040 (Zeichen); der Rest bek
 
 # ---------------------------------------------------------------- Hilfen dieser Seite
 def kategorie_achse(**kw):
-    """Kategorieachse mit feiner Grundlinie in Faint statt der Standardlinie."""
-    return v.axis("Primary", extra=FEST, **kw).replace("#9CA3AF", c.HAIR, 1)
+    """Kategorieachse mit feiner Grundlinie in Haarlinienfarbe statt der Standardlinie."""
+    return v.axis("Primary", extra=FEST, **kw).replace(c.HAIR_STARK, c.HAIR, 1)
 
 
 def wert_achse(maximum):
@@ -62,7 +62,7 @@ def serien_nach_material(chart_xml, name, n=MAX_GRUPPEN, summe=False):
 def gruppenlegende(name, top, left, w, bedingung, n=MAX_GRUPPEN):
     """Legende aus den tatsaechlich vorkommenden Materialgruppen (groesste zuerst, hoechstens n): je Gruppe eine Spalte."""
     spalte = 1.7
-    zelle = c.cell(name + "_z", c.para([c.run("■ ", 8, MAT_FARBE),
+    zelle = c.cell(name + "_z", c.para([c.run("■ ", 8, MAT_FARBE, b.SYMBOL),
                                         c.run("=" + MATGRUPPE_ERSTE, 7.5, c.MUTED)]), valign="Top", pad=(0, 0, 0, 0))
     xml = ('<Tablix Name="%s"><TablixBody><TablixColumns><TablixColumn><Width>%s</Width></TablixColumn></TablixColumns>'
            "<TablixRows><TablixRow><Height>%s</Height><TablixCells><TablixCell><CellContents>%s</CellContents></TablixCell>"
@@ -82,7 +82,7 @@ def legende(name, top, left, w, eintraege):
     """Eigene Mini-Legende: farbiges Quadrat + Name je Eintrag, rechtsbuendig in einer Textbox."""
     runs = []
     for i, (farbe, text) in enumerate(eintraege):
-        runs.append(c.run("■ ", 8, farbe))
+        runs.append(c.run("■ ", 8, farbe, b.SYMBOL))
         runs.append(c.run(text + ("      " if i < len(eintraege) - 1 else ""), 7.5, c.MUTED))
     return c.text(name, top, left, w, 0.42, c.para(runs, "Right"))
 
@@ -194,7 +194,7 @@ def _d05(top, x, w, h, n=8):
     # "Beton" + geschuetztes Leerzeichen: im Deutschen unsichtbar, im Englischen ein eigener Schluessel fuer die Kurzform
     kurz = ('Replace(Replace(Replace(Replace(Replace(%s, "Mauerwerk", "Mauer"), "Dämmung", "Dämm."), "Gipskarton", "Gipsk."), '
             '"Naturstein", "Naturst."), "Beton", "Beton ")' % MATGRUPPE_ERSTE)
-    label = ('=%s & Chr(10) & Format(CDbl(First(Fields!Dicke.Value)) * 100, "0.#") & " cm" & Chr(10) & %s & " m³"'
+    label = ('=%s & Chr(10) & Format(CDbl(First(Fields!Dicke.Value)) * 100, "0.#") & "cm" & Chr(10) & %s & " m³"'
              % (kurz, zahl(VOL)))
     gesamt = 'Sum(CDbl(Fields!Volumen.Value), "S2_D05")'
     kumuliert = '=RunningValue(%s, Sum, "S2_D05") / %s' % (VOL, gesamt)
@@ -203,8 +203,8 @@ def _d05(top, x, w, h, n=8):
     xml = v.chart(
         "S2_D05", top, x, w, h,
         [v.S("Volumen", {"Y": "=" + VOL}, typ="Column", sub="Plain", color=c.BLUE, custom_xml=v.custom(PointWidth="0.55")),
-         v.S("Kumuliert", {"Y": kumuliert}, typ="Line", sub="Plain", color=c.ORANGE, line_w="2pt", vaxis="Secondary",
-             mark=v.marker("Circle", "6pt", c.ORANGE),
+         v.S("Kumuliert", {"Y": kumuliert}, typ="Line", sub="Plain", color=c.INK, line_w="2pt", vaxis="Secondary",
+             mark=v.marker("Circle", "6pt", c.INK, c.WHITE),
              label=v.dlabel("Top", fmt="0 %", size="8pt", color=c.TEXT, bold=True))],
         [(gruppe, "=" + VOL, "Descending")], names=["Volumen", "Kumuliert"],
         areas=v.area(cat_axes=[kategorie_achse(interval="1", size="7pt")],
@@ -230,14 +230,14 @@ def _d06(top, x, w, h):
     """Gruppierte Saeulen: Fenster und Tueren nebeneinander je Breitenklasse (vier Klassen statt jeder Einzelbreite)."""
     klasse = breitenklasse("CDbl(Fields!Laenge.Value)")
     serien = []
-    for kurz, bed, farbe in (("Fenster", FENSTER, c.BLUE), ("Tueren", TUER, c.SKY)):
+    for kurz, bed, farbe in (("Fenster", FENSTER, c.BLUE), ("Tueren", TUER, c.SERIE[3])):
         y = "Sum(IIf(%s, 1, 0))" % bed
         serien.append(v.S(kurz, {"Y": "=" + y}, typ="Column", sub="Plain", color=farbe,
                           label=v.dlabel(fmt="N0", size="8.5pt", color=c.TEXT, label='=IIf(%s = 0, "", Format(%s, "N0"))' % (y, y)),
                           custom_xml=v.custom(PointWidth="0.8", BarLabelStyle="Outside")))
     xml = v.chart(
         "S2_D06", top, x, w, h, serien, [("=" + klasse, None, None)], names=["Fenster", "Tueren"],
-        areas=v.area(cat_axes=[kategorie_achse(interval="1", size="8pt")],
+        areas=v.area(cat_axes=[kategorie_achse(interval="1", size="7.5pt")],
                      val_axes=[wert_achse('=Max(Sum(IIf(%s Or %s, 1, 0), "S2_D06_Cat1"), "S2_D06") * 1.18' % (FENSTER, TUER))],
                      pos=(0, 0, 100, 100)),
         extra=c.filters(raw("((%s Or %s) And CDbl(Fields!Laenge.Value) > 0)" % (FENSTER, TUER))))
@@ -269,7 +269,7 @@ def _mat_legende(bedingung):
 @b.baustein("D030", "Fläche je Bauteilart")
 def d030(top, left, w):
     return block("D030", top, left, w, "Bauteile", "Fläche je Bauteilart", _d01,
-                 "Säulen mit Direktbeschriftung, Art aus der Objektnummer, Werteachse entfällt")
+                 "Säulen, Direktbeschriftung, Art aus der Objektnummer, ohne Werteachse")
 
 
 @b.baustein("D040", "Die 8 größten Bauteile")
@@ -283,7 +283,7 @@ def d040(top, left, w):
 @b.baustein("D050", "Volumen je Bauteilart")
 def d050(top, left, w):
     return block("D050", top, left, w, "Bauteile", "Volumen je Bauteilart", _d03,
-                 "Gestapelte Säulen, Serien = Materialgruppen (höchstens 5), Summe als Linie",
+                 "Gestapelte Säulen je Materialgruppe (höchstens 5), Summe als Linie",
                  _mat_legende(MIT_MATERIAL))
 
 
@@ -299,14 +299,14 @@ def d070(top, left, w):
     aufbauten = 'CountDistinct(IIf(%s, %s & "|" & CStr(Round(CDbl(Fields!Dicke.Value) * 1000)), Nothing))' % (WAND_MIT_MATERIAL, MATGRUPPE)
     return block("D070", top, left, w, "Wandaufbau",
                  b.rang_titel(aufbauten, 8, "Die ", " größten Wandaufbauten", "Der größte Wandaufbau", "Die größten Wandaufbauten"), _d05,
-                 "Pareto Top 8: eigene Achsen, Linie kumuliert zur Gesamtsumme aller Schichten")
+                 "Pareto Top 8: eigene Achsen, Linie kumuliert zur Gesamtsumme")
 
 
 @b.baustein("D080", "Fenster und Türen nach Breite")
 def d080(top, left, w):
     return block("D080", top, left, w, "Öffnungen", "Fenster und Türen nach Breite", _d06,
                  "Gruppierte Säulen, vier Breitenklassen, zwei Serien",
-                 lambda nm, t, x, bw: legende(nm, t, x, bw, [(c.BLUE, "Fenster "), (c.SKY, "Türen")]))   # Mehrzahl: eigener Schluessel
+                 lambda nm, t, x, bw: legende(nm, t, x, bw, [(c.BLUE, "Fenster "), (c.SERIE[3], "Türen")]))   # Mehrzahl: eigener Schluessel
 
 
 # ---------------------------------------------------------------- Seite

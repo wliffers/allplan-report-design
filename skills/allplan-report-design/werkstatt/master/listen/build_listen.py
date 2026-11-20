@@ -134,7 +134,7 @@ def gross_zahl(txt_expr):
     """Grosse Zahl; die Schriftgroesse schrumpft mit der Ziffernzahl, damit nichts umbricht."""
     groesse = 'IIf(Len(%s) >= 8, "12pt", IIf(Len(%s) >= 6, "15pt", "17pt"))' % (txt_expr, txt_expr)
     return ("<TextRun><Value>=%s</Value><Style><FontFamily>%s</FontFamily><FontSize>=%s</FontSize><Color>%s</Color></Style></TextRun>"
-            % (c.esc(txt_expr), c.F_LIGHT, c.esc(groesse), c.INK))
+            % (c.esc(txt_expr), c.F_ZAHL, c.esc(groesse), c.INK))
 
 
 # ---------------------------------------------------------------- VB-Code: Bausatz-Code, Strichcode/QR, Hilfe fuer die Auswahl
@@ -273,12 +273,12 @@ def kopf_xml():
     ein Kopf in Marine ueber dem Titelband liesse an der Naht einen hellen Haarstrich (Kantenglaettung zweier aneinander stossender Flaechen
     bei Bruchteilen eines Pixels; die Geometrie im PDF ist luckenlos, ein Ueberdecken geht nicht: Top darf nicht negativ sein, Linien am
     Rand werden abgeschnitten, ausgeblendete Kinder verkuerzen das Rechteck). Darum bleiben die 1,3 cm oben weiss."""
-    inner = (c.rect("LT_KopfAkzent", 0.14, X0, 0.7, 0.06, bg=c.ORANGE)
-             + c.text("LT_KopfOver", 0.26, X0, 8.0, 0.38, c.run("REPORT MASTER  ·  LISTEN", 7, c.SKY, c.F_SEMI))
-             + c.text("LT_KopfTitel", 0.7, X0, 8.0, 0.5, c.run("Bauteile im Teilbild", 11, c.WHITE, c.F_LIGHT), valign="Middle")
+    inner = (c.rect("LT_KopfAkzent", 0.14, X0, 0.7, 0.06, bg=c.AKZENT)
+             + c.text("LT_KopfOver", 0.26, X0, 8.0, 0.38, c.run("REPORT MASTER  ·  LISTEN", 7, c.AKZENT_DUNKEL, c.F_SEMI))
+             + c.text("LT_KopfTitel", 0.7, X0, 8.0, 0.5, c.run("Bauteile im Teilbild", 11, c.WHITE, c.F), valign="Middle")
              + c.text("LT_KopfGruppe", 0.18, X0 + 8.1, W - 8.1, 0.56, c.run("=Globals!PageName", 12, c.WHITE, c.F_SEMI), align="Right", valign="Middle")
              + c.text("LT_KopfSumme", 0.79, X0 + 8.1, W - 8.1, 0.4,
-                      c.run('=Format(%s, "N0") & " Bauteile  ·  " & Format(%s, "N1") & " m³ Rohbau gesamt"' % (V_ANZ, V_VOL), 7.5, "#CBD5E1"),
+                      c.run('=Format(%s, "N0") & " Bauteile  ·  " & Format(%s, "N1") & " m³ Rohbau gesamt"' % (V_ANZ, V_VOL), 7.5, c.AUF_NAVY),
                       align="Right", valign="Middle"))
     return c.rect("LT_Kopf", 0, 0, c.PAGE_W, 1.3, inner, bg=c.NAVY)
 
@@ -298,15 +298,15 @@ def fuss_xml():
 
 
 def band():
-    inner = (c.rect("LT_BandAkzent", 0.1, X0, 1.3, 0.1, bg=c.ORANGE)
-             + c.text("LT_BandOver", 0.35, X0, 12, 0.4, c.run("REPORT MASTER  ·  BEGLEIT-REPORT", 8, c.SKY, c.F_SEMI))
-             + c.text("LT_BandTitel", 0.8, X0, 12.9, 1.4, c.run("Listen", 30, c.WHITE, c.F_LIGHT))
+    inner = (c.rect("LT_BandAkzent", 0.1, X0, 1.3, 0.1, bg=c.AKZENT)
+             + c.text("LT_BandOver", 0.35, X0, 12, 0.4, c.run("REPORT MASTER  ·  BEGLEIT-REPORT", 8, c.AKZENT_DUNKEL, c.F_SEMI))
+             + c.text("LT_BandTitel", 0.8, X0, 12.9, 1.4, c.run("Listen", 30, c.WHITE, c.F))
              + c.text("LT_BandSub", 2.3, X0, 12.9, 0.5,
-                      c.run('=Parameters!Project_Name.Value & "   ·   " & Format(Parameters!Date.Value, "dd.MM.yyyy")', 9, "#CBD5E1", c.F))
-             + c.text("LT_BandRechts", 0.35, X0 + 13, 5, 0.4, c.run("Vollständige Listen", 8, c.SKY, c.F_SEMI), align="Right")
+                      c.run('=Parameters!Project_Name.Value & "   ·   " & Format(Parameters!Date.Value, "dd.MM.yyyy")', 9, c.AUF_NAVY, c.F))
+             + c.text("LT_BandRechts", 0.35, X0 + 13, 5, 0.4, c.run("Vollständige Listen", 8, c.AUF_NAVY, c.F_SEMI), align="Right")
              + c.text("LT_BandRechts2", 0.8, X0 + 13, 5, 1.4,
-                      c.para([c.run('=Format(%s, "N0")' % V_ANZ, 30, c.WHITE, c.F_LIGHT)], "Right"))
-             + c.text("LT_BandRechts3", 2.3, X0 + 13, 5, 0.5, c.run("Bauteile im Teilbild", 9, "#CBD5E1", c.F), align="Right"))
+                      c.para([c.run('=Format(%s, "N0")' % V_ANZ, 30, c.WHITE, c.F_ZAHL)], "Right"))
+             + c.text("LT_BandRechts3", 2.3, X0 + 13, 5, 0.5, c.run("Bauteile im Teilbild", 9, c.AUF_NAVY, c.F), align="Right"))
     return c.rect("LT_Band", 0, 0, c.PAGE_W, 3.3, inner, bg=c.NAVY)
 
 
@@ -315,7 +315,7 @@ def abschnitt(name, top, left, w, label, title, hinweis=None):
     """Abschnittskopf: kleine Zeile in Leitfarbe, Ueberschrift, Haarlinie, rechts optional ein Hinweis. Wie bausteine.overline(), aber ohne
     ueberlappende Felder (overline legt Zeile und Ueberschrift um 0,02 cm uebereinander; im Report-Fenster schiebt Allplan dann eines weg):
     die Ueberschrift ist nur 7,5 cm breit, der Hinweis steht rechts daneben. Belegt 1,2 cm."""
-    items = (c.text(name + "_o", top, left, w, 0.38, c.run(label.upper(), 7, c.BLUE, c.F_SEMI))
+    items = (c.text(name + "_o", top, left, w, 0.38, c.run(label.upper(), 7, c.MUTED, c.F_SEMI))
              + c.text(name + "_t", top + 0.43, left, 7.5, 0.7, c.run(title, 13, c.INK, c.F_SEMI))
              + c.line(name + "_l", top + 1.18, left, w))
     if hinweis:
@@ -329,7 +329,7 @@ def k100(top, left, w):
     """Ein Satz, der sagt, was der Report zeigt; die Zahlen kommen aus den Report-Variablen."""
     def zahl(ausdruck, fmt=None):
         return c.run("=" + ausdruck, 12.5, c.INK, c.F_SEMI, fmt=fmt)
-    leicht = lambda t: c.run(t, 12.5, c.TEXT, c.F_LIGHT)  # noqa: E731
+    leicht = lambda t: c.run(t, 12.5, c.TEXT, c.F)  # noqa: E731
     inhalt = c.para([leicht("Das Teilbild enthält "), zahl(V_ANZ, "N0"), leicht(" Bauteile in "), zahl(V_ARTEN, "N0"),
                      leicht(" Arten, zusammen "), zahl(V_VOL, "N1"), leicht(" m³ Rohbau. Die Liste je Art ist vollständig, "
                                                                            "die Etiketten am Ende tragen QR-Code und Strichcode.")])
@@ -530,7 +530,7 @@ def t150(top, left, w):
     anteil = b.quote("Sum(%s)" % MENGE, summe_art_gruppe)
     kumuliert = b.quote('RunningValue(%s, Sum, "%s")' % (MENGE, art_g), summe_art_gruppe)
     # Zeile 1: Abschnittstitel (Art, Anzahl, Menge); Zeile 2: Spaltenkopf; beide wiederholen sich mit der Gruppe auf der Folgeseite
-    titel = c.para([c.run("ART   ", 7, c.BLUE, c.F_SEMI), c.run("=" + art, 12, c.INK, c.F_SEMI),
+    titel = c.para([c.run("ART   ", 7, c.MUTED, c.F_SEMI), c.run("=" + art, 12, c.INK, c.F_SEMI),
                     c.run('="     " & Format(CountRows(), "N0") & IIf(CountRows() = 1, " Bauteil", " Bauteile") & "  ·  " & %s & " " & %s'
                           % (fm(summe_art), EINHEIT.replace("Fields!ObjNr.Value", "First(Fields!ObjNr.Value)")), 8, c.MUTED)])
     z_titel = c.zeile(kopf_h[0], [c.zelle(c.cell(name + "_T", titel, valign="Bottom", border_xml=c.edge(["Bottom"], c.HAIR, "0.75pt"),
@@ -633,17 +633,17 @@ def etikett_karte():
     die Felder sind Kinder des Rechtecks und ueberlappen sich nicht."""
     n = "LT_Et"
     x, lw = 0.35, 5.3                                     # linker Block; rechts daneben der QR-Code
-    art = c.text(n + "_Art", 0.25, x, lw, 0.32, c.run("=UCase(%s)" % ART, 7, c.BLUE, c.F_SEMI))
+    art = c.text(n + "_Art", 0.25, x, lw, 0.32, c.run("=UCase(%s)" % ART, 7, c.MUTED, c.F_SEMI))
     name = b.klick(c.text(n + "_Name", 0.62, x, lw, 0.55, c.run("=" + kurz(ETIKETT_NAME, 24), 12, c.INK, c.F_SEMI), valign="Middle"))
     # Material nur, wenn das Bauteil eines hat (Fenster und Tueren haben keines); 28 Zeichen: kleine Schrift ist im Fenster bis 8 % breiter
     material = c.text(n + "_Mat", 1.22, x, lw, 0.42, c.run("=" + kurz('("" & Fields!Material.Value)', 28), 8, c.MUTED), valign="Middle")
     masse = "".join(
         c.text("%s_M%d" % (n, i + 1), 1.85, x + i * 1.8, 1.7, 0.9,
-               [c.para([c.run("=UCase(%s)" % mass(i, 0), 6.5, c.MUTED, c.F_SEMI)]),
+               [c.para([c.run("=UCase(%s)" % mass(i, 0), 7, c.MUTED, c.F_SEMI)]),
                 c.para([c.run("=" + mass(i, 1), 10.5, c.INK, c.F_SEMI), c.run('=" " & ' + mass(i, 2), 7, c.MUTED)])], valign="Top")
         for i in range(3))
     menge = b.klick(c.text(n + "_Menge", 2.95, x, 4.0, 0.8,
-                           c.para([c.run("=" + fm(MENGE), 16, c.INK, c.F_LIGHT), c.run("=" + EINHEIT, 9, c.MUTED)]), valign="Bottom"))
+                           c.para([c.run("=" + fm(MENGE), 16, c.INK, c.F_ZAHL), c.run("=" + EINHEIT, 9, c.MUTED)]), valign="Bottom"))
     teilbild = c.text(n + "_TB", 3.25, x + 4.1, ETIKETT_W - 2 * x - 4.1, 0.5,
                       c.run('="Teilbild " & Format(Val(Left(Fields!Nr.Value, 4)), "0")', 8, c.MUTED), align="Right", valign="Bottom")
     qr = c.image(n + "_QR", 0.25, ETIKETT_W - x - 2.6, 2.6, 2.6, "=Code.QrPng(%s, 5)" % QR_TEXT, mime="image/png", action=b.ZOOM)

@@ -139,6 +139,20 @@ In `master\core.py` steht `VERFASSER = "W. Liffers"`. Ändere das vor deinem ers
 
 > **Nicht erprobt:** Die Ordner sind die, an denen diese Werkzeuge Skills erwarten. Mit diesem Skill ist das Einrichten noch nicht an einem fremden Rechner erprobt.
 
+## Design
+
+Die Reports haben ein **Hausdesign** als Vorgabe: dunkles Marineblau für Flächen und Text, ein kräftiges Blau für Balken und Links, Türkis als Markierung, dazu die Schrift Roboto. Es gilt, solange du nichts anderes vorgibst.
+
+Die KI fragt dich **einmal** danach, bevor der erste Report entsteht: Stil, Farben, Schrift. Sie empfiehlt dabei das Hausdesign. Ohne diese Klärung baut kein Skript einen Report; das ist Absicht, damit das Design nie vergessen wird. Dein eigenes Design in drei Schritten:
+
+1. Du nennst der KI deine Vorgaben: Farbwerte, CI-Handbuch, Website, Logo, ein Beispiel-PDF oder den Namen deiner Schrift.
+2. Die KI trägt die vier Pflichtfarben (Textfarbe, dunkle Fläche, Leitfarbe, Akzent) und die Schrift in die Datei `design_kunde.json` ein (`python master\design.py --vorlage` schreibt das Formular). Alle weiteren Farben rechnet der Bausatz daraus.
+3. Die KI legt das Design fest (`python master\design.py --kunde design_kunde.json`). Dabei prüft der Bausatz die Kontraste, und du bekommst die Prüfzeile und die Zeile `DESIGN: KUNDE` im Wortlaut.
+
+Roboto ist **nicht enthalten** und muss **nicht installiert sein**: Fehlt sie auf dem Rechner, der den Report öffnet, zeigt derselbe Report die Windows-Schrift Segoe UI. Mit Roboto sieht er schöner aus. Bei einer eigenen Hausschrift ist es genauso.
+
+Was ein Allplan-Report beim Design nicht kann: runde Ecken, Schatten, Durchsicht, Farbverläufe, Webschriften, Hover-Effekte. Einen Wunsch wie „helles Titelband statt dunklem“ gibt es nicht als Schalter; die KI passt die Seiten dann von Hand an. Die Einzelheiten stehen in `references\design.md` des Skills.
+
 ## So setzt du den Skill ein
 
 Das ist der Kern. Du beschreibst der KI in normalen Sätzen, was du willst. Sie liest den Skill, arbeitet in der Werkstatt und gibt dir Dateien und Bilder zurück. Du musst die Report-Datei nicht verstehen.
@@ -147,7 +161,7 @@ Das ist der Kern. Du beschreibst der KI in normalen Sätzen, was du willst. Sie 
 
 > „Lege die Werkstatt im Ordner reports an und zeig mir den Master."
 
-Die KI führt `werkstatt_anlegen.py` aus, baut den Master mit Beispieldaten und zeigt dir Vorschaubilder der 10 Seiten. Du bekommst die Datei `out\Report_Master.rdlc` und die Bilder. Für die Vorschau baut sie einmal ein kleines Anzeigeprogramm aus den Programmdateien von Allplan 2027.
+Die KI führt `werkstatt_anlegen.py` aus, fragt dich einmal nach dem [Design](#design), baut den Master mit Beispieldaten und zeigt dir Vorschaubilder der 10 Seiten. Du bekommst die Datei `out\Report_Master.rdlc` und die Bilder. Für die Vorschau baut sie einmal ein kleines Anzeigeprogramm aus den Programmdateien von Allplan 2027.
 
 **Schritt 2: Einen eigenen Report bestellen**
 
@@ -333,8 +347,8 @@ python master\sprache.py --sammeln out\<Datei>.rdlc
 python master\sprache.py --offen out\<Datei>.rdlc
 python master\sprache.py --en out\<Datei>.rdlc
 
-# In der Werkstatt: Tests, 100 Stück (brauchen ein eigenes Python mit pytest, nicht das von Allplan).
-# Ohne gebautes Vorschauprogramm zeigt der Lauf „99 passed, 1 skipped“.
+# In der Werkstatt: Tests, über 200 Stück (brauchen ein eigenes Python mit pytest, nicht das von Allplan).
+# Ohne gebautes Vorschauprogramm werden einzelne Tests übersprungen („skipped“).
 python -m pytest werkzeug\tests -q
 
 # Reports prüfen, Attribute nachschlagen (Pfad zum Grundskill anpassen)

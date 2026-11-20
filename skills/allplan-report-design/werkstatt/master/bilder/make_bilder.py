@@ -7,12 +7,21 @@ Gezeichnet wird vierfach vergroessert und dann verkleinert (glatte Kanten).
 """
 import os
 import random
+import sys
 
 from PIL import Image, ImageDraw
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-INK = (15, 23, 42, 255)
-BLUE = (37, 99, 235, 255)
+sys.path.insert(0, os.path.join(HERE, ".."))
+import core as c  # noqa: E402  (Farben des Gestaltungssystems; Materialmuster behalten ihre Materialfarben)
+
+
+def rgba(hexfarbe):
+    return tuple(int(hexfarbe[i:i + 2], 16) for i in (1, 3, 5)) + (255,)
+
+
+INK = rgba(c.INK)        # Piktogramme in der Tintenfarbe des Designs
+BLUE = rgba(c.BLUE)      # Akzentstellen der Piktogramme in der Leitfarbe
 S = 4          # Ueberabtastung
 N = 96         # Kantenlaenge der fertigen Bilder
 

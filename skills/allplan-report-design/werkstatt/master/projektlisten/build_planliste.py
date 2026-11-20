@@ -201,15 +201,15 @@ def kategorie_label(chart_xml, alt, neu):
 def band():
     x0 = c.INSET
     letzte = "Code.DatumText(Max(Code.D(Fields!Geaendert.Value)), \"–\")"
-    inner = (c.rect("PL_BandAkzent", 1.15, x0, 1.3, 0.1, bg=c.ORANGE)
-             + c.text("PL_BandOver", 1.4, x0, 10.5, 0.4, c.run("REPORT MASTER  ·  BEGLEIT-REPORT", 8, c.SKY, c.F_SEMI))
-             + c.text("PL_BandTitel", 1.85, x0, 10.5, 1.45, c.run("Planliste", 30, c.WHITE, c.F_LIGHT))
+    inner = (c.rect("PL_BandAkzent", 1.15, x0, 1.3, 0.1, bg=c.AKZENT)
+             + c.text("PL_BandOver", 1.4, x0, 10.5, 0.4, c.run("REPORT MASTER  ·  BEGLEIT-REPORT", 8, c.AKZENT_DUNKEL, c.F_SEMI))
+             + c.text("PL_BandTitel", 1.85, x0, 10.5, 1.45, c.run("Planliste", 30, c.WHITE, c.F))
              + c.text("PL_BandSub", 3.3, x0, 10.5, 0.55,
                       c.run('=Parameters!Project_Name.Value & "   ·   " & Format(Parameters!Date.Value, "dd.MM.yyyy")',
-                            9, "#CBD5E1", c.F))
-             + c.text("PL_BandRechts", 1.4, x0 + 11, 7, 0.4, c.run("Zuletzt geändert", 8, c.SKY, c.F_SEMI), align="Right")
-             + c.text("PL_BandRechts2", 1.85, x0 + 11, 7, 1.45, c.para([c.run("=" + letzte, 24, c.WHITE, c.F_LIGHT)], "Right"))
-             + c.text("PL_BandRechts3", 3.3, x0 + 11, 7, 0.55, c.run("letzte Änderung an einem Plan", 9, "#CBD5E1", c.F), align="Right"))
+                            9, c.AUF_NAVY, c.F))
+             + c.text("PL_BandRechts", 1.4, x0 + 11, 7, 0.4, c.run("Zuletzt geändert", 8, c.AUF_NAVY, c.F_SEMI), align="Right")
+             + c.text("PL_BandRechts2", 1.85, x0 + 11, 7, 1.45, c.para([c.run("=" + letzte, 24, c.WHITE, c.F_ZAHL)], "Right"))
+             + c.text("PL_BandRechts3", 3.3, x0 + 11, 7, 0.55, c.run("letzte Änderung an einem Plan", 9, c.AUF_NAVY, c.F), align="Right"))
     return c.rect("PL_Band", 0, 0, c.PAGE_W, 4.5, inner, bg=c.NAVY)
 
 
@@ -246,7 +246,7 @@ D200_BREITEN = [(4.0, "%s > 1" % MONATE_N), (7.0, "(%s < 2) Or (%s > 3)" % (MONA
 def d200_diagramm(name, top, left, w, h):
     key = "Code.MonKey(Fields!Erstellt.Value)"
     zahl = "CountDistinct(%s)" % PLAN
-    neuester = '=IIf(Max(%s) = Max(Max(%s, "%s_Cat1"), "%s"), "%s", "%s")' % (key, key, name, name, c.ORANGE, c.BLUE)
+    neuester = '=IIf(Max(%s) = Max(Max(%s, "%s_Cat1"), "%s"), "%s", "%s")' % (key, key, name, name, c.BLUE, c.RAMP[3])
     chart = v.chart(
         name, top, left, w, h,
         [v.S("Plaene", {"Y": "=" + zahl}, typ="Column", sub="Plain",
@@ -254,7 +254,7 @@ def d200_diagramm(name, top, left, w, h):
              label=v.dlabel(fmt="#,##0", size="8.5pt", color=c.TEXT),
              custom_xml=v.custom(PointWidth="0.55", BarLabelStyle="Outside"))],
         [("=" + key, None, None)],
-        areas=v.area(cat_axes=[v.axis("Primary", interval="1", size="7.5pt", extra=FEST).replace("#9CA3AF", c.HAIR, 1)],
+        areas=v.area(cat_axes=[v.axis("Primary", interval="1", size="7.5pt", extra=FEST)],
                      val_axes=[v.axis("Primary", visible=False, line=False, minimum="0",
                                       maximum='=Max(CountDistinct(%s, "%s_Cat1"), "%s") * 1.25' % (PLAN, name, name))],
                      pos=(0, 0, 100, 100)),
@@ -274,7 +274,7 @@ def d200(top, left, w, h=5.5):
         items += c.rect(name + "_Feld", top + 1.45, left, w, h,
                         d200_diagramm(name, 0, (w - breite) / 2, breite, h), hidden="=" + versteckt)
     items += b.etikett("PL_E2", top + 1.45 + h + 0.05, left, w, "D200",
-                       "Säulen: Pläne je Erstellungsmonat, Deckel 12 (die jüngsten), Breite nach Zahl der Monate (4 Varianten), neuester Monat in Akzentfarbe")
+                       "Säulen: Pläne je Erstellungsmonat, Deckel 12 (die jüngsten), Breite nach Zahl der Monate (4 Varianten), neuester Monat in Leitfarbe, übrige heller")
     return items
 
 
@@ -415,7 +415,7 @@ def kopf_seite2():
     die Tabelle wiederholt ihren eigenen Kopf)."""
     return b.folgekopf("PL_Kopf2", "PL_K2", "REPORT MASTER  ·  PLANLISTE", "Alle Pläne",
                        c.run('=%s & " Pläne  ·  " & CountDistinct(IIf(%s, Fields!Teilbildnummer.Value, Nothing)) & " Teilbilder"'
-                             % (PLAENE, TB_DA), 8.5, "#CBD5E1"), top=c.PAGE_BODY_H, label="Planliste")
+                             % (PLAENE, TB_DA), 8.5, c.AUF_NAVY), top=c.PAGE_BODY_H, label="Planliste")
 
 
 def build():
@@ -439,4 +439,4 @@ if __name__ == "__main__":
     print(ziel)
     if "--render" in sys.argv:
         os.makedirs(AUS, exist_ok=True)
-        c.rendern(ziel, JSON, AUS)
+        c.rendern(ziel, JSON, AUS, vollzugriff=True)   # volle Rechte: Code.Schrift liest die installierten Schriften (sonst Ersatzschrift Segoe UI)

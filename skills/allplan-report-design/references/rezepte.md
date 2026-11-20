@@ -5,6 +5,7 @@ steht „(K)“ oder „(V)“, ist es dort noch nicht bewiesen (Belegstufen: `g
 
 - **Kennung** (K010, D040 …): fertiger Baustein, Bauplan in `bausteine.md`, Maße und Parameter in `masse.md`; bestellen mit `master/build_auswahl.py`.
 - **`c.…`** = Bausatz-Funktion in `master/core.py`, **`viz.…`** in `master/viz.py`.
+- **Design** (Hausfarben, Hausschrift, „soll aussehen wie …“): `design.md`; festgelegt wird es mit `python master/design.py` (SKILL.md, Ablauf Schritt 0).
 - **`grenzen.md` · Abschnitt**, **`fallen.md` · Abschnitt**: Urteil und Kniff stehen dort; **Datei** = eigene Referenz.
 - Ein Wunsch, der hier fehlt oder dessen Zeile „(K)“ trägt: erst `grenzen.md` lesen, dann bauen, in Allplan ansehen (SKILL.md, Regel „Der Beweis ist Allplan“).
 

@@ -89,11 +89,11 @@ def kopf(nr, titel):
     x0, p = c.INSET, "AuswahlKopf%d" % nr
     sub = '=Parameters!Project_Name.Value & "   ·   " & Format(Parameters!Date.Value, "dd.MM.yyyy")'
     # Titel und Untertitel nebeneinander mit getrennten Breiten (Felder duerfen sich nicht ueberlappen)
-    titel_w = round(min(b.textbreite(titel, 19, leicht=True) * 1.03 + 0.5, c.CONTENT_W - 6.5), 2)
-    inner = (c.rect(p + "Akzent", 0.5, x0, 0.9, 0.08, bg=c.ORANGE)
-             + c.text(p + "Over", 0.66, x0, 12, 0.3, c.run("REPORT  ·  ALLPLAN 2027", 7, c.SKY, c.F_SEMI))
-             + c.text(p + "Titel", 0.98, x0, titel_w, 0.85, c.run(titel, 19, c.WHITE, c.F_LIGHT))
-             + c.text(p + "Sub", 1.1, x0 + titel_w + 0.1, c.CONTENT_W - titel_w - 0.1, 0.65, c.run(sub, 8.5, "#CBD5E1"),
+    titel_w = round(min(b.textbreite(titel, 19) * 1.03 + 0.5, c.CONTENT_W - 6.5), 2)
+    inner = (c.rect(p + "Akzent", 0.5, x0, 0.9, 0.08, bg=c.AKZENT)
+             + c.text(p + "Over", 0.66, x0, 12, 0.3, c.run("REPORT  ·  ALLPLAN 2027", 7, c.AKZENT_DUNKEL, c.F_SEMI))
+             + c.text(p + "Titel", 0.98, x0, titel_w, 0.85, c.run(titel, 19, c.WHITE, c.F))
+             + c.text(p + "Sub", 1.1, x0 + titel_w + 0.1, c.CONTENT_W - titel_w - 0.1, 0.65, c.run(sub, 8.5, c.AUF_NAVY),
                       align="Right", valign="Bottom"))
     return c.rect(p, 0, 0, c.PAGE_W, KOPF_H, inner, bg=c.NAVY)
 
@@ -171,7 +171,7 @@ def rendern(ziel, name, daten):
     os.makedirs(ausgabe, exist_ok=True)
     for alt in glob.glob(os.path.join(ausgabe, name + "_S*.png")):
         os.remove(alt)     # sonst bleiben Seiten eines frueheren, laengeren Laufs liegen
-    lauf = subprocess.run(c.render_argumente(ziel, json_datei, ausgabe), capture_output=True, check=False)
+    lauf = subprocess.run(c.render_argumente(ziel, json_datei, ausgabe, vollzugriff=True), capture_output=True, check=False)
     # Das Anzeigeprogramm schreibt in der Konsolen-Codepage; Pfade mit Umlauten duerfen das Lesen nicht abbrechen.
     ausgabe_text = lauf.stdout.decode("oem", errors="replace").strip()
     print(ausgabe_text)

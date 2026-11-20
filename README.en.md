@@ -139,6 +139,20 @@ With Claude Code the skill folder is `.claude\skills\allplan-report-design`, wit
 
 > **Not tried:** The folders are the ones where these tools expect skills. Setting up with this skill has not yet been tried on someone else's computer.
 
+## Design
+
+The reports come with a **house design** as the default: dark navy blue for surfaces and text, a strong blue for bars and links, turquoise as a marker, and the font Roboto. It applies as long as you do not ask for something else.
+
+The AI asks you about it **once**, before the first report is built: style, colors, font. It recommends the house design. Without this decision no script builds a report; this is on purpose, so the design is never forgotten. Your own design in three steps:
+
+1. You give the AI your specifications: color values, a corporate design manual, a website, a logo, an example PDF, or the name of your font.
+2. The AI enters the four required colors (text color, dark surface, lead color, accent) and the font in the file `design_kunde.json` (`python master\design.py --vorlage` writes the form). The construction kit calculates all other colors from them.
+3. The AI sets the design (`python master\design.py --kunde design_kunde.json`). The construction kit checks the contrasts, and you get the check line and the line `DESIGN: KUNDE` word for word.
+
+Roboto is **not included** and does **not have to be installed**: if it is missing on the computer that opens the report, the same report shows the Windows font Segoe UI. It looks better with Roboto. The same goes for a house font of your own.
+
+What an Allplan report cannot do in design: rounded corners, shadows, transparency, color gradients, web fonts, hover effects. A wish like "light title band instead of dark" is not a switch; the AI then adapts the pages by hand. Details are in `references\design.md` of the skill.
+
 ## How to use the skill
 
 This is the core. You describe in plain sentences what you want. The AI reads the skill, works in the workshop and hands back files and images. You do not have to understand the report file.
@@ -147,7 +161,7 @@ This is the core. You describe in plain sentences what you want. The AI reads th
 
 > "Create the workshop in the folder reports and show me the master."
 
-The AI runs `werkstatt_anlegen.py`, builds the master with sample data and shows you preview images of the 10 pages. You get the file `out\Report_Master.rdlc` and the images. For the preview it builds a small viewer program once, from the program files of Allplan 2027.
+The AI runs `werkstatt_anlegen.py`, asks you once about the [design](#design), builds the master with sample data and shows you preview images of the 10 pages. You get the file `out\Report_Master.rdlc` and the images. For the preview it builds a small viewer program once, from the program files of Allplan 2027.
 
 **Step 2: Order a report of your own**
 
@@ -333,8 +347,8 @@ python master\sprache.py --sammeln out\<file>.rdlc
 python master\sprache.py --offen out\<file>.rdlc
 python master\sprache.py --en out\<file>.rdlc
 
-# In the workshop: tests, 100 of them (need a Python of your own with pytest, not the one of Allplan).
-# Without the built preview program the run shows "99 passed, 1 skipped".
+# In the workshop: tests, more than 200 of them (need a Python of your own with pytest, not the one of Allplan).
+# Without the built preview program single tests are skipped ("skipped").
 python -m pytest werkzeug\tests -q
 
 # Check reports, look up attributes (adjust the path to the base skill)

@@ -30,8 +30,10 @@ def stufe(n=5):
     return "=Choose(%s, %s)" % (rang, ", ".join('"%s"' % f for f in c.RAMP[:n]))
 
 
-def titel_mitte(name, gross, klein):
-    return (v.title(gross, size="15pt", color=c.INK, bold=False, name=name,
+def titel_mitte(name, gross, klein, ziffern=None):
+    """Zahl in der Mitte des Rings; ziffern: Ausdruck der Zahl als Text - ab fuenf Zeichen wird die Schrift kleiner, damit sie ins Loch passt."""
+    groesse = "15pt" if ziffern is None else ('=IIf(Len(%s) &gt;= 8, "9pt", IIf(Len(%s) &gt;= 5, "11pt", "15pt"))' % (ziffern, ziffern))
+    return (v.title(gross, size=groesse, color=c.INK, font=c.F_ZAHL, name=name,
                     extra="<ChartElementPosition><Top>38</Top><Left>20</Left><Height>14</Height><Width>60</Width></ChartElementPosition>")
             + v.title(klein, size="7.5pt", name=name + "u", color=c.MUTED, bold=False,
                       extra="<ChartElementPosition><Top>52</Top><Left>20</Left><Height>9</Height><Width>60</Width></ChartElementPosition>"))
@@ -46,15 +48,15 @@ def d090(top, left, w):
         "S3_ChRing", top + DY + 0.7, left - 0.1, 4.5, 4.5,
         [v.S("Vol", {"Y": "=" + VOL}, typ="Shape", sub="Doughnut",
              custom_xml=v.custom(DoughnutRadius="32", PieLabelStyle="Disabled", PieStartAngle="270"),
-             pstyle=v.border("#FFFFFF", "Solid", "1.5pt"))],
+             pstyle=v.border(c.WHITE, "Solid", "1.5pt"))],
         [("=" + ART, "=" + VOL, "Descending")],
         areas=v.area(pos=(0, 0, 100, 100)),
-        titles=titel_mitte("Mitte", '=Format(%s, "N0") & " m³"' % VOL, "Bauteilvolumen"),
+        titles=titel_mitte("Mitte", '=Format(%s, "N0") & " m³"' % VOL, "Bauteilvolumen", 'Format(%s, "N0")' % VOL),
         palette="Custom", custom_palette=c.RAMP[:5], extra=c.filters(raw(MIT_MATERIAL)))
     lrow = c.edge(["Bottom"], c.HAIR, "0.5pt")
     gesamt = 'Sum(CDbl(Fields!Volumen.Value), "S3_TbRing")'
     kopf = c.edge(["Bottom"], c.INK, "0.75pt")
-    legende = c.tablix("S3_TbRing", 0, 0, [0.45, 1.85, 1.1, 1.0], [
+    legende = c.tablix("S3_TbRing", 0, 0, [0.45, 1.95, 1.0, 1.0], [
         ("kopf", 0.5, [
             c.cell("S3_LH1", c.run("", 7), border_xml=kopf),
             c.cell("S3_LH2", c.run("ART", 7, c.MUTED, c.F_SEMI), pad=(0, 1, 2, 1), border_xml=kopf),
@@ -62,7 +64,7 @@ def d090(top, left, w):
             c.cell("S3_LH4", c.run("ANTEIL", 7, c.MUTED, c.F_SEMI), "Right", pad=(0, 1, 0, 1), border_xml=kopf),
         ]),
         ("daten", 0.62, [
-            c.cell("S3_L1", c.run("■", 10, stufe()), "Left", pad=(0, 0, 0, 0), border_xml=lrow),
+            c.cell("S3_L1", c.run("■", 10, stufe(), b.SYMBOL), "Left", pad=(0, 0, 0, 0), border_xml=lrow),
             c.cell("S3_L2", c.run("=" + ART, 8.5, c.TEXT), pad=(0, 1, 2, 1), border_xml=lrow),
             c.cell("S3_L3", c.run("=" + zahl(VOL), 8.5, c.INK, c.F_SEMI), "Right", pad=(0, 1, 0, 1), border_xml=lrow),
             c.cell("S3_L4", c.run("=%s / %s" % (VOL, gesamt), 8.5, c.TEXT, fmt="0 %"), "Right", pad=(0, 1, 0, 1), border_xml=lrow),
@@ -83,7 +85,7 @@ def d100(top, left, w):
         "S3_ChTorte", top + DY + 0.7, left - 0.1, 4.3, 4.3,
         [v.S("Flaeche", {"Y": "=" + FLAE}, typ="Shape", sub="Pie",
              custom_xml=v.custom(PieLabelStyle="Disabled", PieStartAngle="250"),
-             pstyle=v.border("#FFFFFF", "Solid", "1.5pt"))],
+             pstyle=v.border(c.WHITE, "Solid", "1.5pt"))],
         [("=" + name, "=" + FLAE, "Descending")],
         areas=v.area(pos=(0, 0, 100, 100)),
         palette="Custom", custom_palette=c.RAMP[:5], extra=c.filters(raw(OEFFNUNG)))
@@ -104,7 +106,7 @@ def d100(top, left, w):
             c.cell("S3_TH4", c.run("ANTEIL", 7, c.MUTED, c.F_SEMI), "Right", pad=(0, 1, 0, 1), border_xml=kopf),
         ]),
         ("daten", 0.62, [
-            c.cell("S3_T1", c.run("■", 10, farbe), "Left", pad=(0, 0, 0, 0), border_xml=lrow),
+            c.cell("S3_T1", c.run("■", 10, farbe, b.SYMBOL), "Left", pad=(0, 0, 0, 0), border_xml=lrow),
             c.cell("S3_T2", c.run("=" + kurz, 7, c.TEXT), pad=(3, 1, 2, 1), border_xml=lrow),
             c.cell("S3_T3", c.run("=" + zahl(FLAE), 7, c.INK, c.F_SEMI), "Right", pad=(0, 1, 0, 1), border_xml=lrow),
             c.cell("S3_T4", c.run("=%s / %s" % (FLAE, gesamt), 7, c.TEXT, fmt="0 %"), "Right", pad=(0, 1, 0, 1),
@@ -124,9 +126,10 @@ def d110(top, left, w):
         [v.S("Vol", {"Y": "=" + VOL}, typ="Shape", sub="Pyramid",
              label=v.dlabel(position="Auto", fmt="N1", size="8pt", color=c.TEXT,
                             label='=%s & "   " & %s & " m³"' % (MATGRUPPE_ERSTE, zahl(VOL))),
-             pstyle="<Color>%s</Color>" % c.esc(MAT_FARBE) + v.border("#FFFFFF", "Solid", "1.5pt"),
+             pstyle="<Color>%s</Color>" % c.esc(MAT_FARBE) + v.border(c.WHITE, "Solid", "1.5pt"),
              custom_xml=v.custom(PyramidLabelStyle="OutsideInColumn", PyramidPointGap="1", PyramidMinPointHeight="3",
-                                 Pyramid3DRotationAngle="0", PyramidValueType="Surface"))],
+                                 Pyramid3DRotationAngle="0", PyramidValueType="Surface",
+                                 CalloutLineColor=c.HAIR_STARK))],
         [("=" + MATGRUPPE, "=" + VOL, "Descending")],
         areas=v.area(pos=(0, 0, 100, 100)),
         extra=c.filters(raw(MIT_MATERIAL)))
@@ -147,7 +150,7 @@ def d120(top, left, w):
         "S3_ChSun", top + 1.8, left, w, 5.2,
         [v.S("Vol", {"Y": "=" + VOL}, typ="Shape", sub="TreeMap",
              label=v.dlabel(fmt="N0", size="7.5pt", color=c.esc(TEXT_AUF_GRUPPE), label=text),
-             pstyle="<Color>%s</Color>" % c.esc(MAT_FARBE) + v.border("#FFFFFF", "Solid", "1pt"))],
+             pstyle="<Color>%s</Color>" % c.esc(MAT_FARBE) + v.border(c.WHITE, "Solid", "1pt"))],
         [("=" + feld, "=" + VOL, "Descending")],
         areas=v.area(pos=(0, 0, 100, 100)),
         extra=c.filters(raw(MIT_MATERIAL)))
@@ -165,12 +168,12 @@ def d130(top, left, w):
         "S3_ChPunkte", top + 1.8, left, w, 5.2,
         [v.S("Punkte", {"X": "=" + FLAE, "Y": "=" + VOL}, typ="Scatter", sub="Plain",
              pstyle="<Color>%s</Color>" % c.esc(MAT_FARBE),
-             mark=v.marker("Circle", "5pt", c.esc(MAT_FARBE), "#FFFFFF"))],
+             mark=v.marker("Circle", "5pt", c.esc(MAT_FARBE), c.WHITE))],
         [("=Fields!Nr.Value", "=Fields!Nr.Value", None)],
         areas=v.area(
-            cat_axes=[v.axis("Primary", line=True, size="7.5pt", fmt="#,##0.##", grid=True, gridcolor="#EEF2F6",
+            cat_axes=[v.axis("Primary", line=True, size="7.5pt", fmt="#,##0.##", grid=True, gridcolor=c.HAIR,
                              extra=FEST, log=True, title="Fläche in m²", title_size="7.5pt")],
-            val_axes=[v.axis("Primary", line=False, size="7.5pt", fmt="#,##0.##", grid=True, gridcolor="#EEF2F6", extra=FEST,
+            val_axes=[v.axis("Primary", line=False, size="7.5pt", fmt="#,##0.##", grid=True, gridcolor=c.HAIR, extra=FEST,
                              log=True, title="Volumen in m³", title_size="7.5pt")],
             pos=(0, 0, 100, 100)),
         extra=c.filters(raw(bedingung)))
@@ -183,8 +186,8 @@ def d130(top, left, w):
 def d140(top, left, w):
     items = overline("S3_A6", top, left, w, "Formate", "Öffnungen: Breite, Höhe, Anzahl")
     items += c.text("S3_BlLeg", top + 1.3, left, w, 0.42,
-                    c.para([c.run("■ ", 9, c.BLUE), c.run("Fenster      ", 7.5, c.MUTED),
-                            c.run("■ ", 9, c.SKY), c.run("Tür      ", 7.5, c.MUTED),
+                    c.para([c.run("■ ", 9, c.BLUE, b.SYMBOL), c.run("Fenster      ", 7.5, c.MUTED),
+                            c.run("■ ", 9, c.SERIE[3], b.SYMBOL), c.run("Tür      ", 7.5, c.MUTED),
                             c.run("Größe der Blase = Anzahl", 7.5, c.FAINT)]))
     # Format = Art + Breite + Hoehe in ganzen cm; die 12 haeufigsten. Keine Beschriftung an den Blasen:
     # Blasen duerfen sich ueberdecken, Texte nie - die Anzahl steht in der Blasengroesse.
@@ -195,14 +198,14 @@ def d140(top, left, w):
         [v.S("Blasen", {"X": "=Max(CDbl(Fields!Laenge.Value))", "Y": "=Max(CDbl(Fields!Hoehe.Value))", "Size": "=" + anzahl},
              typ="Scatter", sub="Bubble",
              label=v.dlabel(visible=False),
-             pstyle="<Color>=IIf(Val(Max(Fields!ObjNr.Value))=991, \"%s\", \"%s\")</Color>" % (c.BLUE, c.SKY),
-             mark=v.marker("Circle", "10pt", None, "#FFFFFF"),
+             pstyle="<Color>=IIf(Val(Max(Fields!ObjNr.Value))=991, \"%s\", \"%s\")</Color>" % (c.BLUE, c.SERIE[3]),
+             mark=v.marker("Circle", "10pt", None, c.WHITE),
              custom_xml=v.custom(BubbleMaxSize="14"))],
         [("=" + format_, "=" + anzahl, "Descending")],
         areas=v.area(
             cat_axes=[v.axis("Primary", size="7.5pt", fmt="0.0", extra=FEST, minimum="=0",
                              title="Breite in m", title_size="7.5pt")],
-            val_axes=[v.axis("Primary", line=False, size="7.5pt", fmt="0.0", grid=True, gridcolor="#EEF2F6", extra=FEST,
+            val_axes=[v.axis("Primary", line=False, size="7.5pt", fmt="0.0", grid=True, gridcolor=c.HAIR, extra=FEST,
                              minimum="=0", title="Höhe in m", title_size="7.5pt")],
             pos=(0, 0, 100, 100)),
         extra=c.filters(raw(OEFFNUNG_MASS)))

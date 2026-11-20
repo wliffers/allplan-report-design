@@ -25,13 +25,13 @@ Gemeinsame Teile (Kachel, Abschnittskopf, Kennwert-Balken, Bildkarten, Klick ins
 
 | Kennung | Name | Zu sehen | Datei · Funktion | Technik |
 |---|---|---|---|---|
-| D010 | Balken Volumen nach Materialgruppe | Master Seite 1 | `seiten/s01_uebersicht.py` · `d010` | Balken je Materialgruppe (Code.MatArt), Farbe über Code.MatFarbe, höchstens 9 Gruppen |
+| D010 | Balken Volumen nach Materialgruppe | Master Seite 1 | `seiten/s01_uebersicht.py` · `d010` | Balken je Materialgruppe, Farbe über Code.MatFarbe, höchstens 9 Gruppen |
 | D020 | Ring mit Legende | Master Seite 1 | `seiten/s01_uebersicht.py` · `d020` | TopN 7 in Ring und Legende, Rest als Zeile |
-| D030 | Fläche je Bauteilart | Master Seite 2 | `seiten/s02_vergleichen.py` · `d030` | Säulen mit Direktbeschriftung, Art aus der Objektnummer, Werteachse entfällt |
+| D030 | Fläche je Bauteilart | Master Seite 2 | `seiten/s02_vergleichen.py` · `d030` | Säulen, Direktbeschriftung, Art aus der Objektnummer, ohne Werteachse |
 | D040 | Die 8 größten Bauteile | Master Seite 2 | `seiten/s02_vergleichen.py` · `d040` | Balken-Rangliste Top 8 (Filter TopN), Materialfarbe, Wert am Balken |
-| D050 | Volumen je Bauteilart | Master Seite 2 | `seiten/s02_vergleichen.py` · `d050` | Gestapelte Säulen, Serien = Materialgruppen (höchstens 5), Summe als Linie |
+| D050 | Volumen je Bauteilart | Master Seite 2 | `seiten/s02_vergleichen.py` · `d050` | Gestapelte Säulen je Materialgruppe (höchstens 5), Summe als Linie |
 | D060 | Materialanteile der Wandschichten | Master Seite 2 | `seiten/s02_vergleichen.py` · `d060` | 100-%-Stapelbalken, Serien = Materialgruppen, Anteil im Segment |
-| D070 | Die 8 größten Wandaufbauten | Master Seite 2 | `seiten/s02_vergleichen.py` · `d070` | Pareto Top 8: eigene Achsen, Linie kumuliert zur Gesamtsumme aller Schichten |
+| D070 | Die 8 größten Wandaufbauten | Master Seite 2 | `seiten/s02_vergleichen.py` · `d070` | Pareto Top 8: eigene Achsen, Linie kumuliert zur Gesamtsumme |
 | D080 | Fenster und Türen nach Breite | Master Seite 2 | `seiten/s02_vergleichen.py` · `d080` | Gruppierte Säulen, vier Breitenklassen, zwei Serien |
 | D090 | Volumen nach Bauteilart | Master Seite 3 | `seiten/s03_anteile.py` · `d090` | Ring mit Zahl in der Mitte, eigene Legende mit Wert und Anteil |
 | D100 | Fläche nach Typ | Master Seite 3 | `seiten/s03_anteile.py` · `d100` | Torte Top 5 Typen, Legende: Anteil an den 5 gezeigten (= 100 %) |
@@ -55,7 +55,7 @@ Gemeinsame Teile (Kachel, Abschnittskopf, Kennwert-Balken, Bildkarten, Klick ins
 | M030 | Fortschrittsringe | Master Seite 4 | `seiten/s04_messanzeigen.py` · `m030` | RadialGauge 270°, RadialPointer Typ Bar auf heller Spur |
 | M040 | Zielbalken (Bullet-Graph) | Master Seite 4 | `seiten/s04_messanzeigen.py` · `m040` | Balkendiagramm: Bänder gestapelt, Ist auf 2. Achse, Ziele angenommen |
 | M050 | Fortschrittsbalken | Master Seite 4 | `seiten/s04_messanzeigen.py` · `m050` | Baustein fortschritt, Zielbereich als Linie, zwei Farben gestapelt |
-| M060 | Ampel mit Schwellen | Master Seite 4 | `seiten/s04_messanzeigen.py` · `m060` | StateIndicator mit Schwellen (ohne Grundlage grau); Textsymbol per Ausdruck |
+| M060 | Ampel mit Schwellen | Master Seite 4 | `seiten/s04_messanzeigen.py` · `m060` | StateIndicator mit Schwellen; Zeichen per Ausdruck, grau ohne Grundlage |
 | M080 | Kennwert-Balken | Begleit-Report Grundriss | `grundriss/build_grundriss.py` · `m080` |  |
 | M090 | Vollständigkeit des Plankopfs | Begleit-Report Planliste | `projektlisten/build_planliste.py` · `m090` |  |
 
@@ -83,10 +83,10 @@ Gemeinsame Teile (Kachel, Abschnittskopf, Kennwert-Balken, Bildkarten, Klick ins
 
 | Kennung | Name | Zu sehen | Datei · Funktion | Technik |
 |---|---|---|---|---|
-| B010 | Bildkarten | Master Seite 1 | `seiten/s01_uebersicht.py` · `b010` | Karte je Typ mit Bild aus Allplan, TopN 5 nach Häufigkeit (häufigster zuerst), Klick zoomt aufs Bauteil |
+| B010 | Bildkarten | Master Seite 1 | `seiten/s01_uebersicht.py` · `b010` | Karte je Typ mit Bild aus Allplan, TopN 5 nach Häufigkeit, Klick zoomt aufs Bauteil |
 | B020 | Steckbriefe aus dem Modell | Master Seite 6 | `seiten/s06_bilder.py` · `b020` | Steckbrief: Karte je Typ (Gruppe mit Deckel c.topn: häufigster Typ bzw. größtes Bauteil), Bild =First(Bild), Klick zoomt |
 | B030 | Bildleiste Bauteile | Master Seite 6 | `seiten/s06_bilder.py` · `b030` | Bildleiste: Spaltengruppe je Bauteilart und Materialgruppe, Deckel 8, =First(Bild); ohne Bild erscheint das Piktogramm |
-| B040 | Bauteilarten mit Piktogramm | Master Seite 6 | `seiten/s06_bilder.py` · `b040` | Eingebettete Piktogramme: Bild per Ausdruck nach Objektart, ohne Dateipfad |
+| B040 | Bauteilarten mit Piktogramm | Master Seite 6 | `seiten/s06_bilder.py` · `b040` | Eingebettete Piktogramme: Bild per Ausdruck nach Objektart |
 | B050 | Materialien als Muster | Master Seite 6 | `seiten/s06_bilder.py` · `b050` | Muster als Kachel-Hintergrund (Repeat), nach Materialgruppe, Deckel 4 |
 | B060 | Firmenlogo aus Parameter | Master Seite 6 | `seiten/s06_bilder.py` · `b060` | Externes Bild: file:/// & Company_Logo, Sichtbarkeit Display_Logo |
 | B070 | Hinweistafel Bildarten | Master Seite 6 | `seiten/s06_bilder.py` · `b070` | Hinweistafel: Textfläche auf c.SURFACE, drei Spalten |
@@ -103,7 +103,7 @@ Gemeinsame Teile (Kachel, Abschnittskopf, Kennwert-Balken, Bildkarten, Klick ins
 | U010 | Bedien-Legende | Master Seite 7 | `seiten/s07_bedienen.py` · `u010` | Bedien-Legende: vier Kacheln, reiner Text - sagt dem Anwender, dass dieser Report bedienbar ist |
 | U020 | Hinweisliste | Master Seite 7 | `seiten/s07_bedienen.py` · `u020` | Tablix mit Gruppenfilter (Türen) und per Ausdruck sichtbaren Zeilen, BookmarkLink Zoom/Mark je Zeile, Tooltip; ohne Treffer Haken-Zeile |
 | U030 | Kostenschätzung | Master Seite 7 | `seiten/s07_bedienen.py` · `u030` | Preise als Report-Parameter (Switch je Materialgruppe), Kosten = Volumen × Preis, TopN 5, Ring in Materialfarben; rechnet bei jeder Parameteränderung neu |
-| U040 | Aufklappbare Tabelle | Master Seite 7 | `seiten/s07_bedienen.py` · `u040` | Tablix mit ToggleItem (Startzustand aus Parameter Zeige_Details), UserSort am Spaltenkopf, TopN 5 Gruppen und 5 Zeilen je Gruppe, BookmarkLink Zoom/Mark |
+| U040 | Aufklappbare Tabelle | Master Seite 7 | `seiten/s07_bedienen.py` · `u040` | Tablix mit ToggleItem (Startzustand aus Parameter Zeige_Details), UserSort am Spaltenkopf, TopN 5 Gruppen, 5 Zeilen je Gruppe, BookmarkLink Zoom/Mark |
 | U050 | Hinweis Überlängen | Begleit-Report Bewehrung | `bewehrung/build_bewehrung.py` · `u050` |  |
 | U060 | Auswertung nach Wahl | Begleit-Report Listen | `listen/build_listen.py` · `u060` |  |
 | U070 | Auswahl aus den Daten | Begleit-Report Listen | `listen/build_listen.py` · `u070` |  |
@@ -112,11 +112,11 @@ Gemeinsame Teile (Kachel, Abschnittskopf, Kennwert-Balken, Bildkarten, Klick ins
 
 | Kennung | Name | Zu sehen | Datei · Funktion | Technik |
 |---|---|---|---|---|
-| X010 | Schriftstufen | Master Seite 8 | `seiten/s08_text.py` · `x010` | Typo-Skala, drei Schnitte der Segoe UI |
+| X010 | Schriftstufen | Master Seite 8 | `seiten/s08_text.py` · `x010` | Typo-Skala, drei Gewichte der Hausschrift |
 | X020 | Bericht in Worten | Master Seite 8 | `seiten/s08_text.py` · `x020` | TextRuns mit Ausdruck, darunter HTML |
 | X030 | Farbpalette | Master Seite 8 | `seiten/s08_text.py` · `x030` | Rechtecke mit Hintergrundfarbe, Werte aus core.py, kein Verlauf, keine Transparenz |
 | X040 | Zeichen und Schichtarten | Master Seite 8 | `seiten/s08_text.py` · `x040` | Segoe UI Symbol, Zeichen und Farbe per Ausdruck (IIf), je Materialgruppe und Dicke eine Zeile |
-| X050 | Rangliste aus Zeichen | Master Seite 8 | `seiten/s08_text.py` · `x050` | Balken aus Zeichen (StrDup, Consolas), die größten Nutzungen |
+| X050 | Rangliste aus Zeichen | Master Seite 8 | `seiten/s08_text.py` · `x050` | Balken aus Zeichen (StrDup, Symbolschrift), die größten Nutzungen |
 | X060 | Farbskala-Kacheln | Master Seite 8 | `seiten/s08_text.py` · `x060` | Tonwert = √(Fläche ÷ größte Nutzung), per Hex() |
-| X080 | Übersicht Geht / Kniff / Geht nicht | Master Seite 9 | `seiten/s09_grenzen.py` · `x080` | Drei Spalten aus Textboxen; Kopfzeichen in Segoe UI Symbol, je Zeile Stichwort und Halbsatz |
-| X090 | Die harten Grenzen | Master Seite 9 | `seiten/s09_grenzen.py` · `x090` | Fünf Zeilen auf heller Fläche, große Ziffer in Segoe UI Light, Satz und Folge in einer Textbox |
+| X080 | Übersicht Geht / Kniff / Geht nicht | Master Seite 9 | `seiten/s09_grenzen.py` · `x080` | Drei Spalten aus Textboxen; Kopfzeichen in der Symbolschrift, je Zeile Stichwort und Halbsatz |
+| X090 | Die harten Grenzen | Master Seite 9 | `seiten/s09_grenzen.py` · `x090` | Fünf Zeilen auf heller Fläche, große Ziffer in der Zahlschrift, Satz und Folge in einer Textbox |

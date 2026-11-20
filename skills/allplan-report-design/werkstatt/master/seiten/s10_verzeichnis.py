@@ -94,7 +94,7 @@ def _spalte(prefix, left, w, posten, p):
         q = "%s%d" % (prefix, nr)
         if art in ("kopf", "forts"):
             top += LUFT if nr else 0
-            kopf = c.run(titel.upper(), 7, c.BLUE, c.F_SEMI)
+            kopf = c.run(titel.upper(), 7, c.MUTED, c.F_SEMI)
             if art == "forts":
                 kopf += c.run("  · fortgesetzt", 7, c.MUTED, c.F)
             xml += c.text(q + "_h", top, left, w, KOPF - 0.1, c.para([kopf]) if art == "forts" else kopf, valign="Bottom",
@@ -110,7 +110,10 @@ def _spalte(prefix, left, w, posten, p):
         else:
             kennung, name, ort = inhalt
             xml += c.text(q + "_k", top, left, 1.2, p, c.run(kennung, gross, c.BLUE, c.F_SEMI), valign="Middle", border_xml=linie)
-            xml += c.text(q + "_n", top, left + 1.2, w - 3.2, p, c.run(name, gross, c.INK), valign="Middle", border_xml=linie)
+            name_w, groesse = w - 3.2, gross
+            while groesse > 7 and b.textbreite(name, groesse) * 1.1 > name_w:     # langer Name: Schrift kleiner statt Umbruch
+                groesse -= 0.5
+            xml += c.text(q + "_n", top, left + 1.2, name_w, p, c.run(name, groesse, c.INK), valign="Middle", border_xml=linie)
             xml += c.text(q + "_o", top, left + w - 2.0, 2.0, p, c.run(ort, klein, c.MUTED), align="Right", valign="Middle",
                           border_xml=linie)
         top += p * n
@@ -147,10 +150,10 @@ def seite():
     x0, w = c.INSET, c.CONTENT_W
     items = b.seitenkopf(10, TITEL, "Kennung nennen genügt")
     satz = c.para([
-        c.run("Jeder Baustein dieses Reports trägt eine Kennung – sie steht klein unter dem Schaustück. ", 11, c.TEXT, c.F_LIGHT),
-        c.run("Wer einen Report bestellt, nennt die Kennungen: ", 11, c.TEXT, c.F_LIGHT),
+        c.run("Jeder Baustein dieses Reports trägt eine Kennung – sie steht klein unter dem Schaustück. ", 11, c.TEXT, c.F),
+        c.run("Wer einen Report bestellt, nennt die Kennungen: ", 11, c.TEXT, c.F),
         c.run("„K020, D030 und T040 – nach Geschoss statt nach Material“", 11, c.INK, c.F_SEMI),
-        c.run(". Der Bauplan zu jeder Kennung liegt im Skill allplan-report-design.", 11, c.TEXT, c.F_LIGHT)])
+        c.run(". Der Bauplan zu jeder Kennung liegt im Skill allplan-report-design.", 11, c.TEXT, c.F)])
     items += c.text("S10_Satz", 3.2, x0, w, 1.55, satz)
 
     daten = eintraege()
@@ -178,8 +181,8 @@ def seite():
     ]
     bw = (w - 0.8) / 3
     for i, (kopf, auftrag) in enumerate(beispiele):
-        inner = (c.text("S10_B%d_k" % i, 0.25, 0.35, bw - 0.6, 0.45, c.run(kopf.upper(), 7, c.BLUE, c.F_SEMI))
-                 + c.text("S10_B%d_s" % i, 0.75, 0.35, bw - 0.6, 1.7, c.run(auftrag, 10, c.INK, c.F_LIGHT)))
+        inner = (c.text("S10_B%d_k" % i, 0.25, 0.35, bw - 0.6, 0.45, c.run(kopf.upper(), 7, c.MUTED, c.F_SEMI))
+                 + c.text("S10_B%d_s" % i, 0.75, 0.35, bw - 0.6, 1.7, c.run(auftrag, 10, c.INK, c.F)))
         items += c.rect("S10_B%d" % i, by + 1.4, x0 + i * (bw + 0.4), bw, BESTELL_H - 1.4, inner, bg=c.SURFACE,
                         border_xml=c.edge(["Left"], c.BLUE, "2pt"))
     return items

@@ -12,6 +12,8 @@ import viz as v
 from bausteine import (RAUM, TUER, MIT_MATERIAL, MATGRUPPE, ART, MAT_FARBE, raw, summe, anzahl, in_cell, overline, etikett,
                        seitenkopf)
 
+TITEL = "Tabellen, die zeigen statt zählen"   # Name der Seite in der Dokumentstruktur (PDF-Lesezeichen)
+
 ALLE = "AllplanReport"          # Bereich "alle Zeilen des Datensatzes", unabhaengig von Tabellenfiltern
 FLAECHE = "Sum(CDbl(Fields!Flaeche.Value))"
 VOLUMEN = "Sum(CDbl(Fields!Volumen.Value))"
@@ -28,7 +30,7 @@ HELLE_GRUPPEN = "Dämmung Gipskarton Glas Sonstiges"      # helle Segmente bekom
 
 T01_ZEILEN, T04_ZEILEN, T02_SPALTEN, T03_GRUPPEN, T03_SAEULEN = 9, 9, 5, 6, 12
 T03_ARTEN = 5                    # Bauteilarten im Rohbau (Wand, Stuetze, Decke, Unterzug, Bodenplatte): mehr Einzelzeilen gibt es nie
-LEGENDE_MAX = 4                  # hoechstens so viele Gruppen in der Legende, danach "…" (sonst bricht die Zeile um)
+LEGENDE_MAX = 3                  # hoechstens so viele Gruppen in der Legende, danach "…" (sonst bricht die Zeile um)
 STAPEL_MIN = 0.14                # Segment erst ab diesem Anteil beschriften (schmaler: der Text passt nicht hinein)
 
 
@@ -74,7 +76,7 @@ def heat(t):
 
 
 def heat_fest(t):
-    """Dieselbe Farbskala als feste Farbe (fuer die Legende)."""
+    """Dieselbe Farbskala als feste Farbe (fuer die Legende); gerechnet aus c.BLUE, kein eigener Farbwert."""
     r, g, bl = _rgb(c.BLUE)
     return "#%02X%02X%02X" % tuple(int(round(255 + (z - 255) * t)) for z in (r, g, bl))
 
@@ -140,7 +142,7 @@ def t020(top, left, w):
     bar = in_cell(v.chart(
         "S5_ZBalken", 0, 0, 1, 1,
         [v.S("V", {"Y": "=" + FLAECHE}, typ="Bar", sub="Plain",
-             pstyle="<Color>%s</Color>" % c.esc('=IIf(%s = %s, "%s", "%s")' % (FLAECHE, maxwert, c.ORANGE, c.BLUE)),
+             pstyle="<Color>%s</Color>" % c.esc('=IIf(%s = %s, "%s", "%s")' % (FLAECHE, maxwert, c.BLUE, c.RAMP[3])),
              custom_xml=v.custom(PointWidth="0.42"))],
         [], nomember=True, dataset=False,
         areas=v.area(cat_axes=[v.axis("Primary", visible=False)],
@@ -199,7 +201,7 @@ def t020(top, left, w):
 def t030(top, left, w):
     items = overline("S5_A4", top, left, w, "Status", "Türen nach Typ und Breite")
     breite = "CDbl(Min(Fields!Laenge.Value))"
-    farbe = '=IIf(%s >= 0.9, "%s", IIf(%s >= 0.8, "%s", "%s"))' % (breite, c.GREEN, breite, c.AMBER, c.RED)
+    farbe = '=IIf(%s >= 0.9, "%s", IIf(%s >= 0.8, "%s", "%s"))' % (breite, c.GREEN_TEXT, breite, c.AMBER_TEXT, c.RED_TEXT)
     zeichen = '=IIf(%s >= 0.9, "✓", IIf(%s >= 0.8, "▲", "✕"))' % (breite, breite)
     text = '=IIf(%s >= 0.9, "barrierefrei", IIf(%s >= 0.8, "knapp", "zu schmal"))' % (breite, breite)
     typ_key = 'Fields!Bezeichnung.Value & "|" & Format(CDbl(Fields!Laenge.Value), "0.00")'
@@ -221,7 +223,7 @@ def t030(top, left, w):
             c.cell("S5_T4_D2", c.run("=CountRows()", 9.5, c.TEXT, fmt="N0"), "Right", border_xml=ROW, pad=(4, 0, 4, 0)),
             c.cell("S5_T4_D3", c.para([c.run("=" + breite, 9.5, c.INK, c.F_SEMI, fmt="N2"), c.run(" m", 8, c.FAINT)]),
                    "Right", border_xml=ROW, pad=(4, 0, 4, 0)),
-            c.cell("S5_T4_D4", c.run(zeichen, 11, farbe, "Segoe UI Symbol"), "Center", border_xml=ROW, pad=(0, 0, 0, 0)),
+            c.cell("S5_T4_D4", c.run(zeichen, 11, farbe, b.SYMBOL), "Center", border_xml=ROW, pad=(0, 0, 0, 0)),
             c.cell("S5_T4_D5", c.run(text, 8, c.MUTED), border_xml=ROW, pad=(2, 0, 2, 0)),
         ]),
         (0.46, [
@@ -242,7 +244,7 @@ def t030(top, left, w):
     items += tabellenfeld("S5_T4_Feld", top + 1.45, left, w, 5.85, tab)
     items += etikett("S5_T4_E", top + 7.35, left, w, "T030", "Türen je Typ und Breite (Deckel 9); Symbol und Farbe nach Schwelle", h=0.3)
     items += c.text("S5_T4_E2", top + 7.7, left, w, 0.3,
-                    c.run("Schwelle frei gewählt: ab 0,90 m barrierefrei, ab 0,80 m knapp (Modellmaß).", 6.5, c.FAINT))
+                    c.run("Schwelle frei gewählt: ab 0,90 m barrierefrei, ab 0,80 m knapp (Modellmaß).", 7, c.FAINT))
     return items
 
 
@@ -256,14 +258,14 @@ def stapel(name, scope, linie=False):
     xml = in_cell(v.chart(
         name, 0, 0, 1, 1,
         [v.S("V", {"Y": "=" + VOLUMEN}, typ="Bar", sub="PercentStacked",
-             pstyle="<Color>%s</Color>%s" % (c.esc(MAT_FARBE), v.border("#FFFFFF", "Solid", "1pt")),
+             pstyle="<Color>%s</Color>%s" % (c.esc(MAT_FARBE), v.border(c.WHITE, "Solid", "1pt")),
              label=label, custom_xml=v.custom(PointWidth="1.5"))],
         [], nomember=True, dataset=False, sergroup=gruppe_expr,
         areas=v.area(cat_axes=[v.axis("Primary", visible=False, line=False)],
                      val_axes=[v.axis("Primary", visible=False, line=False, minimum="0", maximum="100")],
                      pos=(0, 0, 100, 100), inner=(4, 8, 94, 84)),
         style=("<Style><Border><Style>None</Style></Border><TopBorder><Color>%s</Color><Style>Solid</Style><Width>1pt</Width></TopBorder>"
-               "<BackgroundColor>White</BackgroundColor></Style>" % c.INK) if linie else None))
+               "<BackgroundColor>%s</BackgroundColor></Style>" % (c.INK, c.WHITE)) if linie else None))
     # Reihenfolge der Segmente fest (wie die Spalten), nicht alphabetisch
     return xml.replace("<Value>%s</Value></SortExpression></SortExpressions><Label>" % c.esc(gruppe_expr),
                        "<Value>=%s</Value></SortExpression></SortExpressions><Label>" % c.esc(ORDNUNG), 1)
@@ -272,17 +274,19 @@ def stapel(name, scope, linie=False):
 def legende():
     """Legende der Materialgruppen, die im Modell vorkommen (jede Gruppe erscheint nur, wenn es sie gibt), einzeilig:
     hoechstens LEGENDE_MAX Gruppen in der festen Reihenfolge, bei mehr steht "…" am Ende. Kaestchen und Name haengen
-    an derselben Bedingung und stehen darum nie getrennt."""
+    an derselben Bedingung und stehen darum nie getrennt. Bei drei Gruppen passt die Zeile auch mit den laengsten Namen
+    und dem "…" in das Feld (bei vier brach das "…" in eine zweite Zeile). Kein geschuetztes Leerzeichen am Namensende:
+    das ist im Sprachschalter der Schluessel fuer die Kurzform ("Beton" + U+00A0 = Concr.)."""
     teile = []
     for i, g in enumerate(GRUPPEN):
         da = 'Sum(IIf(%s And %s = "%s", 1, 0), "%s") > 0' % (MIT_MATERIAL, MATGRUPPE, g, ALLE)
         # Anzahl der vorhandenen Gruppen bis einschliesslich dieser (in der festen Reihenfolge)
         bis_hier = 'CountDistinct(IIf(%s And %s <= %d, %s, Nothing), "%s")' % (MIT_MATERIAL, ORDNUNG, i + 1, MATGRUPPE, ALLE)
         zeigen = "%s And %s <= %d" % (da, bis_hier, LEGENDE_MAX)
-        teile.append(c.run('=IIf(%s, "■ ", "")' % zeigen, 6.5, GRUPPENFARBE[g], c.F))
-        teile.append(c.run('=IIf(%s, "%s ", "")' % (zeigen, g), 6, c.MUTED, c.F_SEMI))
+        teile.append(c.run('=IIf(%s, "■ ", "")' % zeigen, 7, GRUPPENFARBE[g], b.SYMBOL))
+        teile.append(c.run('=IIf(%s, "%s ", "")' % (zeigen, g), 7, c.MUTED, c.F_SEMI))
     mehr = 'CountDistinct(IIf(%s, %s, Nothing), "%s") > %d' % (MIT_MATERIAL, MATGRUPPE, ALLE, LEGENDE_MAX)
-    teile.append(c.run('=IIf(%s, "…", "")' % mehr, 6, c.MUTED, c.F_SEMI))
+    teile.append(c.run('=IIf(%s, "…", "")' % mehr, 7, c.MUTED, c.F_SEMI))
     return teile
 
 
@@ -291,7 +295,7 @@ def legende():
 def t040(top, left, w):
     items = overline("S5_A2", top, left, w, "Kreuztabelle", "Volumen nach Bauteilart und Materialgruppe", titel_w=w - 5.2)
     # Legende der Farbskala rechts neben der Ueberschrift
-    stufen = [c.run("m³ · weniger  ", 7, c.FAINT)] + [c.run("■", 11, heat_fest(t), c.F) for t in (0.12, 0.3, 0.5, 0.72, 0.95)] \
+    stufen = [c.run("m³ · weniger  ", 7, c.FAINT)] + [c.run("■", 11, heat_fest(t), b.SYMBOL) for t in (0.12, 0.3, 0.5, 0.72, 0.95)] \
         + [c.run("  mehr", 7, c.FAINT)]
     items += c.text("S5_A2_Leg", top + 0.42, left + w - 5.0, 5.0, 0.6, c.para(stufen, "Right"), valign="Middle")
 
@@ -301,13 +305,13 @@ def t040(top, left, w):
     wert = '=IIf(%s = 0, "–", %s)' % (VOLUMEN, fm(VOLUMEN))
     wfarbe = '=IIf(%s = 0, "%s", IIf(%s > 0.55, "%s", "%s"))' % (VOLUMEN, c.FAINT, t, c.WHITE, c.INK)
     kopf_h, zeile_h = 0.85, 0.65
-    sp_w, rk_w, sum_w, stapel_w = 1.7, 2.1, 1.4, 6.0
+    sp_w, rk_w, sum_w, stapel_w = 1.8, 2.1, 1.6, 5.3
 
     def tc(inner):
         return "<TablixCell><CellContents>%s</CellContents></TablixCell>" % inner
 
     def summe_zelle(name, rand=""):
-        return c.cell(name, c.run("=" + fm(VOLUMEN), 9, c.INK, c.F_SEMI), "Right", border_xml=rand, pad=(4, 2, 8, 2))
+        return c.cell(name, c.run("=" + fm(VOLUMEN), 9, c.INK, c.F_SEMI), "Right", border_xml=rand, pad=(4, 2, 6, 2))
 
     heat_zelle = c.cell("S5_T2_Z", c.run(wert, 9, wfarbe), "Right", border_xml=kachel, bg_expr=heat(t), pad=(4, 2, 8, 2))
     body = ("<TablixBody><TablixColumns>"
@@ -324,8 +328,8 @@ def t040(top, left, w):
     def kh(size, inner):
         return "<TablixHeader><Size>%s</Size><CellContents>%s</CellContents></TablixHeader>" % (c.cm(size), inner)
 
-    mat_kopf = c.cell("S5_T2_HM", c.run("=UCase(%s)" % MATGRUPPE, 6, c.MUTED, c.F_SEMI), "Right", "Bottom", border_xml=HEAD,
-                      pad=(0, 2, 6, 4))
+    mat_kopf = c.cell("S5_T2_HM", c.run("=UCase(%s)" % MATGRUPPE, 7, c.MUTED, c.F_SEMI), "Right", "Bottom", border_xml=HEAD,
+                      pad=(0, 2, 3, 4))
     # die 5 volumenstaerksten Gruppen als Spalten, in der festen Reihenfolge der Gruppen
     spalten = c.topn(VOLUMEN, T02_SPALTEN)
     col_h = ("<TablixColumnHierarchy><TablixMembers>"
@@ -403,7 +407,7 @@ def t060(top, left, w):
         (kopf_h, [kopf("S5_T3_H1", "Bauteil"), kopf("S5_T3_H2", "Anzahl", "Right"), kopf("S5_T3_H3", "Fläche", "Right"),
                   kopf("S5_T3_H4", "Volumen", "Right"), kopf("S5_T3_H5", "Einzelbauteile"), kopf("S5_T3_H6", "Anteil", "Right")]),
         (band_h, [
-            c.cell("S5_T3_B1", c.para([c.run("■  ", 8, MAT_FARBE), c.run("=" + MATGRUPPE, 9.5, c.INK, c.F_SEMI),
+            c.cell("S5_T3_B1", c.para([c.run("■  ", 8, MAT_FARBE, b.SYMBOL), c.run("=" + MATGRUPPE, 9.5, c.INK, c.F_SEMI),
                                        c.run('="   " & IIf(CountDistinct(%s) = 1, Code.Art(First(Fields!ObjNr.Value)), CountDistinct(%s) & " Bauteilarten")'
                                              % (ART, ART), 8, c.MUTED)]),
                    bg=c.SURFACE, pad=(8, 1, 4, 1)),

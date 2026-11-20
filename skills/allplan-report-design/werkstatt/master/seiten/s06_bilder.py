@@ -35,8 +35,8 @@ HAT_MUSTER = "(" + " Or ".join('%s="%s"' % (MATGRUPPE, g) for g, _ in MUSTER_GRU
 def leer_stil(text):
     """Ruhiger Leertext statt leerer Flaeche, wenn eine Datenregion keine Zeilen hat."""
     return ("<NoRowsMessage>%s</NoRowsMessage>" % c.esc(text),
-            "<Style><Border><Style>None</Style></Border><FontFamily>Segoe UI</FontFamily><FontSize>8pt</FontSize>"
-            "<Color>%s</Color></Style>" % c.FAINT)
+            "<Style><Border><Style>None</Style></Border><FontFamily>%s</FontFamily><FontSize>8pt</FontSize>"
+            "<Color>%s</Color></Style>" % (c.F, c.FAINT))
 
 
 def kurz(expr, n):
@@ -97,13 +97,13 @@ def steckbrief(name, top, left, w, art, titel, werte, gruppe, rang, bedingung, l
     tx = 0.25 + bw + 0.3
     tw = w - tx - 0.25
     inner = (passepartout(name + "_P", 0.25, 0.25, bw, bh, 1.2)
-             + c.text(name + "_Art", 0.27, tx, tw, 0.3, c.run(art.upper(), 6.5, c.BLUE, c.F_SEMI))
+             + c.text(name + "_Art", 0.27, tx, tw, 0.3, c.run(art.upper(), 7, c.MUTED, c.F_SEMI))
              + c.text(name + "_Titel", 0.6, tx, tw, 0.95, c.run(titel, 9.5, c.INK, c.F_SEMI), valign="Top"))
     spalte = tw / 2
     for i, (label, expr, fmt, unit) in enumerate(werte):
         x = tx + (i % 2) * spalte
         y = 1.72 + (i // 2) * 0.78
-        inner += c.text("%s_L%d" % (name, i), y, x, spalte - 0.05, 0.3, c.run(label.upper(), 6.5, c.MUTED, c.F_SEMI))
+        inner += c.text("%s_L%d" % (name, i), y, x, spalte - 0.05, 0.3, c.run(label.upper(), 7, c.MUTED, c.F_SEMI))
         inner += c.text("%s_W%d" % (name, i), y + 0.33, x, spalte - 0.05, 0.42,
                         c.para([c.run("=" + expr, 9.5, c.INK, c.F_SEMI, fmt=fmt), c.run(" " + unit, 7.5, c.FAINT)]))
     zelle = c.rect(name + "_K", None, 0, 0, 0, inner, bg=c.SURFACE)
@@ -134,12 +134,12 @@ def b020(top, left, w):
     items += steckbrief(
         "S6_K2", y1, xr, half, "Fenster", "=" + kurz("First(Fields!Bezeichnung.Value)", 38),
         [("Breite", first_d("Laenge"), "N2", "m"), ("Höhe", first_d("Hoehe"), "N2", "m"),
-         ("Fläche", first_d("Flaeche"), "N2", "m²"), ("Stück je Maß", "CountRows()", "N0", "×")],
+         ("Fläche", first_d("Flaeche"), "N2", "m²"), ("Anzahl", "CountRows()", "N0", "×")],
         typ, haeufig, FENSTER, "Kein Fenster im Modell")
     items += steckbrief(
         "S6_K3", y2, left, half, "Tür", "=" + kurz("First(Fields!Bezeichnung.Value)", 38),
         [("Breite", first_d("Laenge"), "N2", "m"), ("Höhe", first_d("Hoehe"), "N2", "m"),
-         ("Fläche", first_d("Flaeche"), "N2", "m²"), ("Stück je Maß", "CountRows()", "N0", "×")],
+         ("Fläche", first_d("Flaeche"), "N2", "m²"), ("Anzahl", "CountRows()", "N0", "×")],
         typ, haeufig, TUER, "Keine Tür im Modell")
     items += steckbrief(
         "S6_K4", y2, xr, half, "Unterzug", art_mat,
@@ -169,10 +169,10 @@ def b030(top, left, w):
         (bild_h, bild),
         (name_h, c.cell("S6_G_Name", c.run("=Code.Art(First(Fields!ObjNr.Value))", 7.5, c.INK, c.F_SEMI), valign="Top",
                         pad=(1, 3, 1, 0))),
-        (sub_h, c.cell("S6_G_Mat", c.run('=IIf(%s = "ohne Angabe", "", %s)' % (mat_gr, mat_gr), 6.5, c.MUTED), valign="Top",
+        (sub_h, c.cell("S6_G_Mat", c.run('=IIf(%s = "ohne Angabe", "", %s)' % (mat_gr, mat_gr), 7, c.MUTED), valign="Top",
                        pad=(1, 0, 1, 0))),
         (menge_h, c.cell("S6_G_Menge", c.para([c.run('=Format(CountRows(), "#,##0")', 7.5, c.BLUE, c.F_SEMI),
-                                               c.run('="  ×  " & %s & " m³"' % zahl(vol), 6.5, c.MUTED)]),
+                                               c.run('="  ×  " & %s & " m³"' % zahl(vol), 7, c.MUTED)]),
                          valign="Top", pad=(1, 0, 0, 0))),
     ]
     meldung, stil = leer_stil("Keine Bauteile mit Material im Modell")
@@ -234,7 +234,7 @@ def b040(top, left, w):
     hoehe = 0.5 + 8 * 0.62
     items += c.rect("S6_T3_Feld", top + 1.45, left, w, hoehe + 0.1, tab)
     ey = top + 1.45 + hoehe + 0.2
-    items += etikett("S6_T3_E", ey, left, w, "B040", "Eingebettete Piktogramme: Bild per Ausdruck nach Objektart, ohne Dateipfad")
+    items += etikett("S6_T3_E", ey, left, w, "B040", "Eingebettete Piktogramme: Bild per Ausdruck nach Objektart")
     return items
 
 
@@ -303,10 +303,10 @@ def b060(top, left, w, h=2.0):
                       hidden="=Parameters!Display_Logo.Value = True And Len(Parameters!Company_Logo.Value) > 0"))
     box = c.rect("S6_P5_Weiss", 0.25, 0.25, 3.0, h - 0.5, inner, bg=c.WHITE, border_xml=RAHMEN)
     tx = 3.6
-    text = (c.text("S6_P5_Art", 0.27, tx, w - tx - 0.25, 0.35, c.run("FIRMENLOGO AUS PARAMETER", 6.5, c.BLUE, c.F_SEMI))
+    text = (c.text("S6_P5_Art", 0.27, tx, w - tx - 0.25, 0.35, c.run("FIRMENLOGO AUS PARAMETER", 7, c.MUTED, c.F_SEMI))
             + c.text("S6_P5_Titel", 0.62, tx, w - tx - 0.25, 0.5, c.run("Bild aus Dateipfad", 11, c.INK, c.F_SEMI))
             + c.text("S6_P5_Text", 1.12, tx, w - tx - 0.25, 0.75,
-                     c.run("Der Pfad kommt aus einem Parameter oder aus einem Datenfeld je Zeile.", 8, c.TEXT, c.F_LIGHT),
+                     c.run("Der Pfad kommt aus einem Parameter oder aus einem Datenfeld je Zeile.", 8, c.TEXT, c.F),
                      valign="Top"))
     items = c.rect("S6_P5", top, left, w, h, box + text, bg=c.SURFACE)
     items += etikett("S6_P5_E", top + h + 0.1, left, w, "B060", "Externes Bild: file:/// & Company_Logo, Sichtbarkeit Display_Logo")
@@ -320,11 +320,11 @@ def b070(top, left, w, h=1.85):
                ("Grundriss, Raumplan", "Ausschnitt, ganzes Geschoss, Raum: im Begleit-Report „Report Master Grundriss“."),
                ("Je Report eine Bildart", "Entweder 3D-Bilder oder Grundriss-Ausschnitte, nie beides in einem Report.")]
     cw = (w - 0.5 - 2 * 0.3) / 3
-    inner = c.text("S6_P6_Kopf", 0.25, 0.3, w - 0.6, 0.3, c.run("WAS ALLPLAN AN BILDERN LIEFERT", 6.5, c.BLUE, c.F_SEMI))
+    inner = c.text("S6_P6_Kopf", 0.25, 0.3, w - 0.6, 0.3, c.run("WAS ALLPLAN AN BILDERN LIEFERT", 7, c.MUTED, c.F_SEMI))
     for i, (kopf, text) in enumerate(spalten):
         x = 0.3 + i * (cw + 0.3)
         inner += c.text("S6_P6_T%d" % i, 0.58, x, cw, 0.45, c.run(kopf, 9, c.INK, c.F_SEMI), valign="Top")
-        inner += c.text("S6_P6_B%d" % i, 1.05, x, cw, h - 1.1, c.run(text, 7.5, c.TEXT, c.F_LIGHT), valign="Top")
+        inner += c.text("S6_P6_B%d" % i, 1.05, x, cw, h - 1.1, c.run(text, 7.5, c.TEXT, c.F), valign="Top")
     items = c.rect("S6_P6", top, left, w, h, inner, bg=c.SURFACE)
     items += etikett("S6_P6_E", top + h + 0.1, left, w, "B070", "Hinweistafel: Textfläche auf c.SURFACE, drei Spalten")
     return items

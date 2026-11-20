@@ -1,6 +1,6 @@
 # Gestaltungsregeln des Master-Reports
 
-Maßstab ist Seite 1 (`seiten/s01_uebersicht.py`, Bild `aus/live/Report_Master_S1.png`).
+Maßstab ist Seite 1 (`seiten/s01_uebersicht.py`, Bild `aus/png/Report_Master_S1.png`).
 Jede weitere Seite muss daneben liegen können, ohne dass man einen Stilbruch sieht.
 
 ## Blatt und Raster
@@ -15,30 +15,68 @@ Jede weitere Seite muss daneben liegen können, ohne dass man einen Stilbruch si
 
 ## Farbe
 
-- Nur die Werte aus `core.py`. Keine neuen Hex-Werte in den Seiten.
-- `c.INK` für Überschriften und große Zahlen, `c.TEXT` für Werte, `c.MUTED` für Beschriftungen,
-  `c.FAINT` für Einheiten und Fußnoten, `c.HAIR` für Linien, `c.SURFACE` für Flächen.
-- Leitfarbe `c.BLUE`. Akzent `c.ORANGE` höchstens einmal je Seite, für das eine, worauf der Blick soll.
-- Materialfarben (`c.MATERIAL`, Ausdruck `MAT_FARBE`) nur dort, wo wirklich Material dargestellt ist.
-- Geordnete Kategorien bekommen Blaustufen: `=Code.Stufe(<Name>)` (größte = dunkelste, überall dieselbe Farbe).
-- `c.GREEN`, `c.AMBER`, `c.RED` nur für Bewertung (gut / Achtung / schlecht), nie als Schmuck.
+Die Werte kommen aus `design.py` (Hausdesign oder Kundendesign, festgelegt in `design.json`); `core.py` gibt ihnen die Namen,
+unter denen Seiten und Bausteine sie benutzen. In Seiten, `viz.py`, `bausteine.py` und Bauskripten steht nie ein Hex-Wert,
+nur `c.<Name>` (der Test `werkzeug/tests/test_designregeln.py` prüft das). `python master/design.py --tabelle` zeigt die Werte.
+
+- Text: `c.INK` für Überschriften und große Zahlen, `c.TEXT` für Fließtext und Werte, `c.MUTED` für Beschriftungen und Achsen,
+  `c.FAINT` für Einheiten und Fußnoten, `c.HAIR` für Linien, `c.HAIR_STARK` für starke Trenner.
+- Flächen: `c.SURFACE` Kacheln, `c.MIST` Hinweis- und Bandfläche, `c.TINT` Hervorhebung, `c.NAVY` dunkle Fläche (Titelband).
+- Leitfarbe `c.BLUE`: Balken, Links, hervorgehobene Zahl auf Weiß.
+- **Akzent (im Hausdesign Türkis): „Navy trägt, Türkis zeigt“.** `c.AKZENT` ist auf Weiß nie Schrift, nur Fläche oder Linie:
+  der kurze Strich im Titelband, ein linker Rand (Hinweisband: Fläche `c.MIST`, Rand 3 pt `c.AKZENT`, Schrift `c.INK`),
+  ein einzelner Balken. Höchstens ein bis zwei Akzente je Seite. Hervorgehobene Schrift auf Weiß ist `c.AKZENT_TEXT`
+  (im Hausdesign `c.BLUE`) oder `c.INK`; Schrift auf einer Akzentfläche `c.AUF_AKZENT`.
+- **Wie viele Akzente:** das Titelband zählt als EIN Akzent: der kurze Strich und das Etikett darüber (`c.AKZENT`, `c.AKZENT_DUNKEL`) gehören
+  zusammen; Kennzahl und Etikett rechts im Band stehen in `c.WHITE` bzw. `c.AUF_NAVY`, nie in Türkis. Im Inhalt höchstens ein weiterer
+  Akzent je Seite - der linke Rand des Hinweisbands. Balken und Säulen in Diagrammen und Zellen sind nie türkis: der größte oder neueste
+  Wert steht in `c.BLUE`, die übrigen in `c.RAMP[3]`.
+- Auf dem dunklen Titelband: Etikett und höchstens eine Kennzahl in `c.AKZENT_DUNKEL`, alle übrige Schrift `c.WHITE` oder
+  `c.AUF_NAVY` (leiser: `c.AUF_NAVY_LEISE`); Linien `c.NAVY_LINIE`, Kacheln `c.NAVY_FLAECHE`. Eine RDLC kennt keine Durchsicht:
+  die Werte sind fest auf das Navy gerechnet.
+- Bewertung: Fläche, Balken, Punkt in `c.GREEN`, `c.AMBER`, `c.RED`; als Schrift auf Weiß `c.GREEN_TEXT`, `c.AMBER_TEXT`,
+  `c.RED_TEXT` (abgedunkelt, bis sie lesbar sind). Nie nur Farbe: ein Wort oder Zeichen steht dabei („im Ziel“, ✓, ▲).
+- Materialfarben (`c.MATERIALGRUPPE`, Ausdruck `MAT_FARBE`) nur dort, wo wirklich Material dargestellt ist; sie gehören nicht zur
+  Marke (Beton grau, Mauerwerk ziegelrot) und bleiben in jedem Design gleich.
+- Geordnete Kategorien bekommen Blaustufen: `=Code.Stufe(<Name>)` (größte = dunkelste, überall dieselbe Farbe, aus `c.RAMP`);
+  mehrere Serien ohne Ordnung aus `c.SERIE`.
+- Kein Verlauf, kein Schatten, keine runden Ecken, keine Durchsicht: das kann eine RDLC nicht, es wird nicht nachgebaut.
+- Kundendesign: `python master/design.py --vorlage` schreibt das Formular, `--kunde <datei>` prüft und legt es fest (Kontraste
+  geprüft). Seiten und Bausteine bleiben unverändert; nur die Werte in `core.py` wechseln. Der Akzent eines Kunden darf auch
+  als Schrift auf Weiß stehen, wenn er lesbar ist: `c.AKZENT_TEXT` entscheidet das.
 
 ## Schrift
 
-- Segoe UI. Große Zahlen in `c.F_LIGHT`, Überschriften und Hervorhebungen in `c.F_SEMI`, sonst `c.F`.
-- Größen: Seitentitel 19, Abschnittstitel 13, große Zahl 17–30, Tabellenwert 9–9,5, Beschriftung 7–8,5,
-  Tabellenkopf 7 in Großbuchstaben, Etikett 6,5.
+- Eine Schrift in drei Rollen, im Hausdesign Roboto: `c.F` normal, `c.F_SEMI` halbfett (Roboto Medium), `c.F_ZAHL` große Kennzahl
+  (Roboto Black). Höchstens diese drei Gewichte auf einer Seite; `c.F_LIGHT` (leicht) und `bold=True` (ergäbe ein viertes Gewicht)
+  gibt es nicht mehr. In Python steht nie ein Schriftname, nur diese drei Namen; der Report setzt sie beim Speichern als Ausdruck
+  (`=Code.Schrift(0|2|3)`), der Rechner nimmt die Hausschrift oder, wenn sie fehlt, Segoe UI.
+- Die Hierarchie entsteht über Gewicht und Größe, nicht über Farbe: Seitentitel `c.F` 19 pt weiß, Abschnittstitel `c.F_SEMI` 13 pt,
+  große Zahl `c.F_ZAHL` 17–30 pt, Tabellenwert 9–9,5 pt, Beschriftung 7–8,5 pt, Tabellenkopf 7 pt in Versalien, Etikett 6,5 pt.
+- Etiketten über Abschnittstiteln (Overline): Versalien, `c.F_SEMI`, auf Weiß `c.MUTED`, auf Navy `c.AKZENT_DUNKEL`. Laufweite
+  kann eine RDLC nicht, darum nur Versalien.
+- Roboto läuft breiter als Segoe UI: lange Titel schrumpfen im Folgekopf von allein (bis 16 pt), feste Texte in Feldern messen
+  mit der Schrift (`b.textbreite`), nicht schätzen.
+- Symbole (■ ● ▲ ▼ ✓ ✕ ★ →, Blockzeichen █): Roboto hat sie nicht, das Bild zeigt dann nichts. Sie stehen in der Symbolschrift
+  `b.SYMBOL` (Segoe UI Symbol) – die einzige Ausnahme von den drei Rollen, nur für diese Zeichen, nie für Text.
 - Einheiten kleiner und heller als die Zahl (eigener `c.run` in derselben Textbox).
 
 ## Diagramme
 
 - Kein Rahmen, kein Hintergrund, kein 3D, keine Schatten, kein Farbverlauf.
-- Achslinien aus. Gitter höchstens als helle Linien an der Werteachse (`gridcolor="#EEF2F6"`).
+- Achslinien aus. Gitter höchstens als helle Linien an der Werteachse (`gridcolor=c.HAIR`, das ist der Vorgabewert).
   Wo die Werte direkt am Balken stehen, entfällt die Werteachse ganz (`visible=False`).
 - Achsbeschriftung mit fester Schriftgröße: `extra="<LabelsAutoFitDisabled>true</LabelsAutoFitDisabled>"`.
 - Legende nur, wenn Direktbeschriftung nicht geht; dann lieber eine eigene kleine Tabelle wie auf Seite 1.
 - Höchstens sechs Farben in einem Diagramm. Sortiert nach Größe, nicht nach Alphabet.
 - Jedes Diagramm filtert seine Zeilen selbst: `extra=c.filters(<Bedingung>)`.
+
+## Reines Schwarz
+
+Kein Diagrammteil darf ohne gesetzte Farbe bleiben (Standard ist Schwarz: Hinweislinien der Pyramide, Aufzählungspunkte im HTML-Beispiel).
+Prüfung nach dem Rendern: Pixel mit Rot, Grün und Blau unter 12 zählen (`PIL`, alle Bilder in `aus/png`, `png_master_en`, `png_gross`). Erlaubte
+Treffer sind nur die Strichzeichnungen der Bauteilbilder aus Allplan (Seite 1 und 6) und die schwarzen Aufzählungspunkte des HTML-Beispiels
+auf Seite 8, die der Renderer selbst zeichnet. Hinweislinien der Pyramide: `CalloutLineColor` im Diagramm (Seite 3).
 
 ## Technik, die das Layout hält
 

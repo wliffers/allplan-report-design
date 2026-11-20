@@ -54,4 +54,6 @@ und die Bauskripte der Begleit-Reports als Vorbild: `master/listen/build_listen.
 | `render_argumente`, `rendern` | Aufruf des Anzeigeprogramms: `parameter` (dict oder Liste; Mehrfachwerte als Liste, `None` setzt Nothing), `pdf`, `datei_format` (`xlsx`, `docx`), `vollzugriff`, `dpi` | K; `Project_Name=Musterprojekt` ist vorbelegt; Schalter: `pruefstrecke.md` (c) |
 | `esc`, `cm`, `save` | XML maskieren, cm-Angabe, Datei schreiben | – |
 
+Farben und Schrift kommen als Namen aus `master/design.py` (`INK`, `AKZENT_TEXT`, `F`, `F_SEMI` …); `save` bricht mit Code 3 ab, solange das Design nicht festgelegt ist (`design.md`).
+
 Nicht im Bausatz, aber im Report möglich: Diagramme und Messanzeigen in `master/viz.py` (`chart`, `radial`, `linear`, `stateind`, `gauge`), Bausteine in `master/bausteine.py` (`kpi`, `kennwert`, `fortschritt`, `karten`, `klick`, `sortierbar`).

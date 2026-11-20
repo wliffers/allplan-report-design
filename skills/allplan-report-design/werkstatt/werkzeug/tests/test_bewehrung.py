@@ -237,6 +237,8 @@ def test_kein_abgeschnittenes_komma(monkeypatch, tmp_path):
     xml = gebautes_xml(monkeypatch, tmp_path)
     assert "<Language>de-DE</Language>" in xml
     ausdruecke = re.sub(r"<Code>.*?</Code>", "", xml, flags=re.S)       # der gemeinsame VB-Code formatiert nur Texte
+    # Schriftfamilien stehen als Ausdruck =Code.Schrift(n) im Report (core.report()); sie sind keine Zahlenausdruecke
+    ausdruecke = re.sub(r"Code\.Schrift\(\d\)", "", ausdruecke)         # auch im Ausdruck der Haken-Zeile: IIf(n > 0, Code.Schrift(3), Symbolschrift)
     for verboten in (".ToString(", "CStr(Sum", "CStr(CDbl", "Str(Sum", "FormatNumber(", "Code."):
         assert verboten not in ausdruecke, verboten
 

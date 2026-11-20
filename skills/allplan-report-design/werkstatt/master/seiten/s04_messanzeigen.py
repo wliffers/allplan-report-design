@@ -12,6 +12,8 @@ import viz as v
 from bausteine import (WAND, RAUM, FENSTER, TUER, MIT_MATERIAL, IST_BETON, IST_VERKEHR, MATGRUPPE, summe, anzahl, raw,
                        quote, ist, overline, etikett, seitenkopf, fortschritt)
 
+TITEL = "Messanzeigen und Kennwerte"   # Name der Seite in der Dokumentstruktur (PDF-Lesezeichen)
+
 # ---------------------------------------------------------------- Annahmen (Zielwerte)
 ZIEL_P = "Parameters!Ziel_Fensteranteil.Value"                    # Report-Parameter, Prozent (Vorgabe 20): Ziel = mindestens so viel
 ZIEL_F = "Math.Min(39.0, Math.Max(1.0, %s))" % ZIEL_P             # fuer die Skala 0..40 begrenzt
@@ -80,12 +82,12 @@ def gross(wert):
 
 # ---------------------------------------------------------------- Helfer dieser Seite (Kandidaten fuer bausteine.py)
 def _clean(xml):
-    """Gauge-Standardgrau durch die Farben des Systems ersetzen, Rahmenlinie des Gauges ausschalten."""
-    xml = xml.replace(v.border("#D1D5DB", "Solid", "0.75pt"), v.border(c.WHITE, "None", "0.5pt"))
+    """Rahmenlinie des Gauges ausschalten, Bereiche ohne Rand und ohne Verlauf."""
+    xml = xml.replace(v.border(c.HAIR_STARK, "Solid", "0.75pt"), v.border(c.WHITE, "None", "0.5pt"))
     xml = re.sub(r"(<ScaleRange Name=\"[^\"]*\"><Style><BackgroundColor>[^<]*</BackgroundColor>)</Style>",
                  lambda m: m.group(1) + "<Border><Style>None</Style></Border></Style>", xml)
     xml = xml.replace("</EndWidth><DistanceFromScale>", "</EndWidth><BackgroundGradientType>None</BackgroundGradientType><DistanceFromScale>")
-    return xml.replace("#374151", c.MUTED).replace("#6B7280", c.FAINT).replace("#9CA3AF", c.FAINT)
+    return xml
 
 
 def ausgeblendet(xml, bedingung):
@@ -93,7 +95,7 @@ def ausgeblendet(xml, bedingung):
     return xml.replace("</ScaleRange>", "<Hidden>=%s</Hidden></ScaleRange>" % c.esc(bedingung))
 
 
-def glabel(name, text, top, left, h, w, size, color, font=c.F_LIGHT, align="Center"):
+def glabel(name, text, top, left, h, w, size, color, font=c.F, align="Center"):
     """Text im Gauge (GaugeLabel, Lage in Prozent des Panels). Liegt im Gauge selbst und ueberlagert keine Textbox."""
     return ('<GaugeLabel Name="%s"><Style><FontFamily>%s</FontFamily><FontSize>%spt</FontSize><Color>%s</Color>'
             "<TextAlign>%s</TextAlign><VerticalAlign>Middle</VerticalAlign></Style><Text>%s</Text><Top>%s</Top><Left>%s</Left>"
@@ -104,7 +106,7 @@ def glabel(name, text, top, left, h, w, size, color, font=c.F_LIGHT, align="Cent
 def zahl_label(name, text_expr, basis, einheit, top, h, size, mitte=54.0, breite=36.0):
     """Grosse Zahl und kleinere Einheit als zwei GaugeLabels: Zahl rechtsbuendig bis zur Mitte, Einheit ab der Mitte.
     Fehlt die Grundlage, steht nur "-" da."""
-    return (glabel(name + "_z", "=" + text_expr, top, mitte - breite, h, breite, size, c.INK, c.F_LIGHT, "Right")
+    return (glabel(name + "_z", "=" + text_expr, top, mitte - breite, h, breite, size, c.INK, c.F_ZAHL, "Right")
             + glabel(name + "_u", '=IIf(%s, "%s", "")' % (basis, einheit), top, mitte - 0.2, h, 16, size * 0.5, c.MUTED, c.F, "Left"))
 
 
@@ -182,7 +184,7 @@ def kachel_hell(name, top, left, w, wert, basis, einheit, label, note_expr):
     """Helle Kennzahl-Kachel (wie Seite 1): grosse Zahl, Einheit nur wenn es eine Zahl gibt, Beschriftung, Fussnote."""
     inner = (c.rect(name + "_a", 0, 0, w, 0.09, bg=c.BLUE)
              + c.text(name + "_v", 0.42, 0.32, w - 0.4, 1.05,
-                      c.para([c.run("=" + zahltext(wert, basis, "N1"), 22, c.INK, c.F_LIGHT),
+                      c.para([c.run("=" + zahltext(wert, basis, "N1"), 22, c.INK, c.F_ZAHL),
                               c.run('=IIf(%s, " %s", "")' % (basis, einheit), 10, c.MUTED, c.F)]), valign="Bottom")
              + c.text(name + "_l", 1.5, 0.32, w - 0.4, 0.37, c.run(label.upper(), 7, c.TEXT, c.F_SEMI))
              + c.text(name + "_n", 1.92, 0.32, w - 0.4, 0.4, c.run(note_expr, 7, c.MUTED, c.F)))
@@ -190,30 +192,31 @@ def kachel_hell(name, top, left, w, wert, basis, einheit, label, note_expr):
 
 
 def kachel_dunkel(name, top, left, w, wert, basis, label, note):
-    """Dunkle Kennzahl-Kachel: weisse Zahl auf Marine, Beschriftung und Fussnote in hellem Blau."""
-    inner = (c.rect(name + "_a", 0, 0, w, 0.09, bg=c.SKY)
+    """Dunkle Kennzahl-Kachel: weisse Zahl auf Navy, Beschriftung weiss, Fussnote leise; oben der kurze Akzentstrich."""
+    inner = (c.rect(name + "_a", 0, 0, w, 0.09, bg=c.AUF_NAVY)
              + c.text(name + "_v", 0.42, 0.32, w - 0.4, 1.05,
-                      c.para([c.run("=" + zahltext(wert, basis, "N1"), 22, c.WHITE, c.F_LIGHT)]), valign="Bottom")
+                      c.para([c.run("=" + zahltext(wert, basis, "N1"), 22, c.WHITE, c.F_ZAHL)]), valign="Bottom")
              + c.text(name + "_l", 1.5, 0.32, w - 0.4, 0.37, c.run(label.upper(), 7, c.WHITE, c.F_SEMI))
-             + c.text(name + "_n", 1.92, 0.32, w - 0.4, 0.4, c.run(note, 7, c.SKY, c.F)))
+             + c.text(name + "_n", 1.92, 0.32, w - 0.4, 0.4, c.run(note, 7, c.AUF_NAVY, c.F)))
     return c.rect(name, top, left, w, 2.55, inner, bg=c.NAVY)
 
 
 def kachel_vergleich(name, top, left, w, wert_q, basis, label, ziel, hoeher_ist_besser, ziel_text):
-    """Kachel mit Vergleichszeile: ' 3,3 %-Pkt. unter Ziel 20 %' in Bewertungsfarbe (Gruen = erfuellt, Amber = Achtung).
+    """Kachel mit Vergleichszeile: ' 3,3 %-Pkt. unter Ziel 20 %' in Bewertungsfarbe (Gruen = erfuellt, Amber = Achtung), davor ein Pfeil in der Symbolschrift.
     ziel: Zielwert in Prozent (Zahl oder VB-Ausdruck), ziel_text: VB-Ausdruck fuer den Text "Ziel 20 %".
     Ohne Grundlage: "-" und eine ruhige graue Zeile."""
     d = "(%s - %s)" % (pct(wert_q), ziel)
     ok = "%s >= 0" % d if hoeher_ist_besser else "%s <= 0" % d
-    farbe = '=IIf(%s, IIf(%s, "%s", "%s"), "%s")' % (basis, ok, c.GREEN, c.AMBER, c.FAINT)
-    zeile = ('=IIf(%s, IIf(%s >= 0, "▲ ", "▼ ") & Format(Abs(%s), "0.0") & " %%-Pkt. " & IIf(%s >= 0, "über", "unter") & " " & %s,'
-             ' "keine Fenster oder Außenwand")' % (basis, d, d, d, ziel_text))
+    farbe = '=IIf(%s, IIf(%s, "%s", "%s"), "%s")' % (basis, ok, c.GREEN_TEXT, c.AMBER_TEXT, c.MUTED)
+    pfeil = '=IIf(%s, IIf(%s >= 0, "▲ ", "▼ "), "")' % (basis, d)
+    zeile = ('=IIf(%s, Format(Abs(%s), "0.0") & " %%-Pkt. " & IIf(%s >= 0, "über", "unter") & " " & %s,'
+             ' "keine Fenster oder Außenwand")' % (basis, d, d, ziel_text))
     inner = (c.rect(name + "_a", 0, 0, w, 0.09, bg=c.BLUE)
              + c.text(name + "_v", 0.42, 0.32, w - 0.4, 1.05,
-                      c.para([c.run("=" + zahltext(wert_q, basis, "0 %"), 22, c.INK, c.F_LIGHT)]), valign="Bottom")
+                      c.para([c.run("=" + zahltext(wert_q, basis, "0 %"), 22, c.INK, c.F_ZAHL)]), valign="Bottom")
              + c.text(name + "_l", 1.5, 0.32, w - 0.4, 0.37, c.run(label.upper(), 7, c.TEXT, c.F_SEMI))
              + c.text(name + "_n", 1.92, 0.32, w - 0.4, 0.4,
-                      c.para([c.run(zeile, 7.5, farbe, "Segoe UI Semibold")])))
+                      c.para([c.run(pfeil, 7.5, farbe, SYMBOL), c.run(zeile, 7.5, farbe, c.F_SEMI)])))
     return c.rect(name, top, left, w, 2.55, inner, bg=c.SURFACE)
 
 
@@ -237,13 +240,13 @@ def kachel_spark(name, top, left, w):
         style="<Style><Border><Style>None</Style></Border><BackgroundColor>%s</BackgroundColor></Style>" % c.SURFACE,
         extra=c.filters(raw(RAUM)))
     mini = mini.replace("</GroupExpressions></Group>", "</GroupExpressions>" + c.topn(eindeutig, MINI_SAEULEN) + "</Group>", 1)
-    zahl_run = c.run("=" + gross(RAUM_FL), 22, c.INK, c.F_LIGHT).replace(
+    zahl_run = c.run("=" + gross(RAUM_FL), 22, c.INK, c.F_ZAHL).replace(
         "<FontSize>22pt</FontSize>", "<FontSize>=%s</FontSize>" % c.esc('IIf(%s >= 10000, "13pt", IIf(%s >= 1000, "16pt", "22pt"))' % (RAUM_FL, RAUM_FL)))
     inner = (c.rect(name + "_a", 0, 0, w, 0.09, bg=c.BLUE)
              + c.text(name + "_v", 0.42, 0.32, w - 2.0, 1.05,
                       c.para([zahl_run, c.run(" m²", 10, c.MUTED, c.F)]), valign="Bottom")
              + mini
-             + c.text(name + "_l", 1.5, 0.32, w - 0.4, 0.37, c.run("RAUMFLÄCHE NACH NUTZUNG", 7, c.TEXT, c.F_SEMI))
+             + c.text(name + "_l", 1.5, 0.32, w - 0.4, 0.37, c.run("FLÄCHE NACH NUTZUNG", 7, c.TEXT, c.F_SEMI))
              + c.text(name + "_n", 1.92, 0.32, w - 0.4, 0.4,
                       c.run(b.rang_titel('CountDistinct(IIf(%s, Fields!Funktion.Value, Nothing))' % RAUM, MINI_SAEULEN, "die ",
                                          " größten, größte zuerst", "die größte Nutzung", "die größten, größte zuerst"), 7, c.MUTED, c.F)))
@@ -252,18 +255,19 @@ def kachel_spark(name, top, left, w):
 
 def status_symbol(wert, basis, ok, warn, hoeher_ist_besser):
     """Ausdruecke fuer Textsymbol, Farbe und Wort. wert in Prozent bzw. Einheit; ok/warn sind die beiden Schwellen.
-    Haken = im Ziel; Pfeil nach unten/oben = Abweichung in die jeweilige Richtung. Ohne Grundlage: Strich, graue Schrift."""
+    Haken = im Ziel; Pfeil nach unten/oben = Abweichung in die jeweilige Richtung. Ohne Grundlage: Strich, leise Schrift.
+    Farbe als Schrift auf Weiss (*_TEXT); das Wort daneben nennt das Ergebnis, die Farbe steht nie allein."""
     if hoeher_ist_besser:
         gut, mittel, pfeil = "%s >= %s" % (wert, ok), "%s >= %s" % (wert, warn), "▼"
     else:
         gut, mittel, pfeil = "%s <= %s" % (wert, ok), "%s <= %s" % (wert, warn), "▲"
     sym = '=IIf(%s, IIf(%s, "✓", "%s"), "%s")' % (basis, gut, pfeil, LEER)
-    farbe = '=IIf(%s, IIf(%s, "%s", IIf(%s, "%s", "%s")), "%s")' % (basis, gut, c.GREEN, mittel, c.AMBER, c.RED, c.FAINT)
+    farbe = '=IIf(%s, IIf(%s, "%s", IIf(%s, "%s", "%s")), "%s")' % (basis, gut, c.GREEN_TEXT, mittel, c.AMBER_TEXT, c.RED_TEXT, c.MUTED)
     wort = '=IIf(%s, IIf(%s, "im Ziel", IIf(%s, "knapp", "verfehlt")), "ohne Daten")' % (basis, gut, mittel)
     return sym, farbe, wort
 
 
-SYMBOL = "Segoe UI Symbol"
+SYMBOL = b.SYMBOL
 SPALTE_W = 8.8          # Breite eines Bausteins in der Zweispaltenanordnung
 
 
@@ -334,9 +338,9 @@ def m040(top, left, w):
         zy = ry + i * zh
         items += c.text(n + "_l", zy, left, 3.0, 0.5, c.run(titel, 8.5, c.INK, c.F_SEMI), valign="Bottom")
         items += c.text(n + "_n", zy + 0.5, left, 3.0, 0.4, c.run(sub, 7, c.MUTED), valign="Top")
-        items += bullet(n, zy, left + 3.1, 4.2, 0.9, wert, vmax, baender, ziel_nach, ziel, basis)
-        items += c.text(n + "_v", zy, left + 7.3, 1.5, 0.9,
-                        c.para([c.run("=" + zahltext(wert, basis, fmt, 999), 12, c.INK, c.F_LIGHT),
+        items += bullet(n, zy, left + 3.1, 4.0, 0.9, wert, vmax, baender, ziel_nach, ziel, basis)
+        items += c.text(n + "_v", zy, left + 7.1, 1.7, 0.9,
+                        c.para([c.run("=" + zahltext(wert, basis, fmt, 999), 12, c.INK, c.F_SEMI),
                                 c.run('=IIf(%s, " %s", "")' % (basis, einheit), 8, c.MUTED, c.F)], "Right"), valign="Middle")
     items += etikett("S4_E3", ry + 4.0, left, w, "M040",
                      "Balkendiagramm: Bänder gestapelt, Ist auf 2. Achse, Ziele angenommen")
@@ -351,7 +355,7 @@ def m050(top, left, w):
     def kopf(n, y, titel, sub, q, basis, fmt="0 %"):
         return (c.text(n + "_l", y, left, 6.0, 0.42, c.run(titel, 9.5, c.INK, c.F_SEMI))
                 + c.text(n + "_n", y + 0.47, left, 6.0, 0.36, c.run(sub, 7.5, c.MUTED))
-                + c.text(n + "_v", y, left + w - 2.2, 2.2, 0.83, c.run("=" + zahltext(q, basis, fmt), 17, c.INK, c.F_LIGHT),
+                + c.text(n + "_v", y, left + w - 2.2, 2.2, 0.83, c.run("=" + zahltext(q, basis, fmt), 17, c.INK, c.F_ZAHL),
                          align="Right", valign="Bottom"))
 
     # a: einfach (Baustein fortschritt)
@@ -402,10 +406,10 @@ def m050(top, left, w):
 def m060(top, left, w):
     ay = top + 1.4
     items = overline("S4_A5", top, left, w, "Status", "Ampel mit Schwellen")
-    sp = [("Kennwert", 0, 2.9, None), ("Ist", 2.9, 1.3, "Right"), ("Ziel", 4.2, 1.5, None), ("Anzeige", 5.7, 1.1, None),
+    sp = [("Kennwert", 0, 2.9, None), ("Ist", 2.9, 1.3, "Right"), ("Ziel", 4.2, 1.4, None), ("Anzeige", 5.6, 1.2, None),
           ("Text", 6.8, 2.0, None)]
     for i, (head, ox, cwid, al) in enumerate(sp):
-        items += c.text("S4_AH%d" % i, ay, left + ox, cwid, 0.4, c.run(head.upper(), 6.5, c.MUTED, c.F_SEMI), align=al,
+        items += c.text("S4_AH%d" % i, ay, left + ox, cwid, 0.4, c.run(head.upper(), 7, c.MUTED, c.F_SEMI), align=al,
                         pad=(10 if head == "Ziel" else 0, 0, 0, 0), valign="Bottom")
     items += c.line("S4_AHL", ay + 0.45, left, w, c.INK, "1pt")
     rot, gel, gru = c.RED, c.AMBER, c.GREEN
@@ -438,7 +442,7 @@ def m060(top, left, w):
         items += c.text(n + "_t", yy, left + 6.8, 0.5, rh - 0.05, c.run(sym, 10, farbe, SYMBOL), valign="Middle")
         items += c.text(n + "_w", yy, left + 7.3, 1.5, rh - 0.05, c.run(wort, 7.5, c.MUTED), valign="Middle")
         items += c.line(n + "_x", yy + rh - 0.02, left, w)
-    items += etikett("S4_E5", top + 6.3, left, w, "M060", "StateIndicator mit Schwellen (ohne Grundlage grau); Textsymbol per Ausdruck")
+    items += etikett("S4_E5", top + 6.3, left, w, "M060", "StateIndicator mit Schwellen; Zeichen per Ausdruck, grau ohne Grundlage")
     return items
 
 

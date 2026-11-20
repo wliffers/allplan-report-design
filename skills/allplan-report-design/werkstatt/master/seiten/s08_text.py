@@ -8,8 +8,7 @@ from bausteine import (ROHBAU, WAND, RAUM, FENSTER, MIT_MATERIAL, MATGRUPPE, IST
 
 TITEL = "Text, Symbole und Flächen"
 
-SYM = "Segoe UI Symbol"
-MONO = "Consolas"
+SYM = b.SYMBOL     # Symbolschrift (Roboto hat die Zeichen nicht), auch fuer die Blockzeichen der Balken
 RAHMEN_HELL = "<Border><Color>%s</Color><Style>Solid</Style><Width>0.75pt</Width></Border>" % c.HAIR
 
 
@@ -85,22 +84,22 @@ def etikett_x(name, top, left, w, kennung, ausdruck, katalog):
 # ---------------------------------------------------------------- X010 Typo-Skala
 def typo_skala(x0, top, w):
     stufen = [
-        ("Titel", "30 pt  ·  Light", 1.2,
-         c.para([c.run("Bauteile", 30, c.INK, c.F_LIGHT)])),
-        ("Zahl", "22 pt  ·  Light", 0.92,
-         c.para([c.run("=" + zf(BETON_VOL), 22, c.INK, c.F_LIGHT), c.run(" m³", 10, c.MUTED)])),
-        ("Abschnitt", "13 pt  ·  Semibold", 0.75,
+        ("Titel", "30 pt  ·  Regular", 1.2,
+         c.para([c.run("Bauteile", 30, c.INK, c.F)])),
+        ("Zahl", "22 pt  ·  Black", 0.92,
+         c.para([c.run("=" + zf(BETON_VOL), 22, c.INK, c.F_ZAHL), c.run(" m³", 10, c.MUTED)])),
+        ("Abschnitt", "13 pt  ·  Medium", 0.75,
          c.para([c.run("Wandaufbau", 13, c.INK, c.F_SEMI)])),
         ("Wert", "9,5 pt  ·  Regular", 0.6,
          c.para([c.run("=" + zi(anzahl(WAND)), 9.5, c.INK, c.F_SEMI),
                  c.run(" Schichten · ", 9.5, c.TEXT),
                  c.run("=" + zf(summe("Flaeche", WAND)), 9.5, c.TEXT), c.run(" m²", 8, c.FAINT)])),
-        ("Beschriftung", "7 pt  ·  Semibold", 0.52,
+        ("Beschriftung", "7 pt  ·  Medium", 0.52,
          c.para([c.run("WANDFLÄCHE  ·  FENSTER", 7, c.MUTED, c.F_SEMI)])),
-        ("Etikett", "6,5 pt  ·  Semibold", 0.48,
+        ("Etikett", "6,5 pt  ·  Medium", 0.48,
          c.para([c.run("D090  ", 6.5, c.BLUE, c.F_SEMI), c.run("Ring mit Zahl", 6.5, c.FAINT)])),
     ]
-    c_name, c_spec = 1.95, 2.05
+    c_name, c_spec = 2.0, 2.05
     sx = x0 + c_name + c_spec
     sw = w - c_name - c_spec
     xml = ""
@@ -109,21 +108,21 @@ def typo_skala(x0, top, w):
         n = "S8_T%d" % i
         luft = round(max(0.0, (GROESSE[i] - 7) * 0.26), 1)     # Unterlaenge der Beispielschrift ausgleichen
         xml += c.text(n + "n", y, x0, c_name, h, c.run(name.upper(), 7, c.TEXT, c.F_SEMI), valign="Bottom", pad=(0, 0, 0, luft))
-        xml += c.text(n + "s", y, x0 + c_name, c_spec, h, c.run(spec, 6.5, c.FAINT), valign="Bottom", pad=(0, 0, 0, luft))
+        xml += c.text(n + "s", y, x0 + c_name, c_spec, h, c.run(spec, 7, c.FAINT), valign="Bottom", pad=(0, 0, 0, luft))
         xml += c.text(n + "p", y, sx, sw, h, sample, valign="Bottom", pad=(0, 0, 0, 0))
         y += h
         xml += c.line(n + "l", y, x0, w)
     # drei Schnitte
     y += 0.25
     cw = w / 3
-    for i, (fam, name) in enumerate([(c.F_LIGHT, "Light"), (c.F, "Regular"), (c.F_SEMI, "Semibold")]):
+    for i, (fam, name) in enumerate([(c.F, "Regular"), (c.F_SEMI, "Medium"), (c.F_ZAHL, "Black")]):
         xml += c.text("S8_Sch%d" % i, y, x0 + i * cw, 0.8, 0.85,
                       [c.para([c.run("Aa", 17, c.INK, fam)]),
                        ],
                       valign="Bottom")
         xml += c.text("S8_SchN%d" % i, y, x0 + i * cw + 0.85, cw - 0.9, 0.85,
                       [c.para([c.run(name.upper(), 7, c.TEXT, c.F_SEMI)]),
-                       c.para([c.run(fam, 6.5, c.FAINT)])], valign="Bottom", pad=(0, 0, 0, 4))
+                       c.para([c.run(fam, 7, c.FAINT)])], valign="Bottom", pad=(0, 0, 0, 4))
     return xml, y + 0.85
 
 
@@ -134,7 +133,7 @@ def fliesstext(x0, top, w):
     Materialgruppe, Halbsaetze entfallen, wenn die Art im Projekt fehlt."""
     xml = ""
     # senkrechte Randmarke (Rotate270) mit Haarlinie
-    xml += c.text("S8_Rand", top, x0, 0.42, 2.75, c.run("BERICHT IN WORTEN", 6.5, c.BLUE, c.F_SEMI),
+    xml += c.text("S8_Rand", top, x0, 0.42, 2.75, c.run("BERICHT IN WORTEN", 7, c.MUTED, c.F_SEMI),
                   valign="Middle", rotate="Rotate270", align="Left")
     xml += c.line("S8_RandL", top, x0 + 0.5, 0, c.HAIR, "0.75pt", h=2.75)
     n_raum, n_fenster = anzahl(RAUM), anzahl(FENSTER)
@@ -172,7 +171,7 @@ def fliesstext(x0, top, w):
     para_html = ("<Paragraph><TextRuns><TextRun><Value>%s</Value><MarkupType>HTML</MarkupType>%s</TextRun></TextRuns>"
                  "<Style/></Paragraph>" % (c.esc(html), stil))
     xml += c.text("S8_Html", hy, x0 + 0.8, w - 0.8, 1.55, [para_html], valign="Top")
-    xml += c.text("S8_HtmlK", hy, x0, 0.42, 1.55, c.run("HTML", 6.5, c.BLUE, c.F_SEMI),
+    xml += c.text("S8_HtmlK", hy, x0, 0.42, 1.55, c.run("HTML", 7, c.MUTED, c.F_SEMI),
                   valign="Middle", rotate="Rotate270", align="Left")
     xml += c.line("S8_HtmlL", hy, x0 + 0.5, 0, c.HAIR, "0.75pt", h=1.55)
     return xml, hy + 1.55
@@ -186,7 +185,7 @@ def palette(x0, top, w):
     chip_h = 0.46
 
     reihen = [
-        [("MARKE", [("Nachtblau", c.NAVY), ("Leitfarbe", c.BLUE), ("Himmel", c.SKY), ("Akzent", c.ORANGE)]),
+        [("MARKE", [("Nachtblau", c.NAVY), ("Leitfarbe", c.BLUE), ("Auf Dunkel", c.AUF_NAVY), ("Akzent", c.AKZENT)]),
          ("NEUTRAL", [("Tinte", c.INK), ("Text", c.TEXT), ("Gedämpft", c.MUTED), ("Blass", c.FAINT),
                       ("Haarlinie", c.HAIR), ("Fläche", c.SURFACE)]),
          ("BEWERTUNG", [("Gut", c.GREEN), ("Achtung", c.AMBER), ("Schlecht", c.RED)])],
@@ -202,13 +201,13 @@ def palette(x0, top, w):
             gw = len(chips) * pitch - 0.1
             n = "S8_P%d_%d" % (r, g)
             xml += c.line(n + "l", y, gx, gw, c.INK, "0.75pt")
-            xml += c.text(n + "t", y + 0.07, gx, gw, 0.32, c.run(titel, 6.5, c.MUTED, c.F_SEMI))
+            xml += c.text(n + "t", y + 0.07, gx, gw, 0.32, c.run(titel, 7, c.MUTED, c.F_SEMI))
             for k, (name, farbe) in enumerate(chips):
                 cx = x0 + (i + k) * pitch
                 m = "%s_%d" % (n, k)
                 xml += c.rect(m, y + 0.42, cx, chip_w, chip_h, "", bg=farbe, border_xml=RAHMEN_HELL if hell(farbe) else "")
                 xml += c.text(m + "n", y + 0.42 + chip_h + 0.06, cx, pitch, 0.3, c.run(name, 7, c.INK, c.F_SEMI))
-                xml += c.text(m + "h", y + 0.42 + chip_h + 0.41, cx, pitch, 0.25, c.run(farbe.upper(), 6.5, c.FAINT))
+                xml += c.text(m + "h", y + 0.42 + chip_h + 0.41, cx, pitch, 0.25, c.run(farbe.upper(), 7, c.FAINT))
             i += len(chips)
         y += 0.42 + chip_h + 0.6 + 0.22
     return xml, y - 0.22
@@ -218,14 +217,14 @@ def palette(x0, top, w):
 def zeichen(x0, top, w):
     gw = 8.8
     zeilen = [
-        ("✓", c.GREEN, "Anforderung erfüllt"),
-        ("✕", c.RED, "Anforderung verfehlt"),
-        ("▲", c.GREEN, "Wert über Soll, steigend"),
-        ("▼", c.RED, "Wert unter Soll, fallend"),
-        ("●", c.AMBER, "Achtung, bitte prüfen"),
+        ("✓", c.GREEN_TEXT, "Anforderung erfüllt"),
+        ("✕", c.RED_TEXT, "Anforderung verfehlt"),
+        ("▲", c.GREEN_TEXT, "Wert über Soll, steigend"),
+        ("▼", c.RED_TEXT, "Wert unter Soll, fallend"),
+        ("●", c.AMBER_TEXT, "Achtung, bitte prüfen"),
         ("○", c.MUTED, "nicht bewertet"),
         ("■", c.BLUE, "Legendenschlüssel"),
-        ("★", c.AMBER, "Spitzenwert, Rang 1"),
+        ("★", c.AMBER_TEXT, "Spitzenwert, Rang 1"),
         ("→", c.BLUE, "Verweis, Übergang"),
     ]
     rh = 0.4
@@ -264,7 +263,7 @@ def anwendung(x0, top, w):
         ("kopf", 0.5, [h("S8_AH1", ""), h("S8_AH2", "SCHICHT"), h("S8_AH3", "DICKE", "Right"), h("S8_AH4", "ANZAHL", "Right"),
                        h("S8_AH5", "BEFUND")]),
         ("daten", 0.4, [
-            c.cell("S8_AD1", c.run('=IIf(%s, "✓", "○")' % ok, 9.5, '=IIf(%s, "%s", "%s")' % (ok, c.GREEN, c.FAINT), SYM),
+            c.cell("S8_AD1", c.run('=IIf(%s, "✓", "○")' % ok, 9.5, '=IIf(%s, "%s", "%s")' % (ok, c.GREEN_TEXT, c.MUTED), SYM),
                    "Center", border_xml=rowb, pad=(0, 0, 0, 0)),
             c.cell("S8_AD2", c.run("=" + kurz("Code.MatArt(First(Fields!Material.Value))", 14), 8.5, c.INK, c.F_SEMI),
                    border_xml=rowb, pad=(4, 0, 2, 0)),
@@ -272,7 +271,7 @@ def anwendung(x0, top, w):
                    border_xml=rowb, pad=(4, 0, 4, 0)),
             c.cell("S8_AD4", c.para([c.run("=" + zi("CountRows()"), 8.5, c.TEXT), c.run(" ×", 7, c.FAINT)]), "Right",
                    border_xml=rowb, pad=(4, 0, 4, 0)),
-            c.cell("S8_AD5", c.run('=IIf(%s, "tragfähig", "schlank")' % ok, 8.5, '=IIf(%s, "%s", "%s")' % (ok, c.GREEN, c.MUTED)),
+            c.cell("S8_AD5", c.run('=IIf(%s, "tragfähig", "schlank")' % ok, 8.5, '=IIf(%s, "%s", "%s")' % (ok, c.GREEN_TEXT, c.MUTED)),
                    border_xml=rowb, pad=(8, 0, 0, 0)),
         ]),
     ]
@@ -287,7 +286,7 @@ def anwendung(x0, top, w):
     ky = top + 0.5 + N_ANW * 0.4 + 0.25
     gut = "Sum(IIf(%s And Round(CDbl(Fields!Dicke.Value) * 100, 1) >= 17.5, 1, 0))" % WAND
     xml += c.text("S8_AnwZ", ky, x0, w, 0.9,
-                  c.para([c.run("=" + gut, 22, c.INK, c.F_LIGHT, fmt="#,##0"),
+                  c.para([c.run("=" + gut, 22, c.INK, c.F_ZAHL, fmt="#,##0"),
                           c.run(" von ", 10, c.MUTED), c.run("=" + anzahl(WAND), 10, c.MUTED, fmt="#,##0"),
                           c.run(" Wandschichten ab 17,5 cm", 10, c.MUTED)]), valign="Bottom")
     return xml, ky + 0.9
@@ -298,14 +297,14 @@ def rangliste(x0, top, w, rh=0.38):
     """Die N_RANG groessten Nutzungen (je Funktion die Summe der Raumflaechen); der Balken misst gegen die groesste."""
     summe_n = FLAECHE_N
     mx = 'Max(Sum(IIf(%s, CDbl(Fields!Flaeche.Value), 0.0), "S8_TbRang_G"), "S8_TbRang")' % RAUM
-    nmax = 29
+    nmax = 14
     n = "CInt(%d * %s)" % (nmax, quote(summe_n, mx))
     rowb = c.edge(["Bottom"], c.HAIR, "0.5pt")
     rows = [("daten", rh, [
         c.cell("S8_RD1", c.run("=" + rang_nr("S8_TbRang"), 7, c.FAINT, c.F_SEMI, fmt="00"), border_xml=rowb, pad=(0, 0, 0, 0)),
         c.cell("S8_RD2", c.run("=" + kurz("First(" + NUTZUNG + ")", 17), 8, c.INK, c.F_SEMI), border_xml=rowb, pad=(2, 0, 2, 0)),
-        c.cell("S8_RD3", c.para([c.run('=StrDup(%s, "█")' % n, 6.5, c.BLUE, MONO),
-                                 c.run('=StrDup(%d - %s, "█")' % (nmax, n), 6.5, c.HAIR, MONO)]),
+        c.cell("S8_RD3", c.para([c.run('=StrDup(%s, "█")' % n, 7, c.BLUE, SYM),
+                                 c.run('=StrDup(%d - %s, "█")' % (nmax, n), 7, c.HAIR, SYM)]),
                border_xml=rowb, pad=(0, 0, 0, 0)),
         c.cell("S8_RD4", c.para([c.run("=" + zf(summe_n), 8.5, c.INK, c.F_SEMI), c.run(" m²", 7, c.FAINT)]), "Right",
                border_xml=rowb, pad=(0, 0, 0, 0)),
@@ -332,10 +331,10 @@ def kacheln(x0, top, w, rh=1.14):
         t = "Math.Sqrt(%s / IIf(%s = 0, 1.0, %s))" % (FLAECHE_N, mx, mx)
         farbe = '="#" & ' + " & ".join('Right("0" & Hex(CInt(%d + (%d) * %s)), 2)' % (a[i], b[i] - a[i], t) for i in range(3))
         schrift = '=IIf(%s > 0.8, "%s", "%s")' % (t, c.WHITE, c.INK)
-        schrift2 = '=IIf(%s > 0.8, "%s", "%s")' % (t, c.SKY, c.MUTED)
+        schrift2 = '=IIf(%s > 0.8, "%s", "%s")' % (t, c.WHITE, c.MUTED)
         inhalt = c.cell("S8_KH%d" % k, [
             c.para([c.run("=" + kurz("First(" + NUTZUNG + ")", 16), 7.5, schrift, c.F_SEMI)]),
-            c.para([c.run("=" + zf(FLAECHE_N), 13, schrift, c.F_LIGHT), c.run(" m²", 8, schrift2)]),
+            c.para([c.run("=" + zf(FLAECHE_N), 13, schrift, c.F_ZAHL), c.run(" m²", 8, schrift2)]),
         ], valign="Middle", pad=(9, 2, 4, 2), border_xml=weiss, bg_expr=farbe)
         gruppe = ("<Group Name=\"%s_G\"><GroupExpressions><GroupExpression>=%s</GroupExpression></GroupExpressions>%s</Group>"
                   % (tb, c.esc(NUTZUNG), c.topn(RANG, N_RANG)))
@@ -368,7 +367,7 @@ H_R4 = KOPF + 3 * 1.14           # X050/X060
 def x010(top, left, w):
     xml = overline("S8_X01", top, left, w, "Schrift", "Schriftstufen des Reports")
     inhalt, _ = typo_skala(left, top + KOPF, w)
-    return xml + inhalt + etikett("S8_E01", top + H_R1 + 0.1, left, w, "X010", "Typo-Skala, drei Schnitte der Segoe UI")
+    return xml + inhalt + etikett("S8_E01", top + H_R1 + 0.1, left, w, "X010", "Typo-Skala, drei Gewichte der Hausschrift")
 
 
 @b.baustein("X020", "Bericht in Worten")
@@ -407,9 +406,9 @@ def x050(top, left, w):
     xml = overline("S8_X05", top, left, w, "Rangfolge", "Nutzungen nach Fläche")
     inhalt, _ = rangliste(left, top + KOPF, w)
     return xml + inhalt + etikett_x("S8_E05", top + H_R4 + 0.1, left, w, "X050",
-                                    '"Balken aus Zeichen (StrDup, Consolas)" & IIf(%s > %d, " · die %d größten von " & %s & " Nutzungen", "")'
+                                    '"Balken aus Zeichen (StrDup, Symbolschrift)" & IIf(%s > %d, " · die %d größten von " & %s & " Nutzungen", "")'
                                     % (N_NUTZUNGEN, N_RANG, N_RANG, N_NUTZUNGEN),
-                                    "Balken aus Zeichen (StrDup, Consolas), die größten Nutzungen")
+                                    "Balken aus Zeichen (StrDup, Symbolschrift), die größten Nutzungen")
 
 
 @b.baustein("X060", "Farbskala-Kacheln")

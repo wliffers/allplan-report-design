@@ -10,7 +10,7 @@
  " Türen": " doors",
  "T030  ": "=",
  "Türen je Typ und Breite (Deckel 9); Symbol und Farbe nach Schwelle": "Doors per type and width (cap 9); symbol and color by threshold",
- "Schwelle frei gewählt: ab 0,90 m barrierefrei, ab 0,80 m knapp (Modellmaß).": "Threshold chosen freely: from 0.90 m accessible, from 0.80 m close (model size).",
+ "Schwelle frei gewählt: ab 0,90 m barrierefrei, ab 0,80 m knapp (Modellmaß).": "Threshold set freely: 0.90 m+ accessible, 0.80 m+ close (model size).",
  "KREUZTABELLE": "CROSS TABLE",
  "Volumen nach Bauteilart und Materialgruppe": "Volume by component type and material group",
  "m³ · weniger  ": "m³ · less  ",
