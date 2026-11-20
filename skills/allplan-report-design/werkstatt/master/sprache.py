@@ -45,6 +45,8 @@ AUSGELASSEN = ("DataSets", "DataSources", "EmbeddedImages")       # Abfrage, Ver
 BLATT = re.compile(r"<([A-Za-z:]+)>([^<]+)</\1>")
 LITERAL = re.compile(r'"((?:[^"]|"")*)"')
 BUCHSTABE = re.compile(r"[A-Za-zÄÖÜäöüß]")
+FARBE = re.compile(r"#[0-9A-Fa-f]{6}(?![0-9A-Fa-f])")
+SCHRIFTLISTE = re.compile(r"Dim (?:soll|ersatz)\(\) As String = \{([^}]*)\}")     # design.schrift_zur_laufzeit
 # Zeichenketten, die technisch sind und nie uebersetzt werden (Formate, Stilwerte, Schriften)
 TECHNISCH = re.compile(r"^(#[0-9A-Fa-f]{6,8}|[NFPCDEG]\d?|\d+(\.\d+)?(pt|cm|mm|in)|Segoe UI( Light| Semibold| Symbol)?|"
                        r"Bold|Normal|Italic|Solid|None|Transparent|True|False|Left|Right|Center|Top|Middle|Bottom|Default|"
@@ -68,6 +70,22 @@ def _bleibt(text, im_code=False):
     if not BUCHSTABE.search(text) or TECHNISCH.match(text.strip()):
         return True
     return im_code and text == text.lower()          # im VB-Code: Wortstaemme zum Erkennen von Modelldaten
+
+
+def _mit_farben(de, woerter):
+    """Uebersetzung fuer einen Text, der einen Farbwert des Designs traegt (<font color='#...'>): die Tabelle kennt ihn mit den
+    Farben des Hausdesigns. Verglichen wird ohne die Farbwerte; die Uebersetzung bekommt die Farben des Reports zurueck."""
+    farben = FARBE.findall(de)
+    if not farben:
+        return None
+    muster = FARBE.sub("#", de)
+    for schluessel, en in woerter.items():
+        if "#" in schluessel and FARBE.sub("#", schluessel) == muster:
+            if en in (None, "="):
+                return en
+            rest = list(farben)
+            return FARBE.sub(lambda m: rest.pop(0) if rest else m.group(0), en)
+    return None
 
 
 def _ist_bereich(ausdruck, treffer, namen):
@@ -164,14 +182,20 @@ def tabelle():
 def uebersetzen(xml, woerter):
     """Liefert (englisches XML, Liste der fehlenden Texte)."""
     namen, fehlend, teile = _namen(xml), [], []
+    # Schriftnamen des Designs (Hausschrift oder die des Kunden) stehen in der Funktion Schrift und bleiben, wie sie sind
+    schriften = set()
+    for liste in SCHRIFTLISTE.findall(html.unescape(xml)):
+        schriften.update(name.replace('""', '"') for name in LITERAL.findall(liste))
 
     def englisch(de, im_code=False):
-        if _bleibt(de, im_code):
+        if _bleibt(de, im_code) or de in schriften:
             return de
         kopf, nummer = _ohne_seite(de, woerter)
         if nummer is not None:
             return "%s - page %s" % (englisch(kopf, im_code), nummer)
         en = woerter.get(de)
+        if en is None:
+            en = _mit_farben(de, woerter)
         if en is None:
             fehlend.append(de)
             return de

@@ -1,16 +1,16 @@
-# Allplan Report Design
+<h1 align="center"><img src="docs/images/kopf-en.png" width="100%" alt="Allplan Report Design"></h1>
 
 *[Deutsch](README.md) · English*
 
 **A guide that lets your AI design Allplan reports with charts, key figures and part images – plus ready-made templates you can use without any AI.**
 
 <p align="center">
-<img src="https://img.shields.io/badge/Allplan-2027-blue" alt="Allplan 2027">
-<img src="https://img.shields.io/badge/Language-Deutsch_%C2%B7_English-lightgrey" alt="German and English">
-<img src="https://img.shields.io/badge/AI-Claude_%C2%B7_ChatGPT%2FCodex_%C2%B7_GitHub_Copilot-informational" alt="Claude, ChatGPT/Codex, GitHub Copilot">
-<img src="https://img.shields.io/badge/Project-private%2C_no_warranty-orange" alt="Private project, no warranty">
-<img src="https://img.shields.io/badge/License-MIT-green" alt="License MIT">
-<a href="https://www.linkedin.com/in/willi-liffers-71660b319/"><img src="https://img.shields.io/badge/LinkedIn_%C2%B7_W._Liffers-0A66C2" alt="LinkedIn · W. Liffers"></a>
+<img src="https://img.shields.io/badge/Allplan-2027-0F54AC?style=flat-square&amp;labelColor=062246" alt="Allplan 2027">
+<img src="https://img.shields.io/badge/Language-Deutsch_%C2%B7_English-0F54AC?style=flat-square&amp;labelColor=062246" alt="German and English">
+<img src="https://img.shields.io/badge/AI-Claude_%C2%B7_ChatGPT%2FCodex_%C2%B7_GitHub_Copilot-0F54AC?style=flat-square&amp;labelColor=062246" alt="Claude, ChatGPT/Codex, GitHub Copilot">
+<img src="https://img.shields.io/badge/Project-private%2C_no_warranty-A26807?style=flat-square&amp;labelColor=062246" alt="Private project, no warranty">
+<img src="https://img.shields.io/badge/License-MIT-0F54AC?style=flat-square&amp;labelColor=062246" alt="License MIT">
+<a href="https://www.linkedin.com/in/willi-liffers-71660b319/"><img src="https://img.shields.io/badge/LinkedIn-W._Liffers-0F54AC?style=flat-square&amp;labelColor=062246" alt="LinkedIn · W. Liffers"></a>
 </p>
 
 <p align="center"><img src="docs/images/master-seiten.gif" width="720" alt="The ten pages of the master report, one after the other"></p>
@@ -142,6 +142,10 @@ With Claude Code the skill folder is `.claude\skills\allplan-report-design`, wit
 ## Design
 
 The reports come with a **house design** as the default: dark navy blue for surfaces and text, a strong blue for bars and links, turquoise as a marker, and the font Roboto. It applies as long as you do not ask for something else.
+
+<p align="center"><img src="docs/images/design-en.png" width="720" alt="Color chart of the house design with eight colors and the font Roboto; below it page 1 of the master report in the house design and in a made-up example design in green and yellow"></p>
+
+The lower part of the image shows the same report twice: on the left in the house design, on the right in a made-up example design with different colors and a different font. Both pages are a **preview with sample data, not from Allplan.**
 
 The AI asks you about it **once**, before the first report is built: style, colors, font. It recommends the house design. Without this decision no script builds a report; this is on purpose, so the design is never forgotten. Your own design in three steps:
 

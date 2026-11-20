@@ -9,6 +9,8 @@ Neues Hausdesign und Design-Abfrage. / New house design and design question.
 - Das Hausdesign wird nur mit der Antwort des Anwenders festgelegt (`design.py --haus --antwort "…"`); eine unlesbare oder ungültige `design.json` zählt als offen. Ein Kundendesign wird geprüft: Kontraste, sichtbare Bewertungsfarben, Schriftrollen.
 - Die Vorschau läuft mit vollen Rechten wie in Allplan, damit sie dieselbe Schrift zeigt wie der Report in Allplan.
 - Tests bauen nur noch in einen Zwischenordner und überschreiben keinen Report in `out/`.
+- README im Hausdesign: Kopfbild, Abzeichen in den Hausfarben, im Abschnitt „Design“ die Farbtafel und derselbe Report in zwei Designs (Vorschau mit Beispieldaten, nicht aus Allplan).
+- Behoben: Mit einem eigenen Design ließ der Sprachschalter die englische Fassung aus („Texte ohne Übersetzung“). Er lässt die Schriftnamen des Designs jetzt stehen und findet Texte mit eingebauter Farbe auch in anderen Farben.
 
 ## 1.0.0 – 2026-11-19
 

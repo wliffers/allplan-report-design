@@ -799,3 +799,14 @@ def test_laufzeit_ersatz_gilt_wenn_die_schriftliste_nicht_lesbar_ist(werkstatt):
     code = vb_code(design.schrift_zur_laufzeit(report_xml("Roboto"), haus_design(werkstatt), esc_xml))
     assert "Catch" in code and 'namen = ""' in code                       # Lesefehler -> leere Liste
     assert 'Dim alle As Boolean = (namen <> "")' in code                  # leere Liste -> nie "alle da"
+
+
+def test_englische_fassung_laesst_die_schrift_des_kunden_stehen(werkstatt):
+    """Der Sprachschalter darf einen Schriftnamen des Kundendesigns nicht als 'Text ohne Uebersetzung' melden."""
+    import sprache
+    roh = kunde()
+    roh["schrift"] = {"normal": "Hausschrift Buero", "halbfett": "Hausschrift Buero Fett", "zahl": "Hausschrift Buero Fett"}
+    xml = design.schrift_zur_laufzeit(report_xml("Hausschrift Buero"), design.Design("kunde", roh), esc_xml)
+    englisch, fehlend = sprache.uebersetzen(xml, {})
+    assert not [f for f in fehlend if "Hausschrift" in f or "Segoe" in f]
+    assert '"Hausschrift Buero", ' in vb_code(englisch) and '"Hausschrift Buero Fett"' in vb_code(englisch)

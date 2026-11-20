@@ -69,3 +69,17 @@ def test_feste_leermeldung_wird_uebersetzt():
     englisch, fehlend = sprache.uebersetzen(xml, {"Keine Wand im Modell": "No wall in the model"})
     assert fehlend == []
     assert "<NoRowsMessage>No wall in the model</NoRowsMessage>" in englisch
+
+
+# ---------------------------------------------------------------- Farbwert des Designs im Text
+def test_text_mit_farbe_des_kundendesigns_findet_den_eintrag_des_hausdesigns():
+    tabelle = {"Größte Gruppe: <font color='#0F54AC'><b>": "Largest group: <font color='#0F54AC'><b>"}
+    xml = "<Report><Value>=\"Größte Gruppe: &lt;font color='#2E7D32'&gt;&lt;b&gt;\" &amp; Fields!a.Value</Value></Report>"
+    englisch, fehlend = sprache.uebersetzen(xml, tabelle)
+    assert fehlend == []
+    assert "Largest group: &lt;font color='#2E7D32'&gt;" in englisch and "#0F54AC" not in englisch
+
+
+def test_text_mit_farbe_ohne_passenden_eintrag_bleibt_gemeldet():
+    xml = "<Report><Value>=\"Kleinste Gruppe: &lt;font color='#2E7D32'&gt;\"</Value></Report>"
+    assert sprache.uebersetzen(xml, {"Größte Gruppe: <font color='#0F54AC'>": "x"})[1] == ["Kleinste Gruppe: <font color='#2E7D32'>"]

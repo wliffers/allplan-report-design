@@ -1,16 +1,16 @@
-# Allplan Report Design
+<h1 align="center"><img src="docs/images/kopf-de.png" width="100%" alt="Allplan Report Design"></h1>
 
 *Deutsch · [English](README.en.md)*
 
 **Eine Anleitung für deine KI, Allplan-Reports mit Diagrammen, Kennzahlen und Bauteilbildern zu gestalten – und fertige Vorlagen, die du ohne KI benutzen kannst.**
 
 <p align="center">
-<img src="https://img.shields.io/badge/Allplan-2027-blue" alt="Allplan 2027">
-<img src="https://img.shields.io/badge/Sprache-Deutsch_%C2%B7_English-lightgrey" alt="Deutsch und Englisch">
-<img src="https://img.shields.io/badge/KI-Claude_%C2%B7_ChatGPT%2FCodex_%C2%B7_GitHub_Copilot-informational" alt="Claude, ChatGPT/Codex, GitHub Copilot">
-<img src="https://img.shields.io/badge/Projekt-privat%2C_ohne_Gew%C3%A4hr-orange" alt="Privates Projekt, ohne Gewähr">
-<img src="https://img.shields.io/badge/Lizenz-MIT-green" alt="Lizenz MIT">
-<a href="https://www.linkedin.com/in/willi-liffers-71660b319/"><img src="https://img.shields.io/badge/LinkedIn_%C2%B7_W._Liffers-0A66C2" alt="LinkedIn · W. Liffers"></a>
+<img src="https://img.shields.io/badge/Allplan-2027-0F54AC?style=flat-square&amp;labelColor=062246" alt="Allplan 2027">
+<img src="https://img.shields.io/badge/Sprache-Deutsch_%C2%B7_English-0F54AC?style=flat-square&amp;labelColor=062246" alt="Deutsch und Englisch">
+<img src="https://img.shields.io/badge/KI-Claude_%C2%B7_ChatGPT%2FCodex_%C2%B7_GitHub_Copilot-0F54AC?style=flat-square&amp;labelColor=062246" alt="Claude, ChatGPT/Codex, GitHub Copilot">
+<img src="https://img.shields.io/badge/Projekt-privat%2C_ohne_Gew%C3%A4hr-A26807?style=flat-square&amp;labelColor=062246" alt="Privates Projekt, ohne Gewähr">
+<img src="https://img.shields.io/badge/Lizenz-MIT-0F54AC?style=flat-square&amp;labelColor=062246" alt="Lizenz MIT">
+<a href="https://www.linkedin.com/in/willi-liffers-71660b319/"><img src="https://img.shields.io/badge/LinkedIn-W._Liffers-0F54AC?style=flat-square&amp;labelColor=062246" alt="LinkedIn · W. Liffers"></a>
 </p>
 
 <p align="center"><img src="docs/images/master-seiten.gif" width="720" alt="Die zehn Seiten des Master-Reports nacheinander"></p>
@@ -142,6 +142,10 @@ In `master\core.py` steht `VERFASSER = "W. Liffers"`. Ändere das vor deinem ers
 ## Design
 
 Die Reports haben ein **Hausdesign** als Vorgabe: dunkles Marineblau für Flächen und Text, ein kräftiges Blau für Balken und Links, Türkis als Markierung, dazu die Schrift Roboto. Es gilt, solange du nichts anderes vorgibst.
+
+<p align="center"><img src="docs/images/design-de.png" width="720" alt="Farbtafel des Hausdesigns mit acht Farben und der Schrift Roboto; darunter Seite 1 des Master-Reports im Hausdesign und in einem erfundenen Beispiel-Design in Grün und Gelb"></p>
+
+Das Bild zeigt unten denselben Report zweimal: links im Hausdesign, rechts in einem erfundenen Beispiel-Design mit anderen Farben und anderer Schrift. Beide Seiten sind **Vorschau mit Beispieldaten, nicht aus Allplan.**
 
 Die KI fragt dich **einmal** danach, bevor der erste Report entsteht: Stil, Farben, Schrift. Sie empfiehlt dabei das Hausdesign. Ohne diese Klärung baut kein Skript einen Report; das ist Absicht, damit das Design nie vergessen wird. Dein eigenes Design in drei Schritten:
 
